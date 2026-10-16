@@ -1,0 +1,24 @@
+{
+  "target": {"key": "rozeh-booking-svc", "displayName": "Rozeh Booking service", "baseUrl": "${ROZEH_BOOKING_URL}", "maxRequestBytes": 65536},
+  "route": {"key": "rozeh", "applicationKey": "haramyar", "moduleKey": "rozeh-booking", "pathPrefix": "/rozeh", "targetKey": "rozeh-booking-svc", "authentication": "FORWARD_TOKEN"},
+  "operations": [
+    {"key": "catalog", "method": "GET", "pathPattern": "/public/catalog", "access": "PUBLIC"},
+    {"key": "submit", "method": "POST", "pathPattern": "/my/bookings", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.requests", "action": "create"},
+    {"key": "list-mine", "method": "GET", "pathPattern": "/my/bookings", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.requests", "action": "view"},
+    {"key": "get-mine", "method": "GET", "pathPattern": "/my/bookings/{bookingId}", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.requests", "action": "view"},
+    {"key": "confirm-mine", "method": "POST", "pathPattern": "/my/bookings/{bookingId}/confirm", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.requests", "action": "confirm"},
+    {"key": "cancel-mine", "method": "POST", "pathPattern": "/my/bookings/{bookingId}/cancel", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.requests", "action": "cancel"},
+    {"key": "coordination-list", "method": "GET", "pathPattern": "/coordination/bookings", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "view"},
+    {"key": "coordination-get", "method": "GET", "pathPattern": "/coordination/bookings/{bookingId}", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "view"},
+    {"key": "coordination-accept", "method": "POST", "pathPattern": "/coordination/bookings/{bookingId}/accept", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "decide"},
+    {"key": "coordination-reject", "method": "POST", "pathPattern": "/coordination/bookings/{bookingId}/reject", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "decide"},
+    {"key": "coordination-assign", "method": "POST", "pathPattern": "/coordination/bookings/{bookingId}/provider", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "assign"},
+    {"key": "coordination-confirm", "method": "POST", "pathPattern": "/coordination/bookings/{bookingId}/confirm", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "confirm"},
+    {"key": "coordination-cancel", "method": "POST", "pathPattern": "/coordination/bookings/{bookingId}/cancel", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "cancel"},
+    {"key": "coordination-complete", "method": "POST", "pathPattern": "/coordination/bookings/{bookingId}/complete", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.coordination", "action": "complete"},
+    {"key": "providers-list", "method": "GET", "pathPattern": "/coordination/providers", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.providers", "action": "view"},
+    {"key": "providers-register", "method": "POST", "pathPattern": "/coordination/providers", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.providers", "action": "maintain"},
+    {"key": "providers-update", "method": "PUT", "pathPattern": "/coordination/providers/{providerId}", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.providers", "action": "maintain"},
+    {"key": "providers-availability", "method": "GET", "pathPattern": "/coordination/providers/{providerId}/availability", "access": "AUTHENTICATED", "resourceKey": "rozeh-booking.providers", "action": "view"}
+  ]
+}

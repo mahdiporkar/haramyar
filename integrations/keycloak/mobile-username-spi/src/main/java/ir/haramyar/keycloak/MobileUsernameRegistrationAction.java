@@ -23,7 +23,7 @@ import org.keycloak.provider.ProviderConfigProperty;
  * other spelling of an existing number. The number is not marked verified (verification is a separate process).
  */
 public class MobileUsernameRegistrationAction implements FormAction, FormActionFactory {
-  public static final String ID = "haramyar-mobile-username-registration";
+  public static final String ID = "haramyar-mobile-registration";
   public static final String ERROR_MESSAGE = "haramyarInvalidMobile";
 
   @Override

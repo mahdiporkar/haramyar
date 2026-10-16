@@ -1,0 +1,201 @@
+{
+  "realm": "haramyar",
+  "enabled": true,
+  "displayName": "حرم‌یار",
+  "displayNameHtml": "حرم‌یار",
+  "loginTheme": "haramyar",
+  "emailTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fa", "ar", "en"],
+  "defaultLocale": "fa",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "editUsernameAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": false,
+  "verifyEmail": false,
+  "sslRequired": "external",
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "passwordPolicy": "length(10) and maxLength(128) and digits(1) and notUsername(undefined) and notEmail(undefined) and passwordHistory(3)",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "otpPolicyLookAheadWindow": 1,
+  "eventsEnabled": true,
+  "eventsExpiration": 2592000,
+  "enabledEventTypes": ["LOGIN", "LOGIN_ERROR", "REGISTER", "REGISTER_ERROR", "LOGOUT", "LOGOUT_ERROR", "UPDATE_PASSWORD", "UPDATE_TOTP", "REMOVE_TOTP", "RESET_PASSWORD", "RESET_PASSWORD_ERROR", "SEND_RESET_PASSWORD", "CODE_TO_TOKEN", "CODE_TO_TOKEN_ERROR", "REFRESH_TOKEN_ERROR"],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": false,
+  "browserSecurityHeaders": {
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xFrameOptions": "SAMEORIGIN",
+    "xContentTypeOptions": "nosniff",
+    "referrerPolicy": "no-referrer",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains",
+    "xRobotsTag": "none"
+  },
+  "smtpServer": {
+    "host": "${HARAMYAR_SMTP_HOST:mailpit}",
+    "port": "${HARAMYAR_SMTP_PORT:1025}",
+    "from": "${HARAMYAR_SMTP_FROM:no-reply@haramyar.local}",
+    "fromDisplayName": "حرم‌یار",
+    "ssl": "${HARAMYAR_SMTP_SSL:false}",
+    "starttls": "${HARAMYAR_SMTP_STARTTLS:false}",
+    "auth": "false"
+  },
+  "roles": {
+    "realm": [
+      {"name": "haramyar-customer", "description": "Self-registered HaramYar user (authentication class only; business permissions come from Hive grants)."},
+      {"name": "haramyar-staff", "description": "Provisioned staff account: strong password and mandatory TOTP. Never self-assignable; business permissions come from Hive grants."}
+    ]
+  },
+  "defaultRole": {
+    "name": "default-roles-haramyar",
+    "description": "Roles granted to every new account",
+    "composite": true,
+    "composites": {"realm": ["haramyar-customer"]}
+  },
+  "clients": [
+    {
+      "clientId": "haramyar-web",
+      "name": "HaramYar (Hive BFF)",
+      "description": "Confidential OIDC client used only by the Hive BFF (authorization code + PKCE). Browsers never receive its tokens.",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${HARAMYAR_OIDC_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": false,
+      "consentRequired": false,
+      "redirectUris": ["${HARAMYAR_PUBLIC_ORIGIN}/login/oauth2/code/primary"],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${HARAMYAR_PUBLIC_ORIGIN}/",
+        "backchannel.logout.session.required": "true",
+        "use.refresh.tokens": "true"
+      },
+      "defaultClientScopes": ["web-origins", "acr", "roles", "profile", "basic", "email"],
+      "optionalClientScopes": ["offline_access"],
+      "protocolMappers": [
+        {
+          "name": "phone number verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "phoneNumberVerified",
+            "claim.name": "phone_number_verified",
+            "jsonType.label": "boolean",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "subComponents": {},
+        "config": {
+          "kc.user.profile.config": ["{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":64},\"up-username-not-idn-homograph\":{},\"pattern\":{\"pattern\":\"^(\\\\+(989\\\\d{9}|9647\\\\d{9})|staff\\\\.[a-z0-9][a-z0-9.-]{2,40})$\",\"error-message\":\"haramyarInvalidMobile\"}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"annotations\":{\"inputType\":\"tel\",\"inputHelperTextAfter\":\"${haramyarMobileHint}\"},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":120},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"annotations\":{\"inputHelperTextAfter\":\"${haramyarOptional}\"},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":120},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"annotations\":{\"inputHelperTextAfter\":\"${haramyarOptional}\"},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"annotations\":{\"inputType\":\"email\",\"inputHelperTextAfter\":\"${haramyarEmailHint}\"},\"multivalued\":false},{\"name\":\"phoneNumberVerified\",\"displayName\":\"${haramyarPhoneVerified}\",\"validations\":{\"options\":{\"options\":[\"true\",\"false\"]}},\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"]
+        }
+      }
+    ]
+  },
+  "requiredActions": [
+    {"alias": "CONFIGURE_TOTP", "name": "Configure OTP", "providerId": "CONFIGURE_TOTP", "enabled": true, "defaultAction": false, "priority": 10, "config": {}},
+    {"alias": "UPDATE_PASSWORD", "name": "Update Password", "providerId": "UPDATE_PASSWORD", "enabled": true, "defaultAction": false, "priority": 30, "config": {}},
+    {"alias": "VERIFY_EMAIL", "name": "Verify Email", "providerId": "VERIFY_EMAIL", "enabled": true, "defaultAction": false, "priority": 50, "config": {}},
+    {"alias": "UPDATE_PROFILE", "name": "Update Profile", "providerId": "UPDATE_PROFILE", "enabled": true, "defaultAction": false, "priority": 40, "config": {}},
+    {"alias": "TERMS_AND_CONDITIONS", "name": "Terms and Conditions", "providerId": "TERMS_AND_CONDITIONS", "enabled": false, "defaultAction": false, "priority": 20, "config": {}}
+  ],
+  "browserFlow": "haramyar browser",
+  "registrationFlow": "haramyar registration",
+  "resetCredentialsFlow": "haramyar reset credentials",
+  "authenticatorConfig": [
+    {"alias": "haramyar staff role", "config": {"condUserRole": "haramyar-staff", "negate": "false"}}
+  ],
+  "authenticationFlows": [
+    {
+      "alias": "haramyar browser",
+      "description": "Mobile-number login for everyone; a second factor (TOTP) is mandatory for staff accounts.",
+      "providerId": "basic-flow", "topLevel": true, "builtIn": false,
+      "authenticationExecutions": [
+        {"authenticator": "auth-cookie", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 10, "userSetupAllowed": false},
+        {"authenticatorFlow": true, "requirement": "ALTERNATIVE", "priority": 20, "flowAlias": "haramyar browser forms", "userSetupAllowed": false}
+      ]
+    },
+    {
+      "alias": "haramyar browser forms",
+      "description": "Username (normalized mobile number) and password, then the staff second factor.",
+      "providerId": "basic-flow", "topLevel": false, "builtIn": false,
+      "authenticationExecutions": [
+        {"authenticator": "haramyar-mobile-password-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false},
+        {"authenticatorFlow": true, "requirement": "CONDITIONAL", "priority": 20, "flowAlias": "haramyar staff second factor", "userSetupAllowed": false}
+      ]
+    },
+    {
+      "alias": "haramyar staff second factor",
+      "description": "Staff must present (or enroll on first login) a TOTP authenticator.",
+      "providerId": "basic-flow", "topLevel": false, "builtIn": false,
+      "authenticationExecutions": [
+        {"authenticator": "conditional-user-role", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "authenticatorConfig": "haramyar staff role", "userSetupAllowed": false},
+        {"authenticator": "auth-otp-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false}
+      ]
+    },
+    {
+      "alias": "haramyar registration",
+      "description": "Public self-registration of customers with mobile number and password.",
+      "providerId": "basic-flow", "topLevel": true, "builtIn": false,
+      "authenticationExecutions": [
+        {"authenticator": "registration-page-form", "authenticatorFlow": true, "requirement": "REQUIRED", "priority": 10, "flowAlias": "haramyar registration form", "userSetupAllowed": false}
+      ]
+    },
+    {
+      "alias": "haramyar registration form",
+      "description": "Mobile normalization, profile, password policy and terms acceptance.",
+      "providerId": "form-flow", "topLevel": false, "builtIn": false,
+      "authenticationExecutions": [
+        {"authenticator": "haramyar-mobile-registration", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false},
+        {"authenticator": "registration-user-creation", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false},
+        {"authenticator": "registration-password-action", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 50, "userSetupAllowed": false},
+        {"authenticator": "registration-terms-and-conditions", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 60, "userSetupAllowed": false},
+        {"authenticator": "registration-recaptcha-action", "authenticatorFlow": false, "requirement": "DISABLED", "priority": 70, "userSetupAllowed": false}
+      ]
+    },
+    {
+      "alias": "haramyar reset credentials",
+      "description": "Password reset through a verified e-mail address only; never by phone number without proof of ownership.",
+      "providerId": "basic-flow", "topLevel": true, "builtIn": false,
+      "authenticationExecutions": [
+        {"authenticator": "haramyar-reset-choose-user", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false},
+        {"authenticator": "reset-credential-email", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false},
+        {"authenticator": "reset-password", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 30, "userSetupAllowed": false}
+      ]
+    }
+  ]
+}

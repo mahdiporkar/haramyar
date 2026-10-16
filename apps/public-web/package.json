@@ -2,5 +2,15 @@
   "name": "@haramyar/public-web",
   "version": "1.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "description": "Server-rendered public pages (SEO) for published martyr profiles, sitemap and robots, built from Hive PUBLIC routes.",
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node dist/server.mjs"
+  },
+  "dependencies": {
+    "@haramyar/i18n": "*",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  }
 }

@@ -1,0 +1,119 @@
+{
+  "applicationKey": "haramyar",
+  "manualResources": [
+    {
+      "key": "haramyar-app.notifications",
+      "type": "BUSINESS_RESOURCE",
+      "parentKey": "haramyar",
+      "displayName": "In-app notifications",
+      "actions": [
+        {
+          "key": "view",
+          "description": "Read"
+        },
+        {
+          "key": "acknowledge",
+          "description": "Mark own notifications as read"
+        }
+      ]
+    },
+    {
+      "key": "haramyar-app.occasions",
+      "type": "BUSINESS_RESOURCE",
+      "parentKey": "haramyar",
+      "displayName": "Occasions and themes",
+      "actions": [
+        {
+          "key": "view",
+          "description": "Read"
+        },
+        {
+          "key": "configure",
+          "description": "Create, schedule and archive occasions"
+        }
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "key": "haramyar-user",
+      "displayName": "HARAMYAR_USER",
+      "description": "Default role of every onboarded HaramYar user: own ceremony requests and notifications only.",
+      "grants": {
+        "rozeh-booking.requests": [
+          "view",
+          "create",
+          "confirm",
+          "cancel"
+        ],
+        "haramyar-app.notifications": [
+          "view",
+          "acknowledge"
+        ]
+      }
+    },
+    {
+      "key": "rozeh-coordinator",
+      "displayName": "ROZEH_COORDINATOR",
+      "description": "Reviews, accepts or rejects requests, assigns providers, confirms (when the policy allows), cancels and completes ceremonies.",
+      "grants": {
+        "rozeh-booking.coordination": [
+          "view",
+          "decide",
+          "assign",
+          "confirm",
+          "cancel",
+          "complete"
+        ],
+        "rozeh-booking.providers": [
+          "view",
+          "maintain"
+        ]
+      }
+    },
+    {
+      "key": "martyrs-editor",
+      "displayName": "MARTYRS_EDITOR",
+      "description": "Drafts and revises martyr profiles with sources, stories and media; submits them for review.",
+      "grants": {
+        "martyrs.editorial": [
+          "view",
+          "edit",
+          "submit"
+        ]
+      }
+    },
+    {
+      "key": "martyrs-reviewer",
+      "displayName": "MARTYRS_REVIEWER",
+      "description": "Reviews submitted profiles; returns them for changes, publishes and unpublishes.",
+      "grants": {
+        "martyrs.editorial": [
+          "view",
+          "review",
+          "publish"
+        ]
+      }
+    },
+    {
+      "key": "haramyar-admin",
+      "displayName": "HARAMYAR_ADMIN",
+      "description": "Business administrator: occasions and themes, read access to coordination and editorial work. Never a Hive platform role.",
+      "grants": {
+        "haramyar-app.occasions": [
+          "view",
+          "configure"
+        ],
+        "rozeh-booking.coordination": [
+          "view"
+        ],
+        "rozeh-booking.providers": [
+          "view"
+        ],
+        "martyrs.editorial": [
+          "view"
+        ]
+      }
+    }
+  ]
+}

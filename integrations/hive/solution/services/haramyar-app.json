@@ -1,0 +1,15 @@
+{
+  "target": {"key": "haramyar-app-svc", "displayName": "HaramYar application service", "baseUrl": "${SHELL_SERVICE_URL}", "maxRequestBytes": 65536},
+  "route": {"key": "haramyar", "applicationKey": "haramyar", "pathPrefix": "/haramyar", "targetKey": "haramyar-app-svc", "authentication": "FORWARD_TOKEN"},
+  "operations": [
+    {"key": "theme", "method": "GET", "pathPattern": "/public/theme", "access": "PUBLIC"},
+    {"key": "onboarding", "method": "POST", "pathPattern": "/onboarding", "access": "HYBRID"},
+    {"key": "notifications", "method": "GET", "pathPattern": "/notifications", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.notifications", "action": "view"},
+    {"key": "notification-read", "method": "POST", "pathPattern": "/notifications/{notificationId}/read", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.notifications", "action": "acknowledge"},
+    {"key": "occasions-list", "method": "GET", "pathPattern": "/admin/occasions", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.occasions", "action": "view"},
+    {"key": "occasions-create", "method": "POST", "pathPattern": "/admin/occasions", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.occasions", "action": "configure"},
+    {"key": "occasions-update", "method": "PUT", "pathPattern": "/admin/occasions/{occasionId}", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.occasions", "action": "configure"},
+    {"key": "occasions-schedule", "method": "POST", "pathPattern": "/admin/occasions/{occasionId}/schedule", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.occasions", "action": "configure"},
+    {"key": "occasions-archive", "method": "POST", "pathPattern": "/admin/occasions/{occasionId}/archive", "access": "AUTHENTICATED", "resourceKey": "haramyar-app.occasions", "action": "configure"}
+  ]
+}

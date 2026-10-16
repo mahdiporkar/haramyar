@@ -20,7 +20,7 @@ public class MobileUsernamePasswordForm extends UsernamePasswordForm {
   }
 
   public static class Factory extends UsernamePasswordFormFactory {
-    public static final String ID = "haramyar-mobile-username-password-form";
+    public static final String ID = "haramyar-mobile-password-form";
     private static final MobileUsernamePasswordForm SINGLETON = new MobileUsernamePasswordForm();
 
     @Override public String getId() { return ID; }

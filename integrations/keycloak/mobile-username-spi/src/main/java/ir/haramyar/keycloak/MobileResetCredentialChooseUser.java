@@ -10,7 +10,7 @@ import org.keycloak.authentication.authenticators.resetcred.ResetCredentialChoos
  * Phone-based recovery without proof of phone ownership is deliberately not offered.
  */
 public class MobileResetCredentialChooseUser extends ResetCredentialChooseUser {
-  public static final String ID = "haramyar-reset-credentials-choose-user";
+  public static final String ID = "haramyar-reset-choose-user";
 
   @Override
   public void action(AuthenticationFlowContext context) {

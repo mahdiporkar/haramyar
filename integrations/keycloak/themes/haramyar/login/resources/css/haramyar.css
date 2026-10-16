@@ -1,0 +1,114 @@
+/* HaramYar identity for Keycloak login, registration, password reset and staff OTP pages. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn-Variable.woff2") format("woff2-variations"), url("../fonts/Vazirmatn-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --hy-emerald: #064b3b;
+  --hy-emerald-dark: #07392f;
+  --hy-emerald-light: #e5f0eb;
+  --hy-gold: #c6a052;
+  --hy-gold-soft: #f1e8d4;
+  --hy-warm: #faf8f3;
+  --hy-ink: #202b27;
+  --hy-muted: #69736f;
+  --hy-line: #e6e5df;
+  --hy-danger: #a3453e;
+  --pf-global--FontFamily--sans-serif: "Vazirmatn", Tahoma, sans-serif;
+  --pf-global--FontFamily--heading--sans-serif: "Vazirmatn", Tahoma, sans-serif;
+  --pf-global--primary-color--100: var(--hy-emerald);
+  --pf-global--primary-color--200: var(--hy-emerald-dark);
+  --pf-global--link--Color: var(--hy-emerald);
+  --pf-global--link--Color--hover: var(--hy-emerald-dark);
+}
+
+html, body, .login-pf body, input, button, select, textarea { font-family: "Vazirmatn", Tahoma, sans-serif !important; }
+
+.login-pf body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(198, 160, 82, .18), transparent 40%),
+    linear-gradient(160deg, #031d18 0%, var(--hy-emerald-dark) 45%, #04271f 100%);
+  background-attachment: fixed;
+  color: var(--hy-ink);
+  min-height: 100vh;
+}
+.login-pf-page { padding-top: 24px; padding-bottom: 32px; }
+.login-pf-page .login-pf-page-header { margin-bottom: 16px; }
+
+#kc-header-wrapper {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 0 6px; text-transform: none; letter-spacing: 0; white-space: normal;
+}
+#kc-header-wrapper .hy-logo { width: 96px; height: 114px; object-fit: contain; filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .35)); }
+#kc-header-wrapper .hy-tagline { color: rgba(250, 248, 243, .72); font-size: 13px; font-weight: 500; }
+
+.card-pf {
+  max-width: 460px; margin: 0 auto; padding: 28px 30px 26px;
+  background: var(--hy-warm); border: 1px solid rgba(198, 160, 82, .45); border-top: 0;
+  border-radius: 28px; box-shadow: 0 26px 70px rgba(0, 0, 0, .32);
+}
+@media (max-width: 767px) {
+  .card-pf { margin: 0 12px; padding: 22px 18px; border-radius: 24px; }
+  .login-pf-page { padding-top: 8px; }
+}
+
+#kc-page-title { font-size: 22px; font-weight: 800; color: var(--hy-emerald-dark); margin: 4px 0 18px; text-align: center; }
+.login-pf-header .subtitle, .subtitle { color: var(--hy-muted); font-size: 11px; }
+
+.pf-c-form__label, label, .control-label { color: var(--hy-ink); font-weight: 600; font-size: 13px; }
+.pf-c-form-control, .form-control, input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+  height: 52px !important; border-radius: 14px !important; border: 1px solid var(--hy-line) !important; background: #fdfcf9 !important;
+  padding: 0 14px !important; font-size: 15px; box-shadow: none !important;
+}
+.pf-c-form-control:focus, .form-control:focus, input:focus {
+  border-color: var(--hy-emerald) !important; outline: none; box-shadow: 0 0 0 3px rgba(6, 75, 59, .1) !important;
+}
+.pf-c-form-control[aria-invalid="true"] { border-color: var(--hy-danger) !important; }
+.pf-c-input-group { border-radius: 14px; }
+.pf-c-input-group .pf-c-button.pf-m-control { border-radius: 14px; border-color: var(--hy-line); background: #fdfcf9; }
+.pf-c-form__helper-text, .kc-input-helper-text, .pf-c-form__helper-text-after { color: var(--hy-muted); font-size: 11px; }
+.pf-c-form__helper-text.pf-m-error, #input-error, [id^="input-error"], .kc-feedback-text { color: var(--hy-danger) !important; font-size: 12px; font-weight: 600; }
+
+.pf-c-button.pf-m-primary, .btn-primary, #kc-login, input[type="submit"] {
+  min-height: 52px; border-radius: 14px !important; background: var(--hy-emerald) !important; border: 0 !important;
+  font-weight: 700; font-size: 15px; box-shadow: 0 10px 24px rgba(6, 75, 59, .22); transition: transform .2s ease;
+}
+.pf-c-button.pf-m-primary:hover, #kc-login:hover, input[type="submit"]:hover { background: var(--hy-emerald-dark) !important; transform: translateY(-1px); }
+.pf-c-button.pf-m-secondary { border-radius: 14px; color: var(--hy-emerald); border-color: rgba(6, 75, 59, .25); }
+
+a, .pf-c-button.pf-m-link { color: var(--hy-emerald); font-weight: 600; }
+a:hover { color: var(--hy-emerald-dark); }
+#kc-registration, #kc-info { background: transparent; border-top: 1px solid var(--hy-line); margin-top: 18px; padding-top: 14px; text-align: center; }
+#kc-registration span, #kc-info-wrapper { color: var(--hy-muted); font-size: 13px; }
+#kc-form-options { font-size: 13px; }
+
+.alert-error, .pf-m-danger, .pf-c-alert.pf-m-danger { background: #f5e5e2 !important; border: 0 !important; border-radius: 14px; color: var(--hy-danger) !important; }
+.alert-success, .pf-c-alert.pf-m-success { background: var(--hy-emerald-light) !important; border: 0 !important; border-radius: 14px; color: var(--hy-emerald) !important; }
+.alert-warning, .alert-info, .pf-c-alert.pf-m-warning, .pf-c-alert.pf-m-info { background: var(--hy-gold-soft) !important; border: 0 !important; border-radius: 14px; color: #715926 !important; }
+.pf-c-alert__title { font-weight: 600; }
+
+/* Terms acceptance */
+#kc-registration-terms-text { max-height: 140px; overflow-y: auto; background: #fff; border: 1px solid var(--hy-line); border-radius: 14px; padding: 10px 14px; font-size: 12px; line-height: 1.9; color: var(--hy-muted); margin: 6px 0; }
+#termsAccepted { accent-color: var(--hy-emerald); width: 18px; height: 18px; vertical-align: middle; margin-inline-end: 6px; }
+
+/* Locale switcher */
+#kc-locale { text-align: center; margin-bottom: 8px; }
+#kc-locale-dropdown button { background: var(--hy-emerald-light); color: var(--hy-emerald); border: 0; border-radius: 12px; padding: 6px 14px; font-weight: 700; font-size: 12px; }
+#kc-locale-dropdown ul { border-radius: 14px; border: 1px solid var(--hy-line); box-shadow: 0 16px 40px rgba(7, 57, 47, .16); overflow: hidden; }
+
+/* Staff OTP enrollment and entry */
+#kc-totp-secret-qr-code { border: 1px solid var(--hy-gold); border-radius: 18px; padding: 8px; background: #fff; }
+#kc-totp-secret-key { direction: ltr; font-family: ui-monospace, monospace !important; letter-spacing: 1px; background: #fff; border: 1px dashed var(--hy-gold); border-radius: 12px; padding: 8px 12px; display: inline-block; }
+#kc-totp-settings, #kc-totp-settings li { line-height: 1.9; color: var(--hy-ink); }
+
+/* Right-to-left (Persian and Arabic) */
+html[dir="rtl"] .card-pf, html[dir="rtl"] #kc-form, html[dir="rtl"] .pf-c-form__label { text-align: right; }
+html[dir="rtl"] #kc-form-options .checkbox label input { margin-left: 6px; margin-right: 0; }
+html[dir="rtl"] .pf-c-input-group .pf-c-button.pf-m-control { border-radius: 14px; }
+html[dir="rtl"] #kc-locale ul { left: 0; right: auto; }
+input[name="username"], input[name="password"], input[name="password-confirm"], input[name="email"], input[name="otp"], input[name="totp"] { direction: ltr; text-align: left; unicode-bidi: plaintext; }
+
+.hy-footnote { text-align: center; color: rgba(250, 248, 243, .55); font-size: 11px; margin-top: 18px; }

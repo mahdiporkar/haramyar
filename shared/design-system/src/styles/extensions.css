@@ -122,3 +122,10 @@ a.btn { text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .spinner, .skeleton { animation: none; }
 }
+
+/* Links styled as menu rows (e.g. the identity provider's account page) */
+.menu-list a.menu-link { width: 100%; border-bottom: 1px solid var(--line); background: var(--white); padding: 17px; display: flex; align-items: center; gap: 14px; text-align: start; color: inherit; text-decoration: none; }
+.menu-list a.menu-link span { flex: 1; }
+.menu-list a.menu-link b, .menu-list a.menu-link small { display: block; }
+.menu-list a.menu-link small { color: var(--muted); }
+.hy[data-theme="mourning"] .menu-list a.menu-link { background: var(--theme-surface); border-color: var(--theme-line); }

@@ -2,5 +2,24 @@
   "name": "@haramyar/shell",
   "version": "1.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "description": "HaramYar super-app shell: a branded Hive host (auth, runtime context, micro-frontend runtime) with the approved Figma design.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@haramyar/design-system": "*",
+    "@haramyar/i18n": "*",
+    "@hive-platform/auth": "*",
+    "@hive-platform/authorization": "*",
+    "@hive-platform/contracts": "*",
+    "@hive-platform/core": "*",
+    "@hive-platform/http-client": "*",
+    "@hive-platform/mfe-runtime": "*",
+    "@hive-platform/workspace": "*",
+    "lottie-web": "5.13.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  }
 }

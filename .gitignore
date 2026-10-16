@@ -33,3 +33,6 @@ logs/
 # Local verification state
 .local/
 /vendor/
+/integrations/.hive-cli/
+/integrations/.modules/
+/integrations/hive/.solution/

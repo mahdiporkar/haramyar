@@ -5,7 +5,7 @@
   "type": "module",
   "description": "HaramYar super app: business solution and consumer built on Hive Platform 0.1.0-dev.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   },
   "workspaces": [
     "vendor/hive-sdk/*",
@@ -19,11 +19,12 @@
   ],
   "scripts": {
     "hive:sdk": "node tools/hive-sdk.mjs",
-    "build": "npm run build -w shared/design-system && npm run build -w modules/rozeh-booking/frontend && npm run build -w modules/martyrs/frontend && npm run build -w apps/haramyar-shell && npm run build -w apps/public-web",
+    "build": "npm run build -w modules/rozeh-booking/frontend && npm run build -w modules/martyrs/frontend && npm run build -w apps/haramyar-shell && npm run build -w apps/public-web",
     "typecheck": "tsc -p shared/i18n && tsc -p shared/design-system && tsc -p modules/rozeh-booking/frontend && tsc -p modules/martyrs/frontend && tsc -p apps/haramyar-shell && tsc -p apps/public-web",
     "test": "node --test tests/unit/*.test.mjs",
     "validate:manifests": "node tools/validate-manifests.mjs",
-    "test:e2e": "npm test -w tests/e2e"
+    "test:e2e": "npm test -w tests/e2e",
+    "images": "node tools/images.mjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.14",

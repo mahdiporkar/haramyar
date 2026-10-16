@@ -1,0 +1,7 @@
+/* The shell owns the document: Tailwind preflight applies here; micro-frontends bring their own styles in shadow roots. */
+@import "tailwindcss";
+@import "../../../shared/design-system/src/styles/base.css";
+@import "../../../shared/design-system/src/styles/system.css";
+@import "../../../shared/design-system/src/styles/extensions.css";
+@source "./";
+@source "../../../shared/design-system/src";

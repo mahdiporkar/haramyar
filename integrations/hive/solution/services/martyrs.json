@@ -1,0 +1,27 @@
+{
+  "target": {"key": "martyrs-svc", "displayName": "Martyrs service", "baseUrl": "${MARTYRS_URL}", "maxRequestBytes": 6291456, "maxResponseBytes": 6291456},
+  "route": {"key": "martyrs", "applicationKey": "haramyar", "moduleKey": "martyrs", "pathPrefix": "/martyrs", "targetKey": "martyrs-svc", "authentication": "FORWARD_TOKEN"},
+  "operations": [
+    {"key": "search", "method": "GET", "pathPattern": "/public/profiles", "access": "PUBLIC"},
+    {"key": "profile", "method": "GET", "pathPattern": "/public/profiles/{slug}", "access": "PUBLIC"},
+    {"key": "sitemap", "method": "GET", "pathPattern": "/public/sitemap", "access": "PUBLIC"},
+    {"key": "media", "method": "GET", "pathPattern": "/public/media/{mediaId}", "access": "PUBLIC"},
+    {"key": "editorial-list", "method": "GET", "pathPattern": "/editorial/profiles", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "view"},
+    {"key": "editorial-create", "method": "POST", "pathPattern": "/editorial/profiles", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "editorial-get", "method": "GET", "pathPattern": "/editorial/profiles/{profileId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "view"},
+    {"key": "editorial-revise", "method": "PUT", "pathPattern": "/editorial/profiles/{profileId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "source-add", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/sources", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "source-remove", "method": "DELETE", "pathPattern": "/editorial/profiles/{profileId}/sources/{sourceId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "story-add", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/stories", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "story-update", "method": "PUT", "pathPattern": "/editorial/profiles/{profileId}/stories/{storyId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "story-remove", "method": "DELETE", "pathPattern": "/editorial/profiles/{profileId}/stories/{storyId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "media-upload", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/media", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "media-remove", "method": "DELETE", "pathPattern": "/editorial/profiles/{profileId}/media/{mediaId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"},
+    {"key": "media-preview", "method": "GET", "pathPattern": "/editorial/media/{mediaId}", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "view"},
+    {"key": "submit", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/submit", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "submit"},
+    {"key": "request-changes", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/request-changes", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "review"},
+    {"key": "publish", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/publish", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "publish"},
+    {"key": "archive", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/archive", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "publish"},
+    {"key": "reopen", "method": "POST", "pathPattern": "/editorial/profiles/{profileId}/reopen", "access": "AUTHENTICATED", "resourceKey": "martyrs.editorial", "action": "edit"}
+  ]
+}
