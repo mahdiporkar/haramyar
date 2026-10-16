@@ -37,7 +37,7 @@ const apps={
  'object-storage':{port:8333,mem:192,volume:['/data','haramyar-objects-data'],env:{S3_ACCESS_KEY:s.S3_ACCESS_KEY,S3_SECRET_KEY:s.S3_SECRET_KEY},base:'chrislusf/seaweedfs:3.97'},
  openfga:{port:8080,mem:96,env:{OPENFGA_DATASTORE_ENGINE:'postgres',OPENFGA_DATASTORE_URI:`postgres://openfga:${s.OPENFGA_DB_PASSWORD}@${host('postgres')}:5432/openfga?sslmode=disable`,OPENFGA_PLAYGROUND_ENABLED:'false',OPENFGA_AUTHN_METHOD:'preshared',OPENFGA_AUTHN_PRESHARED_KEYS:s.OPENFGA_API_TOKEN},command:['run'],image:'openfga/openfga:v1.18.1'},
  keycloak:{port:8080,mem:512,env:{KC_DB_URL:`jdbc:postgresql://${host('postgres')}:5432/keycloak`,KC_DB_USERNAME:'keycloak',KC_DB_PASSWORD:s.KEYCLOAK_DB_PASSWORD,KC_DB_POOL_INITIAL_SIZE:'1',KC_DB_POOL_MIN_SIZE:'1',KC_DB_POOL_MAX_SIZE:'5',KC_HOSTNAME:origin,KC_HTTP_ENABLED:'true',KC_CACHE:'local',KC_PROXY_HEADERS:'xforwarded',KC_BOOTSTRAP_ADMIN_USERNAME:'haramyar-bootstrap',KC_BOOTSTRAP_ADMIN_PASSWORD:s.KEYCLOAK_ADMIN_PASSWORD,HARAMYAR_PUBLIC_ORIGIN:origin,HARAMYAR_OIDC_CLIENT_SECRET:s.HARAMYAR_OIDC_CLIENT_SECRET,JAVA_OPTS_APPEND:'-Xms64m -Xmx256m -XX:MaxMetaspaceSize=160m'},source:'integrations/keycloak',files:['Dockerfile','mobile-username-spi/target/haramyar-keycloak-mobile-username.jar','themes','realm']},
- 'hive-authorization':{port:8082,mem:384,env:{...network,...db('hive','HIVE'),HIVE_OPENFGA_URL:`http://${host('openfga')}:8080`,HIVE_OPENFGA_API_TOKEN:s.OPENFGA_API_TOKEN,HIVE_PROVISIONING_PASSWORD:s.HIVE_PROVISIONING_PASSWORD,HIVE_AUTHZ_CACHE_ENABLED:'true',HIVE_PRIMARY_ISSUER:origin+'/realms/haramyar',HIVE_IDP_ALLOW_LOCAL_HTTP:'false',...policy('HIVE_ARTIFACT'),...policy('HIVE_TARGET'),HIVE_ENVIRONMENT:'production'},jar:join(hiveDir,'services/authorization/target/authorization-0.1.0-SNAPSHOT.jar')},
+ 'hive-authorization':{port:8082,mem:384,env:{...network,...db('hive','HIVE'),HIVE_OPENFGA_URL:`http://${host('openfga')}:8080`,HIVE_OPENFGA_API_TOKEN:s.OPENFGA_API_TOKEN,HIVE_PROVISIONING_PASSWORD:s.HIVE_PROVISIONING_PASSWORD,HIVE_AUTHZ_CACHE_ENABLED:'true',HIVE_PRIMARY_ISSUER:origin+'/realms/haramyar',...(s.HIVE_BOOTSTRAP_ADMIN_SUBJECT?{HIVE_BOOTSTRAP_ADMIN_SUBJECT:s.HIVE_BOOTSTRAP_ADMIN_SUBJECT}:{}),HIVE_IDP_ALLOW_LOCAL_HTTP:'false',...policy('HIVE_ARTIFACT'),...policy('HIVE_TARGET'),HIVE_ENVIRONMENT:'production'},jar:join(hiveDir,'services/authorization/target/authorization-0.1.0-SNAPSHOT.jar')},
  'hive-bff':{port:8081,mem:384,env:{...network,HIVE_AUTHORIZATION_URL:`http://${host('hive-authorization')}:8082`,HIVE_CONTROL_ALLOW_HTTP:'true',HIVE_VAULT_KEY:s.HIVE_VAULT_KEY,HIVE_IDENTITY_ENABLED:'true',HIVE_OIDC_ISSUER:origin+'/realms/haramyar',HIVE_OIDC_CLIENT_ID:'haramyar-web',HIVE_OIDC_CLIENT_SECRET:s.HARAMYAR_OIDC_CLIENT_SECRET,HIVE_OIDC_ALLOW_LOCAL_HTTP:'false',HIVE_PROXY_ALLOWED_ORIGINS:`http://${host('booking-api')}:8090,http://${host('martyrs-api')}:8091,http://${host('shell-service')}:8092`,...policy('HIVE_PROXY'),...policy('HIVE_MFE'),HIVE_MFE_CACHE_BUDGET_BYTES:'8388608',HIVE_BRANDING_NAME:'حرم‌یار',HIVE_LOCALE:'fa',HIVE_DIRECTION:'rtl'},jar:join(hiveDir,'services/bff/target/bff-0.1.0-SNAPSHOT.jar')},
  'booking-api':{port:8090,mem:384,env:{...business,...db('rozeh','ROZEH'),...messaging},jar:'modules/rozeh-booking/backend/target/rozeh-booking.jar'},
  'martyrs-api':{port:8091,mem:384,env:{...business,...db('martyrs','MARTYRS'),MARTYRS_S3_ENDPOINT:`http://${host('object-storage')}:8333`,MARTYRS_S3_ACCESS_KEY:s.S3_ACCESS_KEY,MARTYRS_S3_SECRET_KEY:s.S3_SECRET_KEY},jar:'modules/martyrs/backend/target/martyrs.jar'},
@@ -47,7 +47,7 @@ const apps={
  'public-web':{port:8093,mem:96,env:{HARAMYAR_BFF_URL:`http://${host('web')}:8080`,HARAMYAR_PUBLIC_ORIGIN:origin,NODE_OPTIONS:'--max-old-space-size=48'},source:'apps/public-web',files:['Dockerfile','dist']},
  bootstrap:{port:8080,mem:128,oneShot:true,env:{HIVE_AUTHORIZATION_URL:`http://${host('hive-authorization')}:8082`,HIVE_PROVISIONING_PASSWORD:s.HIVE_PROVISIONING_PASSWORD,ROZEH_BOOKING_URL:`http://${host('booking-api')}:8090`,MARTYRS_URL:`http://${host('martyrs-api')}:8091`,SHELL_SERVICE_URL:`http://${host('shell-service')}:8092`,ROZEH_BOOKING_MFE_URL:`http://${host('booking-frontend')}:8080`,MARTYRS_MFE_URL:`http://${host('martyrs-frontend')}:8080`,KEYCLOAK_URL:`http://${host('keycloak')}:8080`,KEYCLOAK_ADMIN_USER:'haramyar-bootstrap',KEYCLOAK_ADMIN_PASSWORD:s.KEYCLOAK_ADMIN_PASSWORD,HARAMYAR_OIDC_ISSUER:origin+'/realms/haramyar',HARAMYAR_FIXTURE_STAFF_PASSWORD:s.HARAMYAR_FIXTURE_STAFF_PASSWORD,...testDeployment}},
  console:{port:8080,mem:32,env:{},source:hiveDir,files:['apps/operator-console/dist','infra/nginx/console.conf.template']},
- web:{port:8080,mem:64,public:true,env:{HARAMYAR_BFF_UPSTREAM:`http://${host('hive-bff')}:8081`,HARAMYAR_KEYCLOAK_UPSTREAM:`http://${host('keycloak')}:8080`,HARAMYAR_PUBLIC_WEB_UPSTREAM:`http://${host('public-web')}:8093`,HARAMYAR_CONSOLE_UPSTREAM:'off'},source:'apps/haramyar-shell',files:['Dockerfile','dist','nginx.conf.template','security-headers.inc','keycloak-proxy.inc']}
+ web:{port:8080,mem:64,public:true,env:{HARAMYAR_BFF_UPSTREAM:`http://${host('hive-bff')}:8081`,HARAMYAR_KEYCLOAK_UPSTREAM:`http://${host('keycloak')}:8080`,HARAMYAR_PUBLIC_WEB_UPSTREAM:`http://${host('public-web')}:8093`,HARAMYAR_CONSOLE_UPSTREAM:s.HARAMYAR_OPERATOR_CONSOLE==='true'?`http://${host('console')}:8080`:'off'},source:'apps/haramyar-shell',files:['Dockerfile','dist','nginx.conf.template','security-headers.inc','keycloak-proxy.inc']}
 };
 // CI: CAPROVER_URL + CAPROVER_TOKEN; locally the existing CapRover CLI session is reused.
 const machine=process.env.CAPROVER_TOKEN?{baseUrl:process.env.CAPROVER_URL,authToken:process.env.CAPROVER_TOKEN}:JSON.parse(readFileSync(join(process.env.USERPROFILE||process.env.HOME,'.config/configstore/caprover.json'))).CapMachines.find(x=>x.name==='husbantech-prod');
@@ -77,6 +77,17 @@ function prepare(name){
  writeFileSync(join(dir,'captain-definition'),JSON.stringify({schemaVersion:2,...(a.image?{imageName:a.image}:{dockerfilePath:'./Dockerfile'})}));
  const tar=join(state,name+'.tar');execFileSync(process.platform==='win32'?join(process.env.SystemRoot??'C:\\Windows','System32','tar.exe'):'tar',['-cf',tar,'-C',dir,'.']);return tar;
 }
+// Applies configuration (env, limits, ports, volumes) to a deployed app without building: CapRover restarts the
+// service with its current image. Used for settings-only changes.
+async function configure(name){
+ const a=apps[name], appName='haramyar-'+name, current=(await getApps()).find(x=>x.appName===appName);
+ if(!current?.deployedVersion)throw Error(appName+' is not deployed yet; use deploy');
+ appendFileSync(join(state,'history.jsonl'),JSON.stringify({at:new Date().toISOString(),app:appName,commit:sourceCommit,configureOnly:true,version:current.deployedVersion})+'\n');
+ const container={...(a.command?{Args:a.command}:{}),...(a.hostname?{Hostname:a.hostname}:{}),StopGracePeriod:30000000000};
+ const override={TaskTemplate:{Resources:{Limits:{MemoryBytes:a.mem*1024*1024}},ContainerSpec:container,RestartPolicy:{Condition:'on-failure',Delay:10000000000}},UpdateConfig:{Parallelism:1,Order:'stop-first',FailureAction:'rollback',Monitor:180000000000},RollbackConfig:{Order:'stop-first'}};
+ await api('/user/apps/appDefinitions/update',{...current,appName,instanceCount:a.oneShot?0:Math.max(current.instanceCount,1),containerHttpPort:a.port,notExposeAsWebApp:!a.public,forceSsl:!!a.public,ports:[],volumes:a.volume?[{containerPath:a.volume[0],volumeName:a.volume[1]}]:[],envVars:Object.entries(a.env).map(([key,value])=>({key,value:String(value)})),serviceUpdateOverride:JSON.stringify(override)});
+ console.log(appName+' configuration applied (image v'+current.deployedVersion+')');
+}
 async function deploy(name){
  const a=apps[name], appName='haramyar-'+name;
  let current=(await getApps()).find(x=>x.appName===appName);
@@ -97,6 +108,7 @@ async function deploy(name){
 }
 for(const name of command==='rollback'?selected.slice(0,1):selected)if(!apps[name])throw Error('Unknown dedicated app '+name);
 if(command==='deploy')for(const n of selected)await deploy(n);
+else if(command==='configure')for(const n of selected)await configure(n);
 else if(command==='prepare')for(const n of selected)console.log(n,prepare(n));
 else if(command==='status')console.log(JSON.stringify((await getApps()).filter(a=>a.appName.startsWith('haramyar-')).map(a=>({app:a.appName,version:a.deployedVersion,building:a.isAppBuilding,port:a.containerHttpPort,public:!a.notExposeAsWebApp})),null,2));
 else if(command==='rollback'){
@@ -111,4 +123,4 @@ else if(command==='rollback'){
 }
 else if(command==='stop')for(const n of selected){const a=(await getApps()).find(x=>x.appName==='haramyar-'+n);if(a){await api('/user/apps/appDefinitions/update',{...a,instanceCount:0});console.log('haramyar-'+n+' scaled to 0');}}
 else if(command==='logs')for(const n of selected){const d=await api('/user/apps/appData/haramyar-'+n);console.log(n,JSON.stringify(d));}
-else throw Error('Usage: node deployment/caprover/deploy.mjs prepare|deploy|stop|rollback|status|logs [components]');
+else throw Error('Usage: node deployment/caprover/deploy.mjs prepare|deploy|configure|stop|rollback|status|logs [components]');

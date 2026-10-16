@@ -31,6 +31,18 @@ bootstrap به ترتیب: اپلیکیشن و منابع دستی را در Hiv
 
 نشانی: <http://localhost:8080>. کارمندان آزمایشی `staff.coordinator`، `staff.editor`، `staff.reviewer`، `staff.admin` با رمز `HARAMYAR_FIXTURE_STAFF_PASSWORD` از `deployment/.env`؛ در اولین ورود OTP باید ثبت شود. Mailpit فقط با `--profile dev` روی `127.0.0.1:8025`.
 
+### بازیابی ورود کارکنان آزمایشی لوکال
+
+اگر تست مرورگری قبلاً Authenticator حساب‌های آزمایشی را ثبت کرده و کد آن را ندارید، از ریشهٔ پروژه اجرا کنید:
+
+```bash
+node tools/reset-local-staff-login.mjs
+# همراه با بررسی واقعی ورود هر چهار حساب در مرورگر:
+node tools/reset-local-staff-login.mjs --verify
+```
+
+این ابزار فقط چهار حساب `staff.*` با مشخصات Fixture را در پشتهٔ محلی `haramyar` بازنشانی می‌کند: نشست‌های Keycloak و ثبت قبلی OTP پاک می‌شوند، رمز موجود و نقش‌ها حفظ می‌شوند و ورود بعدی ثبت Authenticator جدید را درخواست می‌کند. حالت `--verify` پس از آزمون هم ثبت OTP آزمایشی را پاک می‌کند تا کاربر بتواند Authenticator خودش را ثبت کند. اجرای مجدد تست‌های E2E ممکن است دوباره OTP آزمایشی بسازد؛ در این صورت ابزار را مجدداً اجرا کنید. ابزار برای محیط سرور قابل استفاده نیست.
+
 ### سرویس‌ها
 
 | سرویس | image | نقش |
@@ -87,9 +99,10 @@ bootstrap به ترتیب: اپلیکیشن و منابع دستی را در Hiv
 | `haramyar-rabbitmq` | RabbitMQ 4.1 با کاربر `haramyar` و topology از definitions | 5672 | 320 MiB | `haramyar-rabbitmq-data` |
 | `haramyar-object-storage` | SeaweedFS (S3) برای رسانهٔ شهدا | 8333 | 192 MiB | `haramyar-objects-data` |
 | `haramyar-redis`، `haramyar-openfga` | کش Hive و OpenFGA (دادهٔ OpenFGA در Postgres) | 6379، 8080 | 64، 96 MiB | `haramyar-redis-data` |
+| `haramyar-console` | کنسول اپراتور Hive (nginx ایستا) زیر `/console/` | 8080 | 32 MiB | — |
 | `haramyar-bootstrap` | کار یک‌باره: ثبت Hive، سیاست realm، حساب‌های آزمایشی؛ پس از اجرا روی ۰ نمونه | — | 128 MiB | — |
 
-**نگاشت دامنه:** فقط `haramyar.com` → `haramyar-web` (گواهی Let's Encrypt از CapRover، `forceSsl`). Keycloak و APIها زیردامنهٔ جدا ندارند و از همان مبدأ سرو می‌شوند: issuer برابر `https://haramyar.com/realms/haramyar` و APIها زیر `/api/routes/**`. مسیرهای `/admin/*`، `/realms/master`، `/actuator` و `/console` پاسخ 404 می‌دهند. CSP، HSTS (بدون includeSubDomains)، X-Frame-Options و دیگر هدرهای امنیتی روی همهٔ صفحات اعمال می‌شوند.
+**نگاشت دامنه:** فقط `haramyar.com` → `haramyar-web` (گواهی Let's Encrypt از CapRover، `forceSsl`). Keycloak و APIها زیردامنهٔ جدا ندارند و از همان مبدأ سرو می‌شوند: issuer برابر `https://haramyar.com/realms/haramyar` و APIها زیر `/api/routes/**`. مسیرهای `/admin/*`، `/realms/master` و `/actuator` پاسخ 404 می‌دهند. کنسول اپراتور Hive در `https://haramyar.com/console/` است و فقط برای کاربران دارای نقش پلتفرمی Hive کار می‌کند. CSP، HSTS (بدون includeSubDomains)، X-Frame-Options و دیگر هدرهای امنیتی روی همهٔ صفحات اعمال می‌شوند.
 
 ### سیاست‌های محیط آزمایشی
 
@@ -163,7 +176,8 @@ node deployment/caprover/deploy.mjs rollback booking-api 1  # image یک نسخ�
 ### محدودیت‌های شناخته‌شده
 
 - حافظه: پس از استقرار حدود ۵۰۰ مگابایت RAM آزاد و حدود ۱٫۶ از ۲ گیگابایت swap مصرف‌شده است؛ پاسخ اولیهٔ صفحات گاهی کند است. سقف حافظه و تنظیمات JVM (`-Xmx160m`، SerialGC) برای همین سرور تنظیم شده‌اند.
-- کنسول اپراتور Hive برای صرفه‌جویی در حافظه مستقر نشده است (`/console` → 404).
+- کنسول اپراتور Hive (`haramyar-console`، 32 MiB) با `HARAMYAR_OPERATOR_CONSOLE=true` در فایل اسرار فعال است؛ اولین مدیر پلتفرم با `HIVE_BOOTSTRAP_ADMIN_SUBJECT` (شناسهٔ Keycloak حساب `staff.admin`) یک‌بار و با ثبت در audit log تعیین شد. با مقدار `false` و `deploy.mjs configure web` مسیر دوباره 404 می‌شود.
+- تغییرات فقط‌تنظیماتی (env) بدون build با `node deployment/caprover/deploy.mjs configure <component>` اعمال می‌شوند.
 - رمز Redis در آرگومان فرمان سرویس است و برای کسی که به Docker سرور دسترسی دارد قابل مشاهده است.
 - تأیید پیامکی شماره، بازیابی رمز و ثبت‌نام آزاد همچنان غیرفعال یا پیاده‌نشده‌اند ([BUSINESS_DECISIONS](BUSINESS_DECISIONS.md)).
 
