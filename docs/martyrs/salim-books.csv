@@ -1,49 +1,49 @@
 source_id,kind,original_arabic_title,arabic_pdf,persian_pdf,english_pdf,review_status
-46,AUTHORED,هكذا نقرأ السيرة,,,,RECEIVED_ARABIC_PDF_NOT_PUBLISHED
-45,AUTHORED,وصية الامام للحنفية,,,,UNVERIFIED_SOURCE_TITLE
-44,AUTHORED,نهج الامام الخمینی,,,,UNVERIFIED_SOURCE_TITLE
-43,AUTHORED,من حصاد التجربة,,,,UNVERIFIED_SOURCE_TITLE
-42,AUTHORED,مكانة الانسان في الاسلام,,,,UNVERIFIED_SOURCE_TITLE
-41,AUTHORED,مقتل أمير المؤمنين,,,,UNVERIFIED_SOURCE_TITLE
-40,AUTHORED,معالم علی الطریق,,,,UNVERIFIED_SOURCE_TITLE
-39,AUTHORED,معالم التوحيد,,,,UNVERIFIED_SOURCE_TITLE
-38,AUTHORED,محمد رسول الله,,,,UNVERIFIED_SOURCE_TITLE
-37,AUTHORED,مبادئ التربیة الاسلامیة,,,,UNVERIFIED_SOURCE_TITLE
-36,AUTHORED,لماذا الصوم,,,,UNVERIFIED_SOURCE_TITLE
-35,AUTHORED,کیف نواجه الحرب النفسیة,,,,UNVERIFIED_SOURCE_TITLE
-34,AUTHORED,عبدالعظیم الحسنی,,,,UNVERIFIED_SOURCE_TITLE
-33,AUTHORED,سیرة أمير المؤمنين علیه السلام,,,,UNVERIFIED_SOURCE_TITLE
-32,AUTHORED,رسالة الدین,,,,UNVERIFIED_SOURCE_TITLE
-31,AUTHORED,دور المساجد فی حیاة المسلمین,,,,UNVERIFIED_SOURCE_TITLE
-30,AUTHORED,دوافع النهضة الحسینیة,,,,UNVERIFIED_SOURCE_TITLE
-29,AUTHORED,خديجة بنت خويلد,,,,UNVERIFIED_SOURCE_TITLE
-28,AUTHORED,حقوق الانسان فی السلام,,,,UNVERIFIED_SOURCE_TITLE
-27,AUTHORED,حدیث الغدیر,,,,UNVERIFIED_SOURCE_TITLE
-26,AUTHORED,اية التطهير,,,,UNVERIFIED_SOURCE_TITLE
-25,AUTHORED,المعارضة السیاسیة في تجربة امیر المؤمنین,,,,UNVERIFIED_SOURCE_TITLE
-24,AUTHORED,المرة في ضل المجتمع الاسلامي,,,,UNVERIFIED_SOURCE_TITLE
-23,AUTHORED,الفقر دراسة و علاج,,,,UNVERIFIED_SOURCE_TITLE
-22,AUTHORED,العقدة القرشية,,,,UNVERIFIED_SOURCE_TITLE
-21,AUTHORED,الصدیة الزهرا بین المحنة و المقاومة,,,,UNVERIFIED_SOURCE_TITLE
-20,AUTHORED,الشید محمد باقر الصدر,,,,UNVERIFIED_SOURCE_TITLE
-19,AUTHORED,السیاسة الخارجیة الامریکیة فی الشرق الاوسط,,,,UNVERIFIED_SOURCE_TITLE
-18,AUTHORED,الزهرا فاطمة بنت محمد,,,,UNVERIFIED_SOURCE_TITLE
-17,AUTHORED,الحجاب الإسلامي,,,,UNVERIFIED_SOURCE_TITLE
-16,AUTHORED,التعددیة و الحوار,,,,UNVERIFIED_SOURCE_TITLE
-15,AUTHORED,التربية الاسلامية,,,,UNVERIFIED_SOURCE_TITLE
-14,AUTHORED,الانتهاکات الامریکیة,,,,UNVERIFIED_SOURCE_TITLE
-13,AUTHORED,الإمامة في الرسالة,,,,UNVERIFIED_SOURCE_TITLE
-12,AUTHORED,الامام محمد الباقر علیه السلام,,,,UNVERIFIED_SOURCE_TITLE
-11,AUTHORED,الامام علی ابن الحسین علیه السلام,,,,UNVERIFIED_SOURCE_TITLE
-10,AUTHORED,الامام حسن ابن علی علیه السلام,,,,UNVERIFIED_SOURCE_TITLE
-9,AUTHORED,الامام الحسین ابن علی علیه السلام,,,,UNVERIFIED_SOURCE_TITLE
-8,AUTHORED,الإمام الجواد علیة السلام,,,,UNVERIFIED_SOURCE_TITLE
-7,AUTHORED,الاسلام و رسالتة الخالدة,,,,UNVERIFIED_SOURCE_TITLE
-6,AUTHORED,استراتیجیة الهیمنة,,,,UNVERIFIED_SOURCE_TITLE
-5,AUTHORED,اتباع اهل البيت في العراق,,,,UNVERIFIED_SOURCE_TITLE
-4,AUTHORED,ابو طالب الصحابی المفتری علیه,,,,UNVERIFIED_SOURCE_TITLE
-3,AUTHORED,أبحاث وقضايا سياسية,,,,UNVERIFIED_SOURCE_TITLE
-2,AUTHORED,أبحاث في شؤون النهضة,,,,UNVERIFIED_SOURCE_TITLE
+46,AUTHORED,هكذا نقرأ السيرة,هکذی نقرآة السیرة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+45,AUTHORED,وصية الامام للحنفية,Imam's will for Hanafia.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+44,AUTHORED,نهج الامام الخمینی,The Path of Imam Khomeini.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+43,AUTHORED,من حصاد التجربة,From the harvest of experience.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+42,AUTHORED,مكانة الانسان في الاسلام,Man's position in Islam.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+41,AUTHORED,مقتل أمير المؤمنين,مقتل أمير المؤمنين.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+40,AUTHORED,معالم علی الطریق,معالم علی الطریق.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+39,AUTHORED,معالم التوحيد,معالم التوحيد.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+38,AUTHORED,محمد رسول الله,محمد رسول الله.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+37,AUTHORED,مبادئ التربیة الاسلامیة,مبادئ التربیة الاسلامیة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+36,AUTHORED,لماذا الصوم,لماذا الصوم.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+35,AUTHORED,کیف نواجه الحرب النفسیة,کیف نواجه الحرب النفسیة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+34,AUTHORED,عبدالعظیم الحسنی,عبدالعظیم الحسنی.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+33,AUTHORED,سیرة أمير المؤمنين علیه السلام,سیرة أمير المؤمنين علیه السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+32,AUTHORED,رسالة الدین,رسالة الدین.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+31,AUTHORED,دور المساجد فی حیاة المسلمین,دور المساجد فی حیاة المسلمین.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+30,AUTHORED,دوافع النهضة الحسینیة,دوافع النهضة الحسینیة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+29,AUTHORED,خديجة بنت خويلد,خديجة بنت خويلد.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+28,AUTHORED,حقوق الانسان فی السلام,حقوق الانسان فی السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+27,AUTHORED,حدیث الغدیر,حدیث الغدیر.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+26,AUTHORED,اية التطهير,اية التطهير.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+25,AUTHORED,المعارضة السیاسیة في تجربة امیر المؤمنین,المعارضة السیاسیة في تجربة امیر المؤمنین.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+24,AUTHORED,المرة في ضل المجتمع الاسلامي,المرة في ضل المجتمع الاسلامي.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+23,AUTHORED,الفقر دراسة و علاج,الفقر دراسة و علاج.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+22,AUTHORED,العقدة القرشية,العقدة القرشية.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+21,AUTHORED,الصدیة الزهرا بین المحنة و المقاومة,الصدیة الزهرا بین المحنة و المقاومة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+20,AUTHORED,الشید محمد باقر الصدر,الشید محمد باقر الصدر.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+19,AUTHORED,السیاسة الخارجیة الامریکیة فی الشرق الاوسط,السیاسة الخارجیة الامریکیة فی الشرق الاوسط.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+18,AUTHORED,الزهرا فاطمة بنت محمد,الزهرا فاطمة بنت محمد.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+17,AUTHORED,الحجاب الإسلامي,الحجاب الإسلامي.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+16,AUTHORED,التعددیة و الحوار,التعددیة و الحوار.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+15,AUTHORED,التربية الاسلامية,التربية الاسلامية.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+14,AUTHORED,الانتهاکات الامریکیة,الانتهاکات الامریکیة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+13,AUTHORED,الإمامة في الرسالة,الإمامة في الرسالة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+12,AUTHORED,الامام محمد الباقر علیه السلام,الامام محمد الباقر علیه السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+11,AUTHORED,الامام علی ابن الحسین علیه السلام,الامام علی ابن الحسین علیه السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+10,AUTHORED,الامام حسن ابن علی علیه السلام,الامام حسن ابن علی علیه السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+9,AUTHORED,الامام الحسین ابن علی علیه السلام,الامام الحسین ابن علی علیه السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+8,AUTHORED,الإمام الجواد علیة السلام,الإمام الجواد علیة السلام.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+7,AUTHORED,الاسلام و رسالتة الخالدة,الاسلام و رسالتة الخالدة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+6,AUTHORED,استراتیجیة الهیمنة,استراتیجیة الهیمنة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+5,AUTHORED,اتباع اهل البيت في العراق,اتباع اهل البيت في العراق.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+4,AUTHORED,ابو طالب الصحابی المفتری علیه,ابو طالب الصحابی المفتری علیه.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+3,AUTHORED,أبحاث وقضايا سياسية,أبحاث وقضايا سياسية.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
+2,AUTHORED,أبحاث في شؤون النهضة,أبحاث في شؤون النهضة.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED
 6,ABOUT,نبضات الضوء الحالم,,,,UNVERIFIED_SOURCE_TITLE
 5,ABOUT,كلمات وفاء,,,,UNVERIFIED_SOURCE_TITLE
 4,ABOUT,سيرة داعية,,,,UNVERIFIED_SOURCE_TITLE
