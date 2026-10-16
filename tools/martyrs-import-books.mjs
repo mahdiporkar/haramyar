@@ -99,7 +99,33 @@ function argsFrom(argv) {
 
 export function normalizeTitle(title) { return title.normalize('NFC').trim().replace(/\s+/g, ' '); }
 
-export async function seedProfile(request, draft) {
+/** Load an explicitly catalogued source portrait; never attach staff credentials to this request. */
+export async function loadSourcePortrait(candidate) {
+  if (candidate?.status !== 'SOURCE_IDENTIFIED_NOT_YET_UPLOADED')
+    throw new Error('Portrait has no approved source staging status');
+  const url = new URL(candidate.sourceUrl);
+  if (url.protocol !== 'https:' || url.hostname !== 'www.shahidsalim.com' || url.port ||
+      url.username || url.password || !url.pathname.startsWith('/uploads/gallery/') ||
+      !url.pathname.endsWith('.webp') || url.search || url.hash)
+    throw new Error('Portrait must be a WebP image from the vetted source gallery');
+  const response = await fetch(url, {redirect: 'manual', signal: AbortSignal.timeout(30000)});
+  if (!response.ok || !response.body) throw new Error('Official portrait source is unavailable');
+  if (Number(response.headers.get('content-length') || 0) > 5 * 1024 * 1024)
+    throw new Error('Source portrait exceeds 5 MiB');
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of response.body) {
+    size += chunk.byteLength;
+    if (size > 5 * 1024 * 1024) throw new Error('Source portrait exceeds 5 MiB');
+    chunks.push(Buffer.from(chunk));
+  }
+  const bytes = Buffer.concat(chunks);
+  if (bytes.length < 12 || bytes.toString('ascii', 0, 4) !== 'RIFF' || bytes.toString('ascii', 8, 12) !== 'WEBP')
+    throw new Error('Source portrait is not a WebP image');
+  return bytes;
+}
+
+export async function seedProfile(request, draft, portraitLoader) {
   if (draft.status !== 'DRAFT_FOR_EDITORIAL_REVIEW' || draft.sourceLanguage !== 'ar' ||
       draft.content?.contentLocale !== 'ar' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(draft.slug) ||
       !draft.translations?.fa || !draft.translations?.en || !Array.isArray(draft.sources) || !draft.sources.length)
@@ -129,6 +155,23 @@ export async function seedProfile(request, draft) {
       profile = await request('POST', `/editorial/profiles/${profile.id}/sources`,
         {...source, expectedVersion: profile.version});
       sources.add(source.url);
+    }
+    if (!profile.portrait && portraitLoader && draft.portraitCandidate) {
+      // A temporary outage of the reference archive must not block the books.
+      let portrait;
+      try {
+        portrait = await portraitLoader(draft.portraitCandidate);
+      } catch (error) {
+        console.log(`Official portrait not staged: ${error.message}`);
+      }
+      if (portrait) {
+        const form = new FormData();
+        form.append('file', new Blob([portrait], {type: 'image/webp'}), 'salim-portrait.webp');
+        profile = await request('POST',
+          `/editorial/profiles/${profile.id}/media?usage=PORTRAIT&expectedVersion=${profile.version}&caption=${encodeURIComponent(draft.portraitCandidate.caption)}&credit=${encodeURIComponent(draft.portraitCandidate.credit)}`,
+          form);
+        console.log('Staged source portrait as editorial media; still unpublished');
+      }
     }
   }
   const existing = await request('GET', `/editorial/profiles/${profile.id}/translations`);
@@ -173,7 +216,7 @@ export async function importIntoProfile(works, options) {
     return response.status === 204 ? null : response.json();
   }
   const profileId = options.ensureProfile ?
-    await seedProfile(request, JSON.parse(await readFile(options.profileDraft || defaultProfileDraft, 'utf8'))) :
+    await seedProfile(request, JSON.parse(await readFile(options.profileDraft || defaultProfileDraft, 'utf8')), loadSourcePortrait) :
     options.profileId;
   const profile = encodeURIComponent(profileId);
   const path = `/editorial/profiles/${profile}/books`;

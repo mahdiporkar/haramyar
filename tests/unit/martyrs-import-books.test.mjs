@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp, writeFile, rm, readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {importIntoProfile, inspectFiles, parseCatalog, seedProfile} from '../../tools/martyrs-import-books.mjs';
+import {importIntoProfile, inspectFiles, loadSourcePortrait, parseCatalog, seedProfile} from '../../tools/martyrs-import-books.mjs';
 
 const header = 'source_id,kind,original_arabic_title,arabic_pdf,persian_pdf,english_pdf,review_status';
 const row = '5,AUTHORED,اتباع اهل البيت في العراق,arabic.pdf,,,RECEIVED_ARABIC_PDF_TITLE_UNVERIFIED';
@@ -124,6 +124,14 @@ test('profile draft is three-language, sourced, and seeded without duplicates', 
       profile.version++;
       return profile;
     }
+    if (method === 'POST' && path.includes('/media?usage=PORTRAIT')) {
+      assert.ok(body instanceof FormData);
+      assert.equal(body.get('file').name, 'salim-portrait.webp');
+      assert.ok(path.includes(`expectedVersion=${profile.version}`));
+      profile.portrait = {mediaId: 'portrait-id'};
+      profile.version++;
+      return profile;
+    }
     if (method === 'GET' && path.endsWith('/translations')) return translations;
     if (method === 'PUT' && path.includes('/translations/')) {
       const locale = path.split('/').at(-1);
@@ -134,12 +142,36 @@ test('profile draft is three-language, sourced, and seeded without duplicates', 
     }
     throw new Error(`Unexpected request: ${method} ${path}`);
   };
-  assert.equal(await seedProfile(request, draft), profileId);
+  const sourcePortrait = Buffer.from('RIFF1234WEBP');
+  assert.equal(await seedProfile(request, draft, async () => sourcePortrait), profileId);
   assert.equal(profile.sources.length, 4);
   assert.equal(translations.length, 2);
-  assert.equal(await seedProfile(request, draft), profileId);
+  assert.ok(profile.portrait);
+  assert.equal(await seedProfile(request, draft, async () => {throw new Error('Should not re-download existing portrait');}), profileId);
   assert.equal(profile.sources.length, 4);
   assert.equal(translations.length, 2);
   assert.equal(calls.filter(c => c.method === 'POST' && c.path === '/editorial/profiles').length, 1);
   assert.ok(calls.every(c => !c.path.endsWith('/submit') && !c.path.endsWith('/publish')));
+});
+
+test('source portrait URL is allowlisted and fetched without staff credentials', async () => {
+  const original = globalThis.fetch;
+  try {
+    await assert.rejects(
+      loadSourcePortrait({status: 'SOURCE_IDENTIFIED_NOT_YET_UPLOADED', sourceUrl: 'https://evil.example/uploads/gallery/a.webp'}),
+      /vetted source gallery/
+    );
+    globalThis.fetch = async (url, opts) => {
+      assert.equal(url.hostname, 'www.shahidsalim.com');
+      assert.deepEqual(Object.keys(opts).sort(), ['redirect', 'signal']);
+      return new Response(Buffer.from('RIFF1234WEBP'), {status: 200});
+    };
+    const result = await loadSourcePortrait({
+      status: 'SOURCE_IDENTIFIED_NOT_YET_UPLOADED',
+      sourceUrl: 'https://www.shahidsalim.com/uploads/gallery/example.webp'
+    });
+    assert.equal(result.toString(), 'RIFF1234WEBP');
+  } finally {
+    globalThis.fetch = original;
+  }
 });
