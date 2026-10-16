@@ -2,7 +2,6 @@ package ir.haramyar.kit.messaging;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarable;
@@ -42,12 +41,9 @@ public final class RabbitTopology {
   }
 
   public static List<Declarable> consumer(String queue, List<String> routingKeys, List<Integer> retryDelaysMs) {
-    var declarables = new ArrayList<Declarable>();
-    Queue main = QueueBuilder.durable(queue).build();
-    declarables.add(main);
-    TopicExchange events = new TopicExchange(EXCHANGE, true, false, Map.of("alternate-exchange", UNROUTED));
+    var declarables = new ArrayList<Declarable>(exchanges());
+    declarables.add(QueueBuilder.durable(queue).build());
     for (String key : routingKeys) declarables.add(new Binding(queue, Binding.DestinationType.QUEUE, EXCHANGE, key, null));
-    declarables.add(events);
     for (int stage = 1; stage <= retryDelaysMs.size(); stage++) {
       declarables.add(QueueBuilder.durable(retryQueue(queue, stage)).ttl(retryDelaysMs.get(stage - 1))
           .deadLetterExchange("").deadLetterRoutingKey(queue).build());
