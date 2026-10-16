@@ -7,3 +7,5 @@ add_header Referrer-Policy strict-origin-when-cross-origin always;
 add_header X-Frame-Options DENY always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
 add_header Cross-Origin-Opener-Policy same-origin always;
+# Browsers honour HSTS only over HTTPS, so this is inert on the local HTTP stack. Subdomains are not included.
+add_header Strict-Transport-Security "max-age=15552000" always;

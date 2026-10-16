@@ -1,0 +1,132 @@
+name: Deploy (CapRover test)
+
+# Deploys HaramYar application components to the dedicated haramyar-* CapRover apps after CI succeeds on main,
+# or manually. Infrastructure apps (postgres, redis, rabbitmq, object-storage, openfga) are never redeployed here.
+# Required repository secrets (the job is skipped with a notice until they exist):
+#   CAPROVER_URL              e.g. https://captain.<root-domain>
+#   CAPROVER_TOKEN            CapRover API token (admin-scoped: CapRover has no per-app API roles; see docs/DEPLOYMENT.md)
+#   HARAMYAR_DEPLOY_SECRETS   JSON with the deployment secrets (same keys as .local/caprover/secrets.json)
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      components:
+        description: Components to deploy (space-separated)
+        default: booking-api martyrs-api shell-service booking-frontend martyrs-frontend public-web web bootstrap
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-caprover-test
+  cancel-in-progress: false
+
+env:
+  HIVE_PLATFORM_DIR: ${{ github.workspace }}/hive-platform
+  PUBLIC_ORIGIN: https://haramyar.com
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: caprover-test
+    steps:
+      - name: Check deployment secrets
+        id: secrets
+        env:
+          CAPROVER_URL: ${{ secrets.CAPROVER_URL }}
+          CAPROVER_TOKEN: ${{ secrets.CAPROVER_TOKEN }}
+          HARAMYAR_DEPLOY_SECRETS: ${{ secrets.HARAMYAR_DEPLOY_SECRETS }}
+        run: |
+          if [ -z "$CAPROVER_URL" ] || [ -z "$CAPROVER_TOKEN" ] || [ -z "$HARAMYAR_DEPLOY_SECRETS" ]; then
+            echo "::notice::Deployment secrets are not configured; skipping (docs/DEPLOYMENT.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Read pinned Hive commit
+        if: steps.secrets.outputs.ready == 'true'
+        id: hive
+        run: echo "commit=$(node -p "require('./hive.lock.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          repository: mahdiporkar/hive-platform
+          ref: ${{ steps.hive.outputs.commit }}
+          path: hive-platform
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Build Hive SDK, starter and services at the pinned commit
+        if: steps.secrets.outputs.ready == 'true'
+        working-directory: hive-platform
+        run: |
+          npm ci && npm run build
+          ./mvnw -B -q -pl starters/hive-spring-boot-starter,services/bff,services/authorization -am install -DskipTests
+      - name: Build HaramYar
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          node tools/hive-sdk.mjs
+          npm ci
+          npm run build
+          npm run validate:manifests
+          ./mvnw -B -q package -DskipTests
+      - name: Record current versions (rollback reference)
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          CAPROVER_URL: ${{ secrets.CAPROVER_URL }}
+          CAPROVER_TOKEN: ${{ secrets.CAPROVER_TOKEN }}
+          HARAMYAR_DEPLOY_SECRETS: ${{ secrets.HARAMYAR_DEPLOY_SECRETS }}
+        run: node deployment/caprover/deploy.mjs status | tee caprover-before.json
+      - name: Deploy
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          CAPROVER_URL: ${{ secrets.CAPROVER_URL }}
+          CAPROVER_TOKEN: ${{ secrets.CAPROVER_TOKEN }}
+          HARAMYAR_DEPLOY_SECRETS: ${{ secrets.HARAMYAR_DEPLOY_SECRETS }}
+          COMPONENTS: ${{ github.event.inputs.components || 'booking-api martyrs-api shell-service booking-frontend martyrs-frontend public-web web bootstrap' }}
+        run: |
+          # shellcheck disable=SC2086
+          node deployment/caprover/deploy.mjs deploy $COMPONENTS
+      - name: Post-deployment health checks
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          set -eu
+          check() { code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$PUBLIC_ORIGIN$1"); echo "$1 -> $code"; [ "$code" = "$2" ]; }
+          for i in $(seq 1 30); do check /api/public/context 200 && break; sleep 10; done
+          check / 200
+          check /realms/haramyar/.well-known/openid-configuration 200
+          check /api/routes/rozeh/public/catalog 200
+          check /api/routes/martyrs/public/profiles 200
+          check /api/routes/rozeh/my/bookings 401
+          check /admin/master/console/ 404
+          curl -s "$PUBLIC_ORIGIN/api/public/context" | node -e "const c=JSON.parse(require('fs').readFileSync(0));const k=c.modules.map(m=>m.moduleKey).sort().join(',');console.log('modules',k);if(k!=='martyrs,rozeh-booking')process.exit(1)"
+      - name: Stop one-shot bootstrap
+        if: always() && steps.secrets.outputs.ready == 'true'
+        env:
+          CAPROVER_URL: ${{ secrets.CAPROVER_URL }}
+          CAPROVER_TOKEN: ${{ secrets.CAPROVER_TOKEN }}
+          HARAMYAR_DEPLOY_SECRETS: ${{ secrets.HARAMYAR_DEPLOY_SECRETS }}
+        run: sleep 90 && node deployment/caprover/deploy.mjs stop bootstrap
+      - name: Upload rollback reference
+        if: always() && steps.secrets.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: caprover-before
+          path: caprover-before.json
+          retention-days: 30

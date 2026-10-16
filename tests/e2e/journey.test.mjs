@@ -4,20 +4,24 @@
 // Prerequisite: the dev stack is up and bootstrapped with HARAMYAR_DEV_FIXTURES=true (docs/DEPLOYMENT.md).
 import {after, before, test} from 'node:test';
 import assert from 'node:assert/strict';
-import {BASE, ENV, csrfFetch, keycloakLogin, launch, resetStaffMfa, until} from './support.mjs';
+import {BASE, ENV, FIXTURE_CUSTOMERS, RESETS_MFA, csrfFetch, keycloakLogin, launch, loadTotpSecrets, resetStaffMfa, until} from './support.mjs';
 
 const STAFF_PASSWORD = ENV.HARAMYAR_FIXTURE_STAFF_PASSWORD;
 const run = Date.now().toString().slice(-7);
-const customer = {national: `0912${run}`, e164: `+98912${run}`, spaced: `+98 912 ${run.slice(0, 3)} ${run.slice(3)}`, password: `Customer-${run}9x`};
-const other = {national: `0935${run}`, password: `Second-${run}7y`};
-const secrets = {};
+// With self-registration disabled (test deployments), restricted fixture customers sign in instead of registering.
+const SELF_REGISTRATION = FIXTURE_CUSTOMERS.length === 0;
+const fromE164 = (e164, password) => ({national: '0' + e164.slice(3), e164, spaced: `${e164.slice(0, 3)} ${e164.slice(3, 6)} ${e164.slice(6, 9)} ${e164.slice(9)}`, password});
+const customer = SELF_REGISTRATION ? {national: `0912${run}`, e164: `+98912${run}`, spaced: `+98 912 ${run.slice(0, 3)} ${run.slice(3)}`, password: `Customer-${run}9x`}
+  : fromE164(FIXTURE_CUSTOMERS[0], STAFF_PASSWORD);
+const other = SELF_REGISTRATION ? {national: `0935${run}`, password: `Second-${run}7y`} : fromE164(FIXTURE_CUSTOMERS[1], STAFF_PASSWORD);
+const secrets = loadTotpSecrets();
 const slug = `e2e-fixture-${run}`;
 let browser;
 const state = {};
 
 before(async () => {
   assert.ok(STAFF_PASSWORD, 'deployment/.env must enable development staff fixtures');
-  await resetStaffMfa(['staff.coordinator', 'staff.editor', 'staff.reviewer', 'staff.admin']);
+  if (RESETS_MFA) await resetStaffMfa(['staff.coordinator', 'staff.editor', 'staff.reviewer', 'staff.admin']);
   browser = await launch();
 });
 after(async () => { await browser?.close(); });
@@ -96,7 +100,8 @@ test('a visitor fills the wizard, registers with a mobile number through Keycloa
   await page.getByTestId('wizard-next').click();
   await page.getByTestId('submit-request').click();
 
-  await register(page, customer.national, customer.password);
+  if (SELF_REGISTRATION) await register(page, customer.national, customer.password);
+  else await keycloakLogin(page, customer.national, customer.password);
   await page.waitForURL(`${BASE}/rozeh/request`, {timeout: 30000});
   await page.getByTestId('submit-request').click();
   await page.waitForURL(/\/rozeh\/requests\/[0-9a-f-]{36}$/, {timeout: 30000});
@@ -116,7 +121,18 @@ test('a visitor fills the wizard, registers with a mobile number through Keycloa
   await page.locator(`[data-booking-id="${state.bookingId}"]`).waitFor();
 });
 
-test('the same mobile number in another spelling cannot create a second account', async () => {
+test('self-registration and password reset are disabled while mobile numbers are unverified', {skip: SELF_REGISTRATION}, async () => {
+  const page = await newPage();
+  await page.goto(`${BASE}/account`);
+  await page.getByTestId('sign-in').click();
+  await page.waitForURL(/\/realms\/haramyar\//);
+  await page.locator('#username').waitFor();
+  assert.equal(await page.locator('#kc-registration a').count(), 0, 'no registration link');
+  assert.equal(await page.locator('a[href*="reset-credentials"]').count(), 0, 'no password reset link without a delivery channel');
+  await page.context().close();
+});
+
+test('the same mobile number in another spelling cannot create a second account', {skip: !SELF_REGISTRATION}, async () => {
   const page = await newPage();
   await page.goto(`${BASE}/account`);
   await page.getByTestId('sign-in').click();
@@ -130,7 +146,7 @@ test('the same mobile number in another spelling cannot create a second account'
 
 test('a coordinator signs in with mandatory TOTP enrollment and accepts the request', async () => {
   const page = await signInStaff('staff.coordinator');
-  assert.ok(secrets['staff.coordinator'], 'TOTP enrollment was required for the staff account');
+  assert.ok(secrets['staff.coordinator'], RESETS_MFA ? 'TOTP enrollment was required for the staff account' : 'staff signed in with TOTP');
   await page.getByTestId('workspace-coordination').click();
   await page.waitForURL(`${BASE}/rozeh/coordination`);
   await page.locator(`[data-booking-id="${state.bookingId}"]`).click();
@@ -148,9 +164,9 @@ test('the host is notified asynchronously, confirms, and the history is recorded
     await page.reload();
     await page.locator('.notify .count').waitFor({timeout: 4000}).catch(() => undefined);
     await page.getByTestId('open-notifications').click();
-    return page.locator('[data-kind="BOOKING_ACCEPTED"]').waitFor({timeout: 3000}).then(() => true, () => false);
+    return page.locator(`[data-kind="BOOKING_ACCEPTED"][data-subject-id="${state.bookingId}"]`).waitFor({timeout: 3000}).then(() => true, () => false);
   }, {timeout: 45000, interval: 500, message: 'booking acceptance notification via RabbitMQ'});
-  await page.locator('[data-kind="BOOKING_ACCEPTED"]').click();
+  await page.locator(`[data-kind="BOOKING_ACCEPTED"][data-subject-id="${state.bookingId}"]`).click();
   await page.waitForURL(`${BASE}/rozeh/requests/${state.bookingId}`);
   await page.getByTestId('confirm-booking').click();
   await page.locator('[data-status="CONFIRMED"]').first().waitFor();
@@ -170,7 +186,8 @@ test('customers cannot reach coordination, and hosts cannot see each other\'s bo
   const second = await newPage();
   await second.goto(`${BASE}/account`);
   await second.getByTestId('sign-in').click();
-  await register(second, other.national, other.password);
+  if (SELF_REGISTRATION) await register(second, other.national, other.password);
+  else await keycloakLogin(second, other.national, other.password);
   await second.waitForURL(`${BASE}/account`, {timeout: 30000});
   await until(async () => (await second.evaluate(async () => (await fetch('/api/routes/rozeh/my/bookings')).status)) === 200, {message: 'onboarding grants'});
   const foreign = await second.evaluate(async id => (await fetch(`/api/routes/rozeh/my/bookings/${id}`)).status, state.bookingId);

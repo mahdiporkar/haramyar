@@ -13,6 +13,9 @@ server {
   root /usr/share/nginx/html;
   resolver ${HARAMYAR_RESOLVER} valid=10s ipv6=off;
 
+  # Upstreams are variables so nginx starts (and keeps serving the shell) while a dependency has no running task yet;
+  # the BFF itself needs this gateway for OIDC discovery, so a startup-time lookup would deadlock on first deployment.
+  set $bff ${HARAMYAR_BFF_UPSTREAM};
   set $keycloak ${HARAMYAR_KEYCLOAK_UPSTREAM};
   set $public_web ${HARAMYAR_PUBLIC_WEB_UPSTREAM};
   set $console ${HARAMYAR_CONSOLE_UPSTREAM};
@@ -20,7 +23,7 @@ server {
   # --- Hive BFF: sessions, CSRF, contexts, dynamic routes and micro-frontend artifacts -------------------------
   location ~ ^/(api|auth|oauth2|login/oauth2)/ {
     limit_req zone=haramyar_api burst=60 nodelay;
-    proxy_pass ${HARAMYAR_BFF_UPSTREAM};
+    proxy_pass $bff;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
@@ -48,7 +51,8 @@ server {
   location ^~ /admin/master/ { return 404; }
 
   # --- Hive Operator Console (platform operators only; separate experience) --------------------------------------
-  location ^~ /console/ { proxy_pass $console; proxy_set_header Host $http_host; proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+  # HARAMYAR_CONSOLE_UPSTREAM=off when the operator console is not deployed in this environment.
+  location ^~ /console/ { if ($console = "off") { return 404; } proxy_pass $console; proxy_set_header Host $http_host; proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
     proxy_set_header X-Forwarded-Port $http_x_forwarded_port; }
 
   # --- Server-rendered public pages (SEO) --------------------------------------------------------------------------

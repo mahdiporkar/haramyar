@@ -84,7 +84,7 @@ export function NotificationsSheet({items, onClose, onRead}: {items: Notice[]; o
       {items.length === 0 && <p className="privacy-search">{t('noNotifications')}</p>}
       <div className="notice-list" data-testid="notifications">
         {items.map(n => (
-          <button key={n.id} className={`notice ${n.readAt ? '' : 'unread'}`} onClick={() => open(n)} data-kind={n.kind}>
+          <button key={n.id} className={`notice ${n.readAt ? '' : 'unread'}`} onClick={() => open(n)} data-kind={n.kind} data-subject-id={n.subjectId}>
             <span><Icon name={n.kind === 'BOOKING_CONFIRMED' || n.kind === 'BOOKING_ACCEPTED' ? 'check' : n.kind === 'BOOKING_REJECTED' || n.kind === 'BOOKING_CANCELLED' ? 'close' : 'bell'} /></span>
             <div><b>{t(`notice_${n.kind}` as CommonKey)}</b><small>{n.reference && <><span className="ltr">{localizeDigits(n.reference, locale)}</span> · </>}{formatDateTime(n.occurredAt, locale)}</small></div>
           </button>

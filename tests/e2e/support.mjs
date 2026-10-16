@@ -1,11 +1,24 @@
 // Shared helpers for the end-to-end journey. Secrets are read from deployment/.env (generated locally, never committed).
+// Against a deployed environment (docs/DEPLOYMENT.md, "E2E against a deployment"):
+//   HARAMYAR_E2E_BASE=https://haramyar.com                target origin
+//   HARAMYAR_E2E_SECRETS=.local/caprover/secrets.json     JSON secrets instead of deployment/.env
+//   HARAMYAR_E2E_CUSTOMERS=+989990000001,+989990000002    restricted fixture customers (self-registration disabled)
+//   HARAMYAR_E2E_TOTP_STORE=.local/e2e-totp.json          enrolled staff TOTP secrets (MFA cannot be reset remotely)
 import {createHmac} from 'node:crypto';
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 
 export const BASE = process.env.HARAMYAR_E2E_BASE ?? 'http://localhost:8080';
-export const ENV = Object.fromEntries(readFileSync(new URL('../../deployment/.env', import.meta.url), 'utf8').split('\n')
-  .filter(line => line.includes('=')).map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
+export const ENV = process.env.HARAMYAR_E2E_SECRETS ? JSON.parse(readFileSync(process.env.HARAMYAR_E2E_SECRETS, 'utf8'))
+  : Object.fromEntries(readFileSync(new URL('../../deployment/.env', import.meta.url), 'utf8').split('\n')
+    .filter(line => line.includes('=')).map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
+/** Restricted fixture customers; when set, the suite signs in with them instead of self-registering. */
+export const FIXTURE_CUSTOMERS = (process.env.HARAMYAR_E2E_CUSTOMERS ?? '').split(',').map(v => v.trim()).filter(Boolean);
+const TOTP_STORE = process.env.HARAMYAR_E2E_TOTP_STORE;
+/** True when staff MFA is reset before the run (local stack); otherwise enrolled secrets persist between runs. */
+export const RESETS_MFA = !TOTP_STORE;
+export function loadTotpSecrets() { return TOTP_STORE && existsSync(TOTP_STORE) ? JSON.parse(readFileSync(TOTP_STORE, 'utf8')) : {}; }
+function saveTotpSecrets(secrets) { if (TOTP_STORE) writeFileSync(TOTP_STORE, JSON.stringify(secrets, null, 2), {mode: 0o600}); }
 
 export function launch() {
   return chromium.launch({headless: process.env.HEADED !== '1', ...(process.platform === 'win32' ? {channel: 'msedge'} : {})});
@@ -69,6 +82,7 @@ export async function keycloakLogin(page, username, password, secrets = {}) {
     if (!(await page.locator('#kc-totp-secret-key').count())) await page.click('#mode-manual');
     const secret = (await page.locator('#kc-totp-secret-key').innerText()).trim();
     secrets[username] = secret;
+    saveTotpSecrets(secrets);
     await page.fill('#totp', totp(secret));
     if (await page.locator('#userLabel').count()) await page.fill('#userLabel', 'e2e');
     await page.click('#saveTOTPBtn');

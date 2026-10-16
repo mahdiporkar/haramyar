@@ -17,7 +17,7 @@
 | سیاست رمز | حداقل ۱۰ و حداکثر ۱۲۸ نویسه، حداقل یک رقم، متفاوت با نام کاربری/ایمیل، عدم تکرار ۳ رمز قبلی |
 | محافظت brute force | پس از ۵ شکست، قفل موقت افزایشی (۶۰ ثانیه تا حداکثر ۱۵ دقیقه)؛ قفل دائمی ندارد |
 | نشست SSO | بیکاری ۳۰ دقیقه، حداکثر ۱۰ ساعت؛ عمر access token ۵ دقیقه |
-| ثبت‌نام | فعال؛ فرم: نام کاربری موبایل + رمز + پذیرش قوانین؛ reCAPTCHA غیرفعال (بخش ۷) |
+| ثبت‌نام | قابل‌پیکربندی با `HARAMYAR_SELF_REGISTRATION` (در محیط آزمایشی `haramyar.com` غیرفعال؛ در Compose محلی فعال برای E2E). فرم: نام کاربری موبایل + رمز + پذیرش قوانین؛ reCAPTCHA غیرفعال (بخش ۷). بازیابی رمز با `HARAMYAR_PASSWORD_RESET` (پیش‌فرض غیرفعال) |
 | نقش‌های realm | `haramyar-customer` (پیش‌فرض)، `haramyar-staff` (فعال‌کنندهٔ MFA) |
 
 realm از [haramyar-realm.json](../integrations/keycloak/realm/haramyar-realm.json) import می‌شود؛ secret کلاینت و origin عمومی از متغیرهای محیطی `${HARAMYAR_OIDC_CLIENT_SECRET}` و `${HARAMYAR_PUBLIC_ORIGIN}` جایگزین می‌شوند و هیچ مقدار واقعی در مخزن نیست.
