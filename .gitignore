@@ -1,0 +1,34 @@
+# Dependencies and build output
+node_modules/
+dist/
+target/
+build/
+.vite/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# Local environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+deployment/.env
+*.pem
+*.key
+*.p12
+*.jks
+
+# Logs and editor state
+*.log
+logs/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Design input archive supplied by the customer (kept locally; extracted assets live in shared/design-system)
+/figma.zip
+
+# Local verification state
+.local/

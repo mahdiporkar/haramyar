@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ir.haramyar</groupId>
+  <artifactId>haramyar-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>HaramYar</name>
+  <description>HaramYar super app: business solution built on Hive Platform 0.1.0-dev.0</description>
+
+  <modules>
+    <module>shared/service-kit</module>
+    <module>modules/rozeh-booking/backend</module>
+    <module>modules/martyrs/backend</module>
+    <module>apps/shell-service</module>
+    <module>integrations/keycloak/mobile-username-spi</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <maven.compiler.parameters>true</maven.compiler.parameters>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring-boot.version>3.5.5</spring-boot.version>
+    <!-- Hive is consumed, never copied: the starter is built from the pinned Hive checkout (see docs/DEVELOPMENT.md). -->
+    <hive.version>0.1.0-SNAPSHOT</hive.version>
+    <libphonenumber.version>9.0.14</libphonenumber.version>
+    <keycloak.version>26.3.3</keycloak.version>
+    <awssdk.version>2.33.4</awssdk.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${awssdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.hiveplatform</groupId>
+        <artifactId>hive-spring-boot-starter</artifactId>
+        <version>${hive.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.haramyar</groupId>
+        <artifactId>service-kit</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.libphonenumber</groupId>
+        <artifactId>libphonenumber</artifactId>
+        <version>${libphonenumber.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
+          <executions><execution><goals><goal>repackage</goal></goals></execution></executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.5.4</version>
+          <configuration>
+            <!-- Integration tests (Testcontainers) are named *IT and run in the failsafe phase. -->
+            <excludes><exclude>**/*IT.java</exclude></excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.5.4</version>
+          <configuration>
+            <!-- Docker Engine 29+ rejects API versions below 1.44; Testcontainers' bundled client defaults lower. -->
+            <systemPropertyVariables><api.version>1.44</api.version></systemPropertyVariables>
+            <!-- Test against compiled classes, not the repackaged Spring Boot jar (BOOT-INF layout hides them). -->
+            <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+          </configuration>
+          <executions><execution><goals><goal>integration-test</goal><goal>verify</goal></goals></execution></executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.6.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

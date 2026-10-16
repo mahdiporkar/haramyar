@@ -1,0 +1,3 @@
+ir.haramyar.kit.security.HaramyarSecurityAutoConfiguration
+ir.haramyar.kit.messaging.MessagingAutoConfiguration
+ir.haramyar.kit.messaging.PublishingAutoConfiguration
