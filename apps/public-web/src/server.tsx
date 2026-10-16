@@ -1,7 +1,7 @@
 /**
  * HaramYar public site: server-rendered, crawlable pages for published martyr profiles. Data comes only from Hive
  * PUBLIC route operations through the BFF (drafts are structurally unreachable there); no session, cookies or tokens
- * are involved. Canonical URLs: /martyr/{slug}; the interactive app lives at /martyrs/profiles/{slug}.
+ * are involved. Canonical URLs: /martyr/{slug}?lang=fa|ar|en; the interactive app lives at /martyrs/profiles/{slug}.
  */
 import {createServer, type IncomingMessage, type ServerResponse} from 'node:http';
 import {readFileSync} from 'node:fs';
@@ -20,7 +20,7 @@ interface LifeEvent {date?: {year: number; month?: number; day?: number; calenda
 interface Media {mediaId: string; caption?: string; credit?: string}
 interface Source {id: string; kind: string; title: string; author?: string; publisher?: string; year?: number; url?: string; note?: string}
 interface Profile {
-  slug: string; fullName: string; honorific?: string; contentLocale: string; shortDescription?: string; biography?: string; birth?: LifeEvent; martyrdom?: LifeEvent;
+  slug: string; fullName: string; honorific?: string; contentLocale: string; sourceLocale: string; shortDescription?: string; biography?: string; birth?: LifeEvent; martyrdom?: LifeEvent;
   portrait?: Media; gallery: Media[]; sources: Source[]; stories: {id: string; title: string; body: string}[]; seo?: {title?: string; description?: string}; firstPublishedAt: string; updatedAt: string;
 }
 interface Summary {slug: string; fullName: string; honorific?: string; shortDescription?: string; portraitMediaId?: string}
@@ -29,9 +29,9 @@ interface Book {id: string; kind: 'AUTHORED' | 'ABOUT'; sourceUrl: string; selec
 const LANGUAGE_NAMES: Record<Locale, string> = {fa: 'فارسی', ar: 'العربية', en: 'English'};
 
 const TEXT = {
-  fa: {site: 'حرم‌یار', archive: 'معرفی شهدا', born: 'تولد', martyred: 'شهادت', biography: 'زندگی‌نامه', stories: 'خاطرات و روایت‌ها', sources: 'منابع و مراجع', openApp: 'مشاهده در اپلیکیشن حرم‌یار', notFound: 'این پرونده در دسترس نیست', all: 'همه پرونده‌ها', empty: 'هنوز پرونده‌ای منتشر نشده است', note: 'محتوای حرم‌یار تنها پس از بررسی منبع و تأیید تحریریه منتشر می‌شود.', cal: {SOLAR_HIJRI: 'ه‍.ش', LUNAR_HIJRI: 'ه‍.ق', GREGORIAN: 'م'}},
-  ar: {site: 'حرم‌يار', archive: 'التعريف بالشهداء', born: 'الولادة', martyred: 'الشهادة', biography: 'السيرة', stories: 'الذكريات والروايات', sources: 'المصادر والمراجع', openApp: 'العرض في تطبيق حرم‌يار', notFound: 'هذا الملف غير متاح', all: 'كل الملفات', empty: 'لم يُنشر أي ملف بعد', note: 'لا يُنشر محتوى حرم‌يار إلا بعد التحقق من المصدر واعتماد التحرير.', cal: {SOLAR_HIJRI: 'هـ.ش', LUNAR_HIJRI: 'هـ', GREGORIAN: 'م'}},
-  en: {site: 'Haramyar', archive: 'Martyrs archive', born: 'Born', martyred: 'Martyred', biography: 'Biography', stories: 'Memories and stories', sources: 'Sources and references', openApp: 'Open in the Haramyar app', notFound: 'This profile is not available', all: 'All profiles', empty: 'No profile has been published yet', note: 'Haramyar publishes content only after source review and editorial approval.', cal: {SOLAR_HIJRI: 'SH', LUNAR_HIJRI: 'AH', GREGORIAN: 'CE'}},
+  fa: {site: 'حرم‌یار', archive: 'معرفی شهدا', born: 'تولد', martyred: 'شهادت', biography: 'زندگی‌نامه', stories: 'خاطرات و روایت‌ها', sources: 'منابع و مراجع', openApp: 'مشاهده در اپلیکیشن حرم‌یار', notFound: 'این پرونده در دسترس نیست', all: 'همه پرونده‌ها', empty: 'هنوز پرونده‌ای منتشر نشده است', note: 'محتوای حرم‌یار تنها پس از بررسی منبع و تأیید تحریریه منتشر می‌شود.', language: 'زبان نمایش', sourceLanguage: 'متن زندگی‌نامه هنوز فقط به زبان اصلی ({language}) منتشر شده است.', bookFallback: 'ترجمهٔ این اثر هنوز به زبان انتخاب‌شده منتشر نشده است؛ عنوان زبان موجود نمایش داده می‌شود.', cal: {SOLAR_HIJRI: 'ه‍.ش', LUNAR_HIJRI: 'ه‍.ق', GREGORIAN: 'م'}},
+  ar: {site: 'حرم‌يار', archive: 'التعريف بالشهداء', born: 'الولادة', martyred: 'الشهادة', biography: 'السيرة', stories: 'الذكريات والروايات', sources: 'المصادر والمراجع', openApp: 'العرض في تطبيق حرم‌يار', notFound: 'هذا الملف غير متاح', all: 'كل الملفات', empty: 'لم يُنشر أي ملف بعد', note: 'لا يُنشر محتوى حرم‌يار إلا بعد التحقق من المصدر واعتماد التحرير.', language: 'لغة العرض', sourceLanguage: 'السيرة متاحة حالياً بلغتها الأصلية فقط ({language}).', bookFallback: 'ترجمة هذا الكتاب غير منشورة باللغة المختارة؛ يظهر عنوان النسخة المتاحة.', cal: {SOLAR_HIJRI: 'هـ.ش', LUNAR_HIJRI: 'هـ', GREGORIAN: 'م'}},
+  en: {site: 'Haramyar', archive: 'Martyrs archive', born: 'Born', martyred: 'Martyred', biography: 'Biography', stories: 'Memories and stories', sources: 'Sources and references', openApp: 'Open in the Haramyar app', notFound: 'This profile is not available', all: 'All profiles', empty: 'No profile has been published yet', note: 'Haramyar publishes content only after source review and editorial approval.', language: 'Display language', sourceLanguage: 'The biography is currently published only in its source language ({language}).', bookFallback: 'A translation into the selected language has not been published; the available edition is shown.', cal: {SOLAR_HIJRI: 'SH', LUNAR_HIJRI: 'AH', GREGORIAN: 'CE'}},
 } as const;
 
 async function bff<T>(path: string): Promise<{status: number; body: T | null}> {
@@ -47,7 +47,10 @@ const lifeEvent = (event: LifeEvent | undefined, locale: Locale) => {
   return [d ? `${[d.day, d.month, d.year].filter(Boolean).join('/')} ${TEXT[locale].cal[d.calendar]}` : null, event.place].filter(Boolean).join(' · ') || null;
 };
 
-function Document({locale, title, description, canonical, image, jsonLd, robots, children}: {locale: Locale; title: string; description?: string; canonical?: string; image?: string; jsonLd?: object; robots?: string; children: React.ReactNode}) {
+const PROFILE_LOCALES: Locale[] = ['fa', 'ar', 'en'];
+const profileUrl = (slug: string, locale: Locale) => `/martyr/${encodeURIComponent(slug)}?lang=${locale}`;
+
+function Document({locale, title, description, canonical, alternateSlug, image, jsonLd, robots, children}: {locale: Locale; title: string; description?: string; canonical?: string; alternateSlug?: string; image?: string; jsonLd?: object; robots?: string; children: React.ReactNode}) {
   return (
     <html lang={locale} dir={directionOf(locale)}>
       <head>
@@ -57,6 +60,7 @@ function Document({locale, title, description, canonical, image, jsonLd, robots,
         {description && <meta name="description" content={description} />}
         {robots && <meta name="robots" content={robots} />}
         {canonical && <link rel="canonical" href={canonical} />}
+        {alternateSlug && PROFILE_LOCALES.map(lang => <link key={lang} rel="alternate" hrefLang={lang} href={`${ORIGIN}${profileUrl(alternateSlug, lang)}`} />)}
         <meta property="og:site_name" content={TEXT[locale].site} />
         <meta property="og:title" content={title} />
         {description && <meta property="og:description" content={description} />}
@@ -80,31 +84,38 @@ function Document({locale, title, description, canonical, image, jsonLd, robots,
   );
 }
 
-function ProfilePage({profile, books}: {profile: Profile; books: Book[]}) {
-  const locale: Locale = isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
+function ProfilePage({profile, books, locale}: {profile: Profile; books: Book[]; locale: Locale}) {
   const text = TEXT[locale];
+  const sourceLocale: Locale = isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
   const born = lifeEvent(profile.birth, locale);
   const died = lifeEvent(profile.martyrdom, locale);
   return (
     <div className="reading-page">
+      <nav className="profile-languages" aria-label={text.language}>
+        <span>{text.language}</span>
+        {PROFILE_LOCALES.map(lang => <a key={lang} href={profileUrl(profile.slug, lang)} lang={lang} hrefLang={lang}
+          aria-current={locale === lang ? 'page' : undefined}>{LANGUAGE_NAMES[lang]}</a>)}
+      </nav>
       <section className="profile-cover">
         <div className="large-portrait">{profile.portrait && <img src={`/api/routes/martyrs/public/media/${profile.portrait.mediaId}`} alt={profile.portrait.caption ?? profile.fullName} />}</div>
         <div>
           {profile.honorific && <small>{profile.honorific}</small>}
-          <h1>{profile.fullName}</h1>
+          <h1 lang={sourceLocale}>{profile.fullName}</h1>
           {(born || died) && <p>{born && <>{text.born}: {born}</>}{born && died && <br />}{died && <>{text.martyred}: {died}</>}</p>}
         </div>
       </section>
       <article itemScope itemType="https://schema.org/Person">
         <meta itemProp="name" content={profile.fullName} />
-        {profile.shortDescription && <p className="lead" itemProp="description">{profile.shortDescription}</p>}
+        {sourceLocale !== locale && <p className="translation-notice" role="status">{text.sourceLanguage.replace('{language}', LANGUAGE_NAMES[sourceLocale])}</p>}
+        {profile.shortDescription && <p className="lead" itemProp="description" lang={sourceLocale} dir={directionOf(sourceLocale)}>{profile.shortDescription}</p>}
         <a className="btn btn-primary open-in-app" href={`/martyrs/profiles/${encodeURIComponent(profile.slug)}`}>{text.openApp}</a>
-        {profile.biography && <><h2>{text.biography}</h2>{paragraphs(profile.biography).map((p, i) => <p key={i}>{p}</p>)}</>}
-        {profile.stories.length > 0 && <><h2>{text.stories}</h2>{profile.stories.map(s => <section key={s.id}><h3>{s.title}</h3>{paragraphs(s.body).map((p, i) => <p key={i}>{p}</p>)}</section>)}</>}
+        {profile.biography && <><h2>{text.biography}</h2><div lang={sourceLocale} dir={directionOf(sourceLocale)}>{paragraphs(profile.biography).map((p, i) => <p key={i}>{p}</p>)}</div></>}
+    {profile.stories.length > 0 && <><h2>{text.stories}</h2>{profile.stories.map(s => <section key={s.id} lang={isLocale(profile.sourceLocale) ? profile.sourceLocale : sourceLocale} dir={directionOf(isLocale(profile.sourceLocale) ? profile.sourceLocale : sourceLocale)}><h3>{s.title}</h3>{paragraphs(s.body).map((p, i) => <p key={i}>{p}</p>)}</section>)}</>}
         {books.length > 0 && <section className="books-section">
           <h2>{locale === 'fa' ? 'کتابخانه آثار' : locale === 'ar' ? 'مكتبة المؤلفات' : 'Library of works'}</h2>
           <ul className="books-list">{books.map(book => <li key={book.id}>
             <h3 lang={book.selectedEdition.locale}>{book.selectedEdition.title}</h3>
+            {book.selectedEdition.locale !== locale && <small className="book-fallback">{text.bookFallback}</small>}
             {book.selectedEdition.summary && <p lang={book.selectedEdition.locale}>{book.selectedEdition.summary}</p>}
             {book.availableEditions.map(e => <a key={e.id} href={`/api/routes/martyrs/public/books/${e.id}/file`} target="_blank" rel="noopener noreferrer">
               PDF · {LANGUAGE_NAMES[e.locale]}
@@ -163,22 +174,23 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
   const match = /^\/martyr\/([a-z0-9]+(?:-[a-z0-9]+)*)$/.exec(path);
   if (match) {
     const slug = match[1]!;
-    const {status, body: profile} = await bff<Profile>(`/public/profiles/${slug}`);
+    const requestedLocale = url.searchParams.get('lang');
+    const {status, body: profile} = await bff<Profile>(`/public/profiles/${slug}${isLocale(requestedLocale) ? `?locale=${requestedLocale}` : ''}`);
     if (!profile) {
       const locale: Locale = 'fa';
       return send(res, status === 404 ? 404 : 502, 'text/html; charset=utf-8', html(
         <Document locale={locale} title={`${TEXT[locale].notFound} | ${TEXT[locale].site}`} robots="noindex"><div className="public-list"><h1>{TEXT[locale].notFound}</h1><a href="/martyr">{TEXT[locale].all}</a></div></Document>), 'no-store');
     }
-    const locale: Locale = isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
+    const locale: Locale = isLocale(requestedLocale) ? requestedLocale : isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
     const {body: books} = await bff<Book[]>(`/public/profiles/${slug}/books?locale=${locale}`);
-    const canonical = `${ORIGIN}/martyr/${encodeURIComponent(profile.slug)}`;
+    const canonical = `${ORIGIN}${profileUrl(profile.slug, locale)}`;
     const image = profile.portrait ? `${ORIGIN}/api/routes/martyrs/public/media/${profile.portrait.mediaId}` : undefined;
     const title = `${profile.seo?.title ?? profile.fullName} | ${TEXT[locale].site}`;
     const description = profile.seo?.description ?? profile.shortDescription;
     const jsonLd = {'@context': 'https://schema.org', '@type': 'Person', name: profile.fullName, ...(description ? {description} : {}), ...(image ? {image} : {}), url: canonical,
       mainEntityOfPage: {'@type': 'ProfilePage', '@id': canonical, dateModified: profile.updatedAt, datePublished: profile.firstPublishedAt}};
     return send(res, 200, 'text/html; charset=utf-8', html(
-      <Document locale={locale} title={title} description={description} canonical={canonical} image={image} jsonLd={jsonLd}><ProfilePage profile={profile} books={books ?? []} /></Document>), 'public, max-age=300');
+      <Document locale={locale} title={title} description={description} canonical={canonical} alternateSlug={profile.slug} image={image} jsonLd={jsonLd}><ProfilePage profile={profile} books={books ?? []} locale={locale} /></Document>), 'public, max-age=300');
   }
   return send(res, 404, 'text/plain', 'Not found', 'no-store');
 }

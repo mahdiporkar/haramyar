@@ -17,12 +17,12 @@ import java.util.UUID;
 public final class ProfileViews {
   private ProfileViews() {}
 
-  public record PublicProfile(String slug, String fullName, String honorific, String contentLocale, String shortDescription, String biography,
+  public record PublicProfile(String slug, String fullName, String honorific, String contentLocale, String sourceLocale, String shortDescription, String biography,
       LifeEvent birth, LifeEvent martyrdom, MediaReference portrait, List<MediaReference> gallery, List<SourceReference> sources, List<Story> stories,
       SeoMetadata seo, Instant firstPublishedAt, Instant updatedAt) {
     public static PublicProfile of(MartyrProfile p) {
       var c = p.content();
-      return new PublicProfile(p.slug().value(), c.name().fullName(), c.name().honorific(), c.contentLocale(), c.shortDescription(), c.biography().text(),
+      return new PublicProfile(p.slug().value(), c.name().fullName(), c.name().honorific(), c.contentLocale(), c.contentLocale(), c.shortDescription(), c.biography().text(),
           c.birth(), c.martyrdom(), p.portrait(), p.gallery(), p.sources(), p.stories(), c.seo(), p.firstPublishedAt(), p.publishedAt());
     }
   }

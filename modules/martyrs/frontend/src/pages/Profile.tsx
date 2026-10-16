@@ -28,7 +28,8 @@ export function SourceList({sources}: {sources: Source[]}) {
 }
 
 export function useProfile(slug: string) {
-  return useLoad<PublicProfile>(() => api.profile(slug), [slug]);
+  const {locale} = useEnv();
+  return useLoad<PublicProfile>(() => api.profile(slug, locale), [slug, locale]);
 }
 
 export function Profile() {
@@ -61,25 +62,26 @@ export function Profile() {
   const born = lifeEventLabel(t, locale, p.birth);
   const died = lifeEventLabel(t, locale, p.martyrdom);
   return (
-    <div className="module-page reading-page" lang={p.contentLocale}>
+    <div className="module-page reading-page" lang={locale}>
       <ModuleBar title={t('profile')} onBack={() => navigate('/martyrs/directory')} backLabel={t('back')} />
       <div className="profile-cover">
         <div className="large-portrait">{p.portrait ? <img src={publicMediaUrl(p.portrait.mediaId)} alt={p.portrait.caption ?? p.fullName} /> : <Icon name="user" size={64} />}</div>
         <div>
           {p.honorific && <small>{p.honorific}</small>}
-          <h1 data-testid="profile-name">{p.fullName}</h1>
+          <h1 data-testid="profile-name" lang={p.contentLocale}>{p.fullName}</h1>
           {(born || died) && <p>{born && <>{t('born')}: {born}</>}{born && died && <br />}{died && <>{t('martyred')}: {died}</>}</p>}
         </div>
       </div>
       <article>
         <div className="article-actions"><button onClick={share}><Icon name="share" /> {shared ? t('linkCopied') : t('share')}</button></div>
-        {p.shortDescription && <p className="lead">{p.shortDescription}</p>}
-        {p.biography && <><h2>{t('biography')}</h2>{paragraphs(p.biography).map((text, i) => <p key={i}>{text}</p>)}</>}
+        {p.contentLocale !== locale && <p className="privacy">{t('profileTranslationPending')}</p>}
+        {p.shortDescription && <p className="lead" lang={p.contentLocale}>{p.shortDescription}</p>}
+        {p.biography && <><h2>{t('biography')}</h2><div lang={p.contentLocale}>{paragraphs(p.biography).map((text, i) => <p key={i}>{text}</p>)}</div></>}
         <div className="quote-safe"><Icon name="book" /><p>{t('sourceNote')}</p></div>
         {p.stories.length > 0 && <>
           <h2>{t('stories')}</h2>
           {p.stories.map(story => (
-            <button key={story.id} className="inline-story" onClick={() => navigate(`/martyrs/profiles/${p.slug}/stories/${story.id}`)}>
+            <button key={story.id} lang={p.sourceLocale} className="inline-story" onClick={() => navigate(`/martyrs/profiles/${p.slug}/stories/${story.id}`)}>
               <span>{t('story')}</span><b>{story.title}</b><small>{t('readStory')}</small><Icon name="chevron" />
             </button>
           ))}

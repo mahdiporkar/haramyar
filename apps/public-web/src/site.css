@@ -14,3 +14,10 @@
 .books-list { list-style: none; padding-inline-start: 0; display: grid; gap: 12px; }
 .books-list li { border: 1px solid var(--line); background: var(--white); border-radius: 14px; padding: 14px; }
 .books-list a { display: inline-flex; border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; margin-inline-end: 6px; text-decoration: none; color: var(--emerald); }
+.profile-languages { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-block: 18px; font-size: 13px; }
+.profile-languages > span { color: var(--muted); margin-inline-end: 6px; }
+.profile-languages a { border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; background: var(--white); color: var(--emerald); text-decoration: none; }
+.profile-languages a[aria-current='page'] { color: var(--white); background: var(--emerald); border-color: var(--emerald); font-weight: 700; }
+.profile-languages a:focus-visible { outline: 2px solid var(--emerald); outline-offset: 3px; }
+.translation-notice, .book-fallback { display: block; padding: 10px 12px; border-radius: 10px; background: var(--cream, #f9f4e9); color: var(--muted); font-size: 13px; }
+.book-fallback { margin-bottom: 8px; }

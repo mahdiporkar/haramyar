@@ -83,6 +83,7 @@ class MartyrsApiIT {
   void clean() {
     db.update("delete from martyr_book_edition");
     db.update("delete from martyr_book");
+    db.update("delete from martyr_profile_translation");
     db.update("delete from media_object");
     db.update("alter table martyr_editorial_history disable trigger martyr_history_no_update");
     db.update("delete from martyr_editorial_history");
@@ -168,6 +169,42 @@ class MartyrsApiIT {
     ok(call(reviewer(post("/editorial/profiles/" + id + "/archive")), Map.of("note", "Re-verification")), 200);
     assertThat(call(get("/public/profiles/fixture-profile"), null).getStatus()).as("archived is unpublished").isEqualTo(404);
     assertThat(db.queryForObject("select count(*) from martyr_editorial_history where profile_id = ?::uuid", Integer.class, id)).isEqualTo(4);
+  }
+
+  @Test
+  void translatedProfilesAppearOnlyAfterIndependentApproval() throws Exception {
+    String profileId = publishedProfile("translated-profile");
+    String url = "/editorial/profiles/" + profileId + "/translations/en";
+    assertThat(call(get("/editorial/profiles/" + profileId + "/translations"), null).getStatus()).isEqualTo(401);
+    JsonNode saved = ok(call(editor(put(url)), Map.of(
+        "fullName", "Translated Fixture", "shortDescription", "This is an English summary",
+        "biography", "A complete English-language biography for the synthetic test subject.",
+        "seoTitle", "English synthetic fixture")), 200);
+    assertThat(saved.size()).isEqualTo(1);
+    assertThat(saved.get(0).path("status").asText()).isEqualTo("DRAFT");
+
+    JsonNode hidden = ok(call(get("/public/profiles/translated-profile").param("locale", "en"), null), 200);
+    assertThat(hidden.path("contentLocale").asText()).isEqualTo("fa");
+    assertThat(hidden.path("fullName").asText()).doesNotContain("Translated Fixture");
+    assertThat(hidden.toString()).doesNotContain("This is an English summary");
+
+    ok(call(editor(post(url + "/submit")), Map.of("expectedVersion", 0)), 204);
+    JsonNode forbidden = ok(call(editor(post(url + "/publish")), Map.of("expectedVersion", 1)), 403);
+    assertThat(forbidden.path("code").asText()).isEqualTo("EDITORIAL_FOUR_EYES_REQUIRED");
+    assertThat(ok(call(get("/public/profiles/translated-profile").param("locale", "en"), null), 200)
+        .path("contentLocale").asText()).isEqualTo("fa");
+
+    ok(call(reviewer(post(url + "/publish")), Map.of("expectedVersion", 1)), 204);
+    JsonNode translated = ok(call(get("/public/profiles/translated-profile").param("locale", "en"), null), 200);
+    assertThat(translated.path("contentLocale").asText()).isEqualTo("en");
+    assertThat(translated.path("sourceLocale").asText()).isEqualTo("fa");
+    assertThat(translated.path("fullName").asText()).isEqualTo("Translated Fixture");
+    assertThat(translated.path("biography").asText()).contains("English-language biography");
+    assertThat(translated.toString()).doesNotContain(EDITOR.toString(), REVIEWER.toString(), "submittedBy");
+    assertThat(ok(call(get("/public/profiles/translated-profile"), null), 200).path("contentLocale").asText()).isEqualTo("fa");
+
+    ok(call(reviewer(post("/editorial/profiles/" + profileId + "/archive")), Map.of("note", "Archive translation test")), 200);
+    assertThat(call(get("/public/profiles/translated-profile").param("locale", "en"), null).getStatus()).isEqualTo(404);
   }
 
   @Test
