@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "manifestVersion": "1.0.0",
+  "manifestVersion": "1.0.1",
   "contractVersion": "1.1.0",
   "runtimeVersion": "1.0.0",
   "applicationKey": "haramyar",
   "moduleKey": "martyrs",
   "displayName": "معرفی شهدا",
   "resourceManifestVersion": "1.0.0",
-  "artifact": {"url": "${MFE_BASE_URL}/mfe/1.0.0/entry.js", "integrity": "computed-at-build", "format": "ES_MODULE"},
+  "artifact": {"url": "${MFE_BASE_URL}/mfe/1.0.1/entry.js", "integrity": "computed-at-build", "format": "ES_MODULE"},
   "styleIsolation": "SHADOW_DOM",
   "routes": [
     {"key": "home", "path": "/martyrs", "access": "PUBLIC", "navigation": {"label": "معرفی شهدا", "order": 10, "icon": "document"}},

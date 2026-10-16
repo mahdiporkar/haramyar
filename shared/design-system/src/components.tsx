@@ -38,7 +38,7 @@ export function Button({children, onClick, variant = 'primary', icon, type = 'bu
 export function ModuleBar({title, onBack, backLabel, actions}: {title: string; onBack: () => void; backLabel: string; actions?: ReactNode}) {
   return (
     <div className="module-bar">
-      <button className="icon-btn" onClick={onBack} aria-label={backLabel}><Icon name="arrow" /></button>
+      <button className="icon-btn" onClick={onBack} aria-label={backLabel}><Icon name="back" /></button>
       <b>{title}</b>
       {actions ?? <span style={{width: 42}} aria-hidden="true" />}
     </div>

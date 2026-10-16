@@ -1,6 +1,5 @@
 package ir.haramyar.keycloak;
 
-import jakarta.ws.rs.core.MultivaluedMap;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.resetcred.ResetCredentialChooseUser;
 
@@ -14,10 +13,11 @@ public class MobileResetCredentialChooseUser extends ResetCredentialChooseUser {
 
   @Override
   public void action(AuthenticationFlowContext context) {
-    MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-    String username = formData.getFirst("username");
-    if (MobileNumbers.looksLikePhone(username)) MobileNumbers.normalize(username).ifPresent(normalized -> formData.putSingle("username", normalized));
-    super.action(context);
+    var form = context.getHttpRequest().getDecodedFormParameters();
+    String username = form.getFirst("username");
+    var normalized = MobileNumbers.looksLikePhone(username) ? MobileNumbers.normalize(username) : java.util.Optional.<String>empty();
+    super.action(normalized.isEmpty() ? context : NormalizedRequests.context(AuthenticationFlowContext.class, context,
+        NormalizedRequests.request(context.getHttpRequest(), NormalizedRequests.withUsername(form, normalized.get()))));
   }
 
   @Override public String getId() { return ID; }

@@ -36,3 +36,4 @@ logs/
 /integrations/.hive-cli/
 /integrations/.modules/
 /integrations/hive/.solution/
+/.local-*.log

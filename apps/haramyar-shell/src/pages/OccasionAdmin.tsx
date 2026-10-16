@@ -46,7 +46,7 @@ export function OccasionAdmin() {
       <aside>
         <Brand name={t('brandName')} tagline={t('brandTagline')} onClick={() => navigate('/')} />
         <nav><button className="active"><Icon name="spark" /> {t('occasionAdmin')}</button></nav>
-        <button onClick={() => navigate('/account')}><Icon name="arrow" /> {t('back')}</button>
+        <button onClick={() => navigate('/account')}><Icon name="back" /> {t('back')}</button>
       </aside>
       <main>
         <div className="admin-heading"><div><small>{t('roleAccess')}</small><h1>{t('occasionAdmin')}</h1><p>{t('occasionAdminHint')}</p></div></div>

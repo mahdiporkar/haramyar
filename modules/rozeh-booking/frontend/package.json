@@ -1,6 +1,6 @@
 {
   "name": "@haramyar/rozeh-booking-frontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "Rozeh Booking micro-frontend (Hive ES_MODULE artifact, SHADOW_DOM isolation).",

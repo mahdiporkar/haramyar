@@ -30,7 +30,7 @@ function Frame() {
   return (
     <HyRoot theme={theme} locale={locale} direction={direction} className={`app ${shell ? 'has-shell' : ''}`}>
       <a className="sr-only" href="#content">{t('skipToContent')}</a>
-      {shell && <Header onSearch={() => setSearch(true)} onNotifications={() => setNotices(true)} unread={notifications.unread} />}
+      {shell && <Header onSearch={() => setSearch(true)} onNotifications={() => { notifications.reload(); setNotices(true); }} unread={notifications.unread} />}
       {Page ? <Page /> : admin ? <OccasionAdmin /> : <ModuleHost path={path} />}
       {shell && <BottomNav path={path} />}
       {search && <SearchOverlay onClose={() => setSearch(false)} />}

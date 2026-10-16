@@ -180,8 +180,7 @@
       "description": "Mobile normalization, profile, password policy and terms acceptance.",
       "providerId": "form-flow", "topLevel": false, "builtIn": false,
       "authenticationExecutions": [
-        {"authenticator": "haramyar-mobile-registration", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false},
-        {"authenticator": "registration-user-creation", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false},
+        {"authenticator": "haramyar-registration-user-creation", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false},
         {"authenticator": "registration-password-action", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 50, "userSetupAllowed": false},
         {"authenticator": "registration-terms-and-conditions", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 60, "userSetupAllowed": false},
         {"authenticator": "registration-recaptcha-action", "authenticatorFlow": false, "requirement": "DISABLED", "priority": 70, "userSetupAllowed": false}

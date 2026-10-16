@@ -34,8 +34,8 @@ export function storedLocale(): Locale {
     const value = globalThis.localStorage?.getItem(LOCALE_STORAGE_KEY);
     if (isLocale(value)) return value;
   } catch { /* storage unavailable */ }
-  const browser = globalThis.navigator?.language?.slice(0, 2);
-  return isLocale(browser) ? browser : DEFAULT_LOCALE;
+  // Persian-first: Arabic browsers start in Arabic; English is used only when chosen explicitly.
+  return globalThis.navigator?.language?.slice(0, 2) === 'ar' ? 'ar' : DEFAULT_LOCALE;
 }
 
 export function storeLocale(locale: Locale): void {

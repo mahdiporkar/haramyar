@@ -129,3 +129,13 @@ a.btn { text-decoration: none; }
 .menu-list a.menu-link b, .menu-list a.menu-link small { display: block; }
 .menu-list a.menu-link small { color: var(--muted); }
 .hy[data-theme="mourning"] .menu-list a.menu-link { background: var(--theme-surface); border-color: var(--theme-line); }
+
+/* Mourning theme contrast fixes (the prototype left these elements in light-theme colours) */
+.hy[data-theme="mourning"] .booking-hero h1, .hy[data-theme="mourning"] .booking-hero-copy > span { color: var(--theme-text); }
+.hy[data-theme="mourning"] .trust-strip { background: var(--theme-surface); border-color: var(--theme-line); box-shadow: none; }
+.hy[data-theme="mourning"] .trust-strip b { color: var(--theme-text); }
+.hy[data-theme="mourning"] .trust-strip > div { border-color: var(--theme-line); }
+.hy[data-theme="mourning"] .search-field kbd { background: #2a2224; color: var(--theme-text); }
+.hy[data-theme="mourning"] .btn-secondary { background: #f0ede7; color: #78191e; }
+.hy[data-theme="mourning"] .btn-ghost { color: var(--theme-text); border-color: rgba(240, 237, 231, .22); }
+.hy[data-theme="mourning"] .page-heading p, .hy[data-theme="mourning"] .greeting small { color: var(--theme-muted); }

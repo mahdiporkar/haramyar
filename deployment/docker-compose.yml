@@ -194,7 +194,7 @@ services:
 
   rozeh-booking:
     <<: *java
-    image: haramyar/rozeh-booking:${ROZEH_BOOKING_VERSION:-1.0.0}
+    image: haramyar/rozeh-booking:${ROZEH_BOOKING_VERSION:-1.0.1}
     build: {context: ../modules/rozeh-booking}
     environment: &business-env
       HARAMYAR_PROFILE: ${HARAMYAR_PROFILE:-development}
@@ -212,7 +212,7 @@ services:
 
   martyrs:
     <<: *java
-    image: haramyar/martyrs:${MARTYRS_VERSION:-1.0.0}
+    image: haramyar/martyrs:${MARTYRS_VERSION:-1.0.1}
     build: {context: ../modules/martyrs}
     environment:
       HARAMYAR_PROFILE: ${HARAMYAR_PROFILE:-development}

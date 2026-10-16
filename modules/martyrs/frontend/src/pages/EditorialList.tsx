@@ -14,7 +14,7 @@ export function EditorialLayout({children}: {children: ReactNode}) {
         <Brand name={c('brandName')} tagline={c('brandTagline')} onClick={() => navigate('/')} />
         <nav><button className="active" onClick={() => navigate('/martyrs/editorial')}><Icon name="document" /> {t('editorial')}</button>
           <button onClick={() => navigate('/martyrs')}><Icon name="book" /> {t('title')}</button></nav>
-        <button onClick={() => navigate('/account')}><Icon name="arrow" /> {c('back')}</button>
+        <button onClick={() => navigate('/account')}><Icon name="back" /> {c('back')}</button>
       </aside>
       <main>{children}</main>
     </div>

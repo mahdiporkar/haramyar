@@ -23,6 +23,10 @@ export function writeManifests({moduleDir, defaultBaseUrl}) {
   mkdirSync(out, {recursive: true});
   writeFileSync(join(out, 'mf-manifest.json'), JSON.stringify(mf, null, 2) + '\n');
   copyFileSync(join(moduleDir, 'manifests', 'resource-manifest.json'), join(out, 'resource-manifest.json'));
+  // The module image serves the artifact at its versioned path (dist/release mirrors /mfe/<version>/entry.js).
+  const release = join(frontend, 'dist', 'release', 'mfe', mf.manifestVersion);
+  mkdirSync(release, {recursive: true});
+  copyFileSync(entry, join(release, 'entry.js'));
   // Hive's offline validator verifies a sibling entry.js against the manifest's SRI.
   copyFileSync(entry, join(out, 'entry.js'));
   console.log(`${mf.moduleKey}@${mf.manifestVersion} ${integrity} (${bytes.length} bytes) -> ${mf.artifact.url}`);

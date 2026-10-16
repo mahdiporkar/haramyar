@@ -39,5 +39,5 @@ run('npm', ['run', 'build']);
     cpSync(join(root, 'modules', key, 'frontend', 'dist', 'hive'), join(modules, key, 'frontend', 'dist', 'hive'), {recursive: true});
   }
 }
-run('docker', ['compose', '-f', 'deployment/docker-compose.yml', '--env-file', 'deployment/.env', 'build']);
+run('docker', ['compose', '-f', 'deployment/docker-compose.yml', '--env-file', 'deployment/.env', '--profile', 'bootstrap', 'build']);
 console.log('\nAll images built.');

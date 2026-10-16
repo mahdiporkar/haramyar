@@ -4,7 +4,7 @@ FROM eclipse-temurin:21.0.8_9-jre-alpine
 RUN addgroup -S haramyar && adduser -S -G haramyar -H haramyar
 WORKDIR /app
 COPY backend/target/martyrs.jar /app/app.jar
-COPY frontend/dist/mfe/entry.js /app/static/mfe/1.0.0/entry.js
+COPY frontend/dist/release/ /app/static/
 ENV SPRING_WEB_RESOURCES_STATIC_LOCATIONS=file:/app/static/ PORT=8091
 USER haramyar
 EXPOSE 8091

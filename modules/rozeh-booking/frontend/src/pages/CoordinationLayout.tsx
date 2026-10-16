@@ -15,7 +15,7 @@ export function CoordinationLayout({active, children}: {active: 'overview' | 'pr
           <button className={active === 'overview' ? 'active' : ''} onClick={() => navigate('/rozeh/coordination')}><Icon name="grid" /> {t('coordinationHello')}</button>
           <button className={active === 'providers' ? 'active' : ''} onClick={() => navigate('/rozeh/providers')}><Icon name="users" /> {t('providers')}</button>
         </nav>
-        <button onClick={() => navigate('/account')}><Icon name="arrow" /> {c('back')}</button>
+        <button onClick={() => navigate('/account')}><Icon name="back" /> {c('back')}</button>
       </aside>
       <main>{children}</main>
     </div>

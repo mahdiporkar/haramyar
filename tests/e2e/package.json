@@ -2,5 +2,12 @@
   "name": "@haramyar/e2e",
   "version": "1.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "description": "End-to-end tests against the running stack (gateway -> Hive BFF -> Keycloak -> HaramYar services).",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 --test-timeout=900000 journey.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
 }

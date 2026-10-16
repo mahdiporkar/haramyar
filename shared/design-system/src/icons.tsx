@@ -3,7 +3,7 @@ import type {ReactNode} from 'react';
 export type IconName =
   | 'home' | 'grid' | 'activity' | 'user' | 'search' | 'bell' | 'arrow' | 'book' | 'calendar' | 'heart' | 'chevron' | 'clock' | 'map'
   | 'check' | 'share' | 'filter' | 'lock' | 'spark' | 'mosque' | 'users' | 'document' | 'headset' | 'bookmark' | 'close' | 'more'
-  | 'plus' | 'upload' | 'globe' | 'logout' | 'alert' | 'edit' | 'trash' | 'eye';
+  | 'back' | 'plus' | 'upload' | 'globe' | 'logout' | 'alert' | 'edit' | 'trash' | 'eye';
 
 /** Icon paths from the approved prototype (24px grid, 1.8 stroke), plus a few for new workflows. */
 const paths: Record<IconName, ReactNode> = {
@@ -14,6 +14,8 @@ const paths: Record<IconName, ReactNode> = {
   search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></>,
   bell: <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />,
   arrow: <path d="M19 12H5M11 18l-6-6 6-6" />,
+  // Points toward the start edge: right in RTL, left in LTR (mirrored like every directional icon).
+  back: <path d="M5 12h14M13 6l6 6-6 6" />,
   book: <><path d="M4 4h6a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4z" /><path d="M20 4h-4a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h4z" /></>,
   calendar: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 10h18" /></>,
   heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />,
@@ -43,7 +45,7 @@ const paths: Record<IconName, ReactNode> = {
 };
 
 /** Directional icons mirror in left-to-right layouts. */
-const DIRECTIONAL = new Set<IconName>(['arrow', 'chevron', 'logout']);
+const DIRECTIONAL = new Set<IconName>(['arrow', 'back', 'chevron', 'logout']);
 
 export function Icon({name, size = 22, label}: {name: IconName; size?: number; label?: string}) {
   return (
