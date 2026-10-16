@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HIVE_PLATFORM_DIR: ${{ github.workspace }}/hive-platform
+
+jobs:
+  hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No environment files, keys or Hive source in the repository
+        run: |
+          set -eu
+          tracked=$(git ls-files)
+          bad=$(printf '%s\n' "$tracked" | grep -E '(^|/)\.env$|(^|/)\.env\.[^/]*$|\.pem$|\.p12$|\.jks$|\.key$|^figma\.zip$|^vendor/|(^|/)target/|(^|/)dist/' | grep -v '\.env\.example$' || true)
+          if [ -n "$bad" ]; then echo "Tracked files that must not be committed:"; echo "$bad"; exit 1; fi
+          if git grep -nIE -- '-----BEGIN [A-Z ]*PRIVATE KEY-----' -- . ; then echo "Private key material found"; exit 1; fi
+          if git grep -nIE '"(secret|clientSecret|password)"\s*:\s*"[^"$][^"]{7,}"' -- 'integrations/keycloak/realm/*.json'; then echo "Literal secret in realm export (use \${...} placeholders)"; exit 1; fi
+          echo "ok"
+
+  build:
+    name: Frontends, manifests and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read pinned Hive commit
+        id: hive
+        run: echo "commit=$(node -p "require('./hive.lock.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: mahdiporkar/hive-platform
+          ref: ${{ steps.hive.outputs.commit }}
+          path: hive-platform
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build Hive SDK packages
+        working-directory: hive-platform
+        run: npm ci && npm run build
+      - name: Link Hive SDK
+        run: node tools/hive-sdk.mjs
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - run: npm run validate:manifests
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  backend:
+    name: Java services (unit, architecture and Testcontainers integration tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read pinned Hive commit
+        id: hive
+        run: echo "commit=$(node -p "require('./hive.lock.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: mahdiporkar/hive-platform
+          ref: ${{ steps.hive.outputs.commit }}
+          path: hive-platform
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Install hive-spring-boot-starter from the pinned Hive commit
+        working-directory: hive-platform
+        run: ./mvnw -B -q -pl starters/hive-spring-boot-starter -am install -DskipTests
+      - name: Verify
+        run: ./mvnw -B verify
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-failsafe-reports
+          path: |
+            **/target/surefire-reports/
+            **/target/failsafe-reports/
+          retention-days: 7
