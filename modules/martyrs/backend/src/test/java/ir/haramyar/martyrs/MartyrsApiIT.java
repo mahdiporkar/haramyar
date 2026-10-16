@@ -51,7 +51,7 @@ class MartyrsApiIT {
       .withCommand("server", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-dir=/data", "-master.volumeSizeLimitMB=64", "-volume.max=4")
       .withExposedPorts(8333)
       .waitingFor(Wait.forHttp("/").forPort(8333).forStatusCode(403).withStartupTimeout(java.time.Duration.ofMinutes(2)));
-  @Container static final GenericContainer<?> MINIO = new GenericContainer<>("minio/minio:RELEASE.2025-09-07T16-13-09Z")
+  @Container static final GenericContainer<?> MINIO = new GenericContainer<>("cgr.dev/chainguard/minio:latest")
       .withEnv("MINIO_ROOT_USER", "books-access-key")
       .withEnv("MINIO_ROOT_PASSWORD", "books-secret-key-0001")
       .withCommand("server", "/data", "--address", ":9000")
