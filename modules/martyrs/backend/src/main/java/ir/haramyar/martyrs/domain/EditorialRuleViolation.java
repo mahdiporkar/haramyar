@@ -13,5 +13,5 @@ public final class EditorialRuleViolation extends RuntimeException {
 
   public Code code() { return code; }
 
-  static EditorialRuleViolation invalid(String message) { return new EditorialRuleViolation(Code.INVALID_VALUE, message); }
+  public static EditorialRuleViolation invalid(String message) { return new EditorialRuleViolation(Code.INVALID_VALUE, message); }
 }
