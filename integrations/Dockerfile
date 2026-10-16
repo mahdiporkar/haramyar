@@ -7,8 +7,8 @@ RUN npm install --omit=dev --no-audit --no-fund --ignore-scripts=false esbuild@0
 WORKDIR /haramyar
 COPY hive/register.mjs hive/access.json /haramyar/integrations/hive/
 COPY hive/solution /haramyar/integrations/hive/solution
-COPY keycloak/dev-staff-fixtures.mjs /haramyar/integrations/keycloak/
+COPY keycloak/dev-staff-fixtures.mjs keycloak/realm-policy.mjs /haramyar/integrations/keycloak/
 COPY .modules/ /haramyar/modules/
 ENV HIVE_CLI=/opt/hive/cli/bin/hive.mjs
 USER node
-CMD ["sh", "-c", "node integrations/hive/register.mjs && if [ \"${HARAMYAR_DEV_FIXTURES:-false}\" = true ]; then node integrations/keycloak/dev-staff-fixtures.mjs; fi"]
+CMD ["sh", "-c", "node integrations/hive/register.mjs && node integrations/keycloak/realm-policy.mjs && if [ \"${HARAMYAR_DEV_FIXTURES:-false}\" = true ]; then node integrations/keycloak/dev-staff-fixtures.mjs; fi"]

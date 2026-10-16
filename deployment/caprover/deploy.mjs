@@ -1,10 +1,11 @@
 // Dedicated demo deployment. Credentials are read from the existing CapRover CLI session.
 // Secrets and rollback snapshots live only in gitignored .local/caprover.
-import {readFileSync,writeFileSync,mkdirSync,existsSync,cpSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,existsSync,cpSync,appendFileSync,rmSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {randomBytes,createHash} from 'node:crypto';
 const root=resolve(import.meta.dirname,'../..'), state=join(root,'.local/caprover');
+const sourceCommit=execFileSync('git',['rev-parse','--short=12','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 mkdirSync(state,{recursive:true});
 const args=process.argv.slice(2), command=args[0], selected=args.slice(1);
 const secretPath=join(state,'secrets.json');
@@ -15,6 +16,10 @@ if(!existsSync(secretPath)) {
  writeFileSync(secretPath,JSON.stringify(s,null,2),{mode:0o600,flag:'wx'});
 }
 const s=JSON.parse(readFileSync(secretPath));
+// Secrets added after the first run are generated once and appended (values never printed).
+for(const [k,make] of [['HARAMYAR_FIXTURE_STAFF_PASSWORD',()=>'Fx-'+randomBytes(12).toString('base64url')+'9']])if(!s[k]){s[k]=make();writeFileSync(secretPath,JSON.stringify(s,null,2),{mode:0o600});}
+// Test deployment switches (docs/DEPLOYMENT.md): restricted fixture accounts, self-registration and password reset off.
+const testDeployment={HARAMYAR_DEV_FIXTURES:'true',HARAMYAR_FIXTURE_CUSTOMERS:'+989990000001,+989990000002',HARAMYAR_SELF_REGISTRATION:'false',HARAMYAR_PASSWORD_RESET:'false'};
 const origin='https://haramyar.com', host=n=>'srv-captain--haramyar-'+n;
 const java='-Xms48m -Xmx160m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=32m -XX:+UseSerialGC -Xss512k';
 const db=(name,key)=>({SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:'5',SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE:'1',[key+'_DB_URL']:`jdbc:postgresql://${host('postgres')}:5432/${name}`,[key+'_DB_USER']:name,[key+'_DB_PASSWORD']:s[key+'_DB_PASSWORD']});
@@ -37,6 +42,7 @@ const apps={
  'booking-frontend':{port:8080,mem:32,env:{},mfe:'modules/rozeh-booking'},
  'martyrs-frontend':{port:8080,mem:32,env:{},mfe:'modules/martyrs'},
  'public-web':{port:8093,mem:96,env:{HARAMYAR_BFF_URL:`http://${host('web')}:8080`,HARAMYAR_PUBLIC_ORIGIN:origin,NODE_OPTIONS:'--max-old-space-size=48'},source:'apps/public-web',files:['Dockerfile','dist']},
+ bootstrap:{port:8080,mem:128,oneShot:true,env:{HIVE_AUTHORIZATION_URL:`http://${host('hive-authorization')}:8082`,HIVE_PROVISIONING_PASSWORD:s.HIVE_PROVISIONING_PASSWORD,ROZEH_BOOKING_URL:`http://${host('booking-api')}:8090`,MARTYRS_URL:`http://${host('martyrs-api')}:8091`,SHELL_SERVICE_URL:`http://${host('shell-service')}:8092`,ROZEH_BOOKING_MFE_URL:`http://${host('booking-frontend')}:8080`,MARTYRS_MFE_URL:`http://${host('martyrs-frontend')}:8080`,KEYCLOAK_URL:`http://${host('keycloak')}:8080`,KEYCLOAK_ADMIN_USER:'haramyar-bootstrap',KEYCLOAK_ADMIN_PASSWORD:s.KEYCLOAK_ADMIN_PASSWORD,HARAMYAR_OIDC_ISSUER:origin+'/realms/haramyar',HARAMYAR_FIXTURE_STAFF_PASSWORD:s.HARAMYAR_FIXTURE_STAFF_PASSWORD,...testDeployment}},
  console:{port:8080,mem:32,env:{},source:'../hive-platform',files:['apps/operator-console/dist','infra/nginx/console.conf.template']},
  web:{port:8080,mem:64,public:true,env:{HARAMYAR_BFF_UPSTREAM:`http://${host('hive-bff')}:8081`,HARAMYAR_KEYCLOAK_UPSTREAM:`http://${host('keycloak')}:8080`,HARAMYAR_PUBLIC_WEB_UPSTREAM:`http://${host('public-web')}:8093`,HARAMYAR_CONSOLE_UPSTREAM:`http://${host('console')}:8080`},source:'apps/haramyar-shell',files:['Dockerfile','dist','nginx.conf.template','security-headers.inc','keycloak-proxy.inc']}
 };
@@ -46,7 +52,7 @@ async function api(path,body){const r=await fetchReadRetry(machine.baseUrl+'/api
 const getApps=async()=>(await api('/user/apps/appDefinitions')).appDefinitions;
 const copy=(from,to)=>{mkdirSync(resolve(to,'..'),{recursive:true});cpSync(from,to,{recursive:true});};
 function prepare(name){
- const a=apps[name], dir=join(state,'contexts',name);mkdirSync(dir,{recursive:true});
+ const a=apps[name], dir=join(state,'contexts',name);rmSync(dir,{recursive:true,force:true});mkdirSync(dir,{recursive:true});
  if(a.source)for(const f of a.files)copy(join(root,a.source,f),join(dir,f));
  if(name==='console')copy(join(root,'../hive-platform/apps/operator-console/Dockerfile'),join(dir,'Dockerfile'));
  if(name==='keycloak'){const p=join(dir,'Dockerfile');writeFileSync(p,readFileSync(p,'utf8').replace('RUN /opt/keycloak/bin/kc.sh build','RUN JAVA_OPTS_APPEND="-Xms64m -Xmx256m" /opt/keycloak/bin/kc.sh build'));}
@@ -55,6 +61,15 @@ function prepare(name){
  if(name==='postgres'){copy(join(root,'deployment/postgres/init-databases.sh'),join(dir,'init.sh'));writeFileSync(join(dir,'init.sh'),readFileSync(join(dir,'init.sh'),'utf8').replaceAll('\r\n','\n'));writeFileSync(join(dir,'Dockerfile'),`FROM ${a.base}\nCOPY init.sh /docker-entrypoint-initdb.d/10-haramyar.sh\nHEALTHCHECK CMD pg_isready -U postgres || exit 1\n`);}
  if(name==='rabbitmq'){for(const f of ['rabbitmq.conf','definitions.json'])copy(join(root,'deployment/rabbitmq',f),join(dir,f));writeFileSync(join(dir,'Dockerfile'),`FROM ${a.base}\nCOPY rabbitmq.conf /etc/rabbitmq/conf.d/20-haramyar.conf\nCOPY definitions.json /etc/rabbitmq/definitions.json\nHEALTHCHECK --interval=30s --start-period=90s CMD rabbitmq-diagnostics -q check_port_connectivity || exit 1\n`);}
  if(name==='object-storage'){writeFileSync(join(dir,'entrypoint.sh'),readFileSync(join(root,'deployment/seaweedfs/entrypoint.sh'),'utf8').replaceAll('\r\n','\n'));writeFileSync(join(dir,'Dockerfile'),`FROM ${a.base}\nCOPY entrypoint.sh /opt/haramyar/entrypoint.sh\nENTRYPOINT ["/bin/sh","/opt/haramyar/entrypoint.sh"]\n`);}
+ if(name==='bootstrap'){
+  const hive=resolve(root,'../hive-platform');
+  copy(join(root,'integrations/Dockerfile'),join(dir,'Dockerfile'));
+  cpSync(join(hive,'cli'),join(dir,'.hive-cli/cli'),{recursive:true,filter:p=>!p.includes('node_modules')});
+  copy(join(root,'vendor/hive-sdk/contracts'),join(dir,'.hive-cli/contracts'));
+  copy(join(root,'integrations/hive'),join(dir,'hive'));
+  for(const f of ['dev-staff-fixtures.mjs','realm-policy.mjs'])copy(join(root,'integrations/keycloak',f),join(dir,'keycloak',f));
+  for(const m of ['rozeh-booking','martyrs'])for(const p of ['manifests','frontend/dist/hive'])copy(join(root,'modules',m,p),join(dir,'.modules',m,p));
+ }
  writeFileSync(join(dir,'captain-definition'),JSON.stringify({schemaVersion:2,...(a.image?{imageName:a.image}:{dockerfilePath:'./Dockerfile'})}));
  const tar=join(state,name+'.tar');execFileSync('tar',['-cf',tar,'-C',dir,'.']);return tar;
 }
@@ -63,11 +78,14 @@ async function deploy(name){
  let current=(await getApps()).find(x=>x.appName===appName);
  if(!current){await api('/user/apps/appDefinitions/register',{appName,hasPersistentData:!!a.volume});current=(await getApps()).find(x=>x.appName===appName);}
  const snap=join(state,appName+'-before.json');if(!existsSync(snap))writeFileSync(snap,JSON.stringify(current,null,2),{mode:0o600});
+ const previous=current.versions?.find(v=>v.version===current.deployedVersion);
+ appendFileSync(join(state,'history.jsonl'),JSON.stringify({at:new Date().toISOString(),app:appName,commit:sourceCommit,previousVersion:current.deployedVersion,previousImage:previous?.deployedImageName??null})+'\n');
+ const running=current.deployedVersion>0&&!a.oneShot?Math.max(current.instanceCount,1):0;
  const container={...(a.command?{Args:a.command}:{}),...(a.hostname?{Hostname:a.hostname}:{}),StopGracePeriod:30000000000};
  const override={TaskTemplate:{Resources:{Limits:{MemoryBytes:a.mem*1024*1024}},ContainerSpec:container,RestartPolicy:{Condition:'on-failure',Delay:10000000000}},UpdateConfig:{Parallelism:1,Order:'stop-first',FailureAction:'rollback',Monitor:180000000000},RollbackConfig:{Order:'stop-first'}};
- const config={...current,appName,instanceCount:0,containerHttpPort:a.port,notExposeAsWebApp:!a.public,forceSsl:!!a.public,ports:[],volumes:a.volume?[{containerPath:a.volume[0],volumeName:a.volume[1]}]:[],envVars:Object.entries(a.env).map(([key,value])=>({key,value:String(value)})),serviceUpdateOverride:JSON.stringify(override),description:'HaramYar isolated demo deployment'}; await api('/user/apps/appDefinitions/update',config);
+ const config={...current,appName,instanceCount:running,containerHttpPort:a.port,notExposeAsWebApp:!a.public,forceSsl:!!a.public,ports:[],volumes:a.volume?[{containerPath:a.volume[0],volumeName:a.volume[1]}]:[],envVars:Object.entries(a.env).map(([key,value])=>({key,value:String(value)})),serviceUpdateOverride:JSON.stringify(override),description:'HaramYar isolated demo deployment'}; await api('/user/apps/appDefinitions/update',config);
  const tar=prepare(name), hash=createHash('sha256').update(readFileSync(tar)).digest('hex');
- const form=new FormData();form.set('sourceFile',new Blob([readFileSync(tar)]),name+'.tar');form.set('gitHash',hash);
+ const form=new FormData();form.set('sourceFile',new Blob([readFileSync(tar)]),name+'.tar');form.set('gitHash',sourceCommit+'-'+hash.slice(0,12));
  await api('/user/apps/appData/'+appName+'?detached=1',form);
  console.log(appName+' build submitted artifact='+hash);
  for(let n=0;n<180;n++){await new Promise(r=>setTimeout(r,2000));const build=await api('/user/apps/appData/'+appName);if(build.isAppBuilding)continue;if(build.isBuildFailed)throw Error(appName+' build failed: '+JSON.stringify(build.logs).slice(-2500));await api('/user/apps/appDefinitions/update',{...config,instanceCount:1});console.log(appName+' build complete and instance started');return;}

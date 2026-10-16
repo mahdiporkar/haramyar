@@ -2,6 +2,8 @@
 // Provisions staff accounts the way an administrator would: a Keycloak account with the haramyar-staff realm role,
 // a strong password and the CONFIGURE_TOTP required action (MFA is enrolled on first login), pre-bound to a Hive
 // canonical user that receives business roles. No Hive platform role is ever assigned.
+// Optional restricted test customers (HARAMYAR_FIXTURE_CUSTOMERS="+989990000001,+989990000002") let a test deployment
+// keep self-registration disabled: plain mobile-number accounts, no staff role, labelled "Fixture", never verified.
 //
 // Environment: KEYCLOAK_URL (internal), KEYCLOAK_ADMIN_USER, KEYCLOAK_ADMIN_PASSWORD, HARAMYAR_OIDC_ISSUER (as browsers
 // see it), HIVE_AUTHORIZATION_URL, HIVE_PROVISIONING_PASSWORD, HARAMYAR_FIXTURE_STAFF_PASSWORD.
@@ -54,4 +56,15 @@ for (const member of STAFF) {
   if (!hiveUser) hiveUser = await json(await hiveCall('POST', '/admin/users', {tenantId: 'default', displayName, identities: [{issuer, subject: existing.id}]}), `hive user ${member.username}`);
   for (const role of member.roles) await json(await hiveCall('POST', `/admin/roles/${role}/assignments`, {subject: `user:${hiveUser.id}`}), `assign ${role}`);
   console.log(`staff fixture ${member.username} -> hive ${hiveUser.id} (${member.roles.join(', ')})`);
+}
+
+// Test customers: ordinary accounts (default realm role only); HaramYar onboarding assigns haramyar-user on first login.
+for (const mobile of (process.env.HARAMYAR_FIXTURE_CUSTOMERS ?? '').split(',').map(v => v.trim()).filter(Boolean)) {
+  if (!/^\+(989\d{9}|9647\d{9})$/.test(mobile)) throw new Error(`test customer ${mobile} must be a normalized E.164 mobile number`);
+  const [existing] = await json(await kc(`/users?exact=true&username=${encodeURIComponent(mobile)}`), 'lookup');
+  if (!existing) await json(await kc('/users', {method: 'POST', body: JSON.stringify({
+    username: mobile, firstName: 'Test customer', lastName: 'Fixture', enabled: true,
+    credentials: [{type: 'password', value: staffPassword, temporary: false}],
+  })}), `create ${mobile}`);
+  console.log(`test customer fixture ${mobile}${existing ? ' (exists)' : ''}`);
 }

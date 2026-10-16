@@ -278,6 +278,10 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       HARAMYAR_OIDC_ISSUER: ${HARAMYAR_PUBLIC_ORIGIN:-http://localhost:8080}/realms/haramyar
       HARAMYAR_FIXTURE_STAFF_PASSWORD: ${HARAMYAR_FIXTURE_STAFF_PASSWORD:-}
+      HARAMYAR_FIXTURE_CUSTOMERS: ${HARAMYAR_FIXTURE_CUSTOMERS:-}
+      # Local development keeps self-registration on (the E2E suite registers new accounts); test/production default off.
+      HARAMYAR_SELF_REGISTRATION: ${HARAMYAR_SELF_REGISTRATION:-true}
+      HARAMYAR_PASSWORD_RESET: ${HARAMYAR_PASSWORD_RESET:-false}
     depends_on:
       authorization: {condition: service_healthy}
       rozeh-booking: {condition: service_healthy}
