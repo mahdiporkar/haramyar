@@ -3,6 +3,7 @@ package ir.haramyar.martyrs.infrastructure.storage;
 import ir.haramyar.martyrs.application.BookObjectStore;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Path;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,9 +45,8 @@ public final class MinioBookStorage implements BookObjectStore {
   }
 
   @Override
-  public void put(String key, InputStream stream, long size) {
-    s3.putObject(b -> b.bucket(bucket).key(key).contentType("application/pdf").contentLength(size),
-        RequestBody.fromInputStream(stream, size));
+  public void put(String key, Path file) {
+    s3.putObject(b -> b.bucket(bucket).key(key).contentType("application/pdf"), RequestBody.fromFile(file));
   }
 
   @Override

@@ -4,6 +4,8 @@ import ir.haramyar.martyrs.domain.EditorialRuleViolation;
 import ir.haramyar.martyrs.domain.Text;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -79,27 +81,33 @@ public class BookLibrary {
     return editorial(profileId);
   }
 
-  /** Upload is streaming: never build a full PDF byte[] on the JVM heap. */
+  /** Spool to a restricted temporary file so S3 retries can reopen it without loading 30 MiB on the heap. */
   public void upload(UUID editionId, long expectedVersion, MultipartFile file) throws IOException {
     var edition = edition(editionId);
     if (!"DRAFT".equals(edition.status())) throw notEditable();
     long size = file.getSize();
     if (size < 5 || size > MAX_PDF_BYTES) throw EditorialRuleViolation.invalid("PDF must be 5 bytes to 30 MiB");
     String key = "books/" + editionId + "/" + UUID.randomUUID() + ".pdf";
-    try (InputStream stream = file.getInputStream()) {
-      byte[] magic = stream.readNBytes(5);
-      if (magic.length != 5 || !java.util.Arrays.equals(magic, "%PDF-".getBytes(java.nio.charset.StandardCharsets.US_ASCII)))
-        throw EditorialRuleViolation.invalid("Only PDF documents are allowed");
+    Path temporary = Files.createTempFile("haramyar-book-", ".pdf");
+    try {
       var digest = sha256();
-      try (DigestInputStream content = new DigestInputStream(
-          new java.io.SequenceInputStream(new java.io.ByteArrayInputStream(magic), stream), digest)) {
-        storage.put(key, content, size);
+      try (DigestInputStream content = new DigestInputStream(file.getInputStream(), digest);
+           var target = Files.newOutputStream(temporary)) {
+        byte[] magic = content.readNBytes(5);
+        if (magic.length != 5 || !java.util.Arrays.equals(magic, "%PDF-".getBytes(java.nio.charset.StandardCharsets.US_ASCII)))
+          throw EditorialRuleViolation.invalid("Only PDF documents are allowed");
+        target.write(magic);
+        content.transferTo(target);
       }
+      if (Files.size(temporary) != size) throw EditorialRuleViolation.invalid("PDF size mismatch");
+      storage.put(key, temporary);
       String sha = java.util.HexFormat.of().formatHex(digest.digest());
       if (db.update("""
           update martyr_book_edition set storage_key=?,sha256=?,size_bytes=?,version=version+1
           where id=? and status='DRAFT' and version=?
           """, key, sha, size, editionId, expectedVersion) != 1) throw new Ports.ConcurrentModification();
+    } finally {
+      Files.deleteIfExists(temporary);
     }
     // A stale concurrent update can leave an unreachable object; keys are opaque and private.
   }

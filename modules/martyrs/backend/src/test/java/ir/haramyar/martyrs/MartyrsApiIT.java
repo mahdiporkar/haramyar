@@ -3,9 +3,11 @@ package ir.haramyar.martyrs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -246,5 +248,11 @@ class MartyrsApiIT {
     JsonNode available = ok(call(get("/public/profiles/book-pdf-fixture/books").param("locale", "fa"), null), 200);
     assertThat(available.size()).isEqualTo(1);
     assertThat(available.get(0).path("selectedEdition").path("locale").asText()).isEqualTo("fa");
+    var streamed = mvc.perform(get("/public/books/" + editionId + "/file"))
+        .andExpect(request().asyncStarted()).andReturn();
+    var pdf = mvc.perform(asyncDispatch(streamed)).andReturn().getResponse();
+    assertThat(pdf.getStatus()).isEqualTo(200);
+    assertThat(pdf.getContentType()).isEqualTo("application/pdf");
+    assertThat(pdf.getContentAsByteArray()).isEqualTo(original.getBytes());
   }
 }
