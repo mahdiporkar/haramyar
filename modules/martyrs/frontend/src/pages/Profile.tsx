@@ -4,6 +4,7 @@ import {api, isNotFound, publicMediaUrl, type PublicProfile, type Source} from '
 import {useEnv, useLoad} from '../env.tsx';
 import {lifeEventLabel, paragraphs} from '../labels.ts';
 import type {MessageKey} from '../messages.ts';
+import {PublicBooks} from './BookLibrary.tsx';
 
 /** Canonical, server-rendered URL of a published profile (apps/public-web). */
 export const canonicalUrl = (slug: string) => `${location.origin}/martyr/${encodeURIComponent(slug)}`;
@@ -83,6 +84,7 @@ export function Profile() {
             </button>
           ))}
         </>}
+        <PublicBooks slug={p.slug} />
         {p.gallery.length > 0 && <>
           <h2>{t('gallery')}</h2>
           <div className="gallery">{p.gallery.map(m => <figure key={m.mediaId}><img src={publicMediaUrl(m.mediaId)} alt={m.caption ?? ''} loading="lazy" />{(m.caption || m.credit) && <figcaption>{[m.caption, m.credit].filter(Boolean).join(' — ')}</figcaption>}</figure>)}</div>

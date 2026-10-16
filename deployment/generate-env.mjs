@@ -16,6 +16,7 @@ const values = {
   POSTGRES_PASSWORD: secret(), HIVE_DB_PASSWORD: secret(), OPENFGA_DB_PASSWORD: secret(), KEYCLOAK_DB_PASSWORD: secret(),
   ROZEH_DB_PASSWORD: secret(), MARTYRS_DB_PASSWORD: secret(), SHELL_DB_PASSWORD: secret(),
   REDIS_PASSWORD: secret(), RABBITMQ_PASSWORD: secret(), S3_ACCESS_KEY: secret(12), S3_SECRET_KEY: secret(),
+  BOOKS_S3_ACCESS_KEY: secret(12), BOOKS_S3_SECRET_KEY: secret(),
   HIVE_INTERNAL_PASSWORD: secret(), HIVE_PROVISIONING_PASSWORD: secret(), HIVE_VAULT_KEY: randomBytes(32).toString('base64'),
   HARAMYAR_OIDC_CLIENT_SECRET: secret(), KEYCLOAK_ADMIN_USER: 'haramyar-bootstrap', KEYCLOAK_ADMIN_PASSWORD: secret(),
   HARAMYAR_DEV_FIXTURES: args.has('--dev-fixtures') ? 'true' : 'false',

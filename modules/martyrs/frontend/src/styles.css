@@ -7,3 +7,11 @@
 @source "../../../../shared/design-system/src";
 
 :host { display: block; }
+.books-section { margin-block: 24px; }
+.book-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.book-card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-block: 10px; }
+.book-card h4 { margin: 0 0 8px; }
+.book-card p { line-height: 1.8; }
+.book-editions { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.book-editions a { display: inline-flex; padding: 6px 11px; border: 1px solid var(--line); border-radius: 30px; color: var(--emerald); text-decoration: none; }
+.book-source { font-size: .85rem; color: var(--muted); }

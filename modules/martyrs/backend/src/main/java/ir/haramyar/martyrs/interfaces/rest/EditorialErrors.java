@@ -41,7 +41,7 @@ class EditorialErrors {
 
   @ExceptionHandler(MaxUploadSizeExceededException.class)
   ResponseEntity<Map<String, Object>> tooLarge(MaxUploadSizeExceededException error) {
-    return PlatformErrors.body(HttpStatus.PAYLOAD_TOO_LARGE, "EDITORIAL_LIMIT_EXCEEDED", "Images may not exceed 5 MiB");
+    return PlatformErrors.body(HttpStatus.PAYLOAD_TOO_LARGE, "EDITORIAL_LIMIT_EXCEEDED", "Book PDFs may not exceed 30 MiB");
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

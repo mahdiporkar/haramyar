@@ -5,6 +5,7 @@ import {api, previewMediaUrl, type Calendar, type ContentBody, type EditorialPro
 import {useEnv, useLoad} from '../env.tsx';
 import type {MessageKey} from '../messages.ts';
 import {EditorialLayout} from './EditorialList.tsx';
+import {EditorialBooks} from './BookLibrary.tsx';
 
 const CALENDARS: Calendar[] = ['SOLAR_HIJRI', 'LUNAR_HIJRI', 'GREGORIAN'];
 const KINDS: Source['kind'][] = ['ARCHIVE', 'BOOK', 'INTERVIEW', 'ARTICLE', 'WEBSITE', 'OTHER'];
@@ -109,6 +110,7 @@ export function EditorialProfile() {
           </form>
           {eventFields('birth', t('born'))}
           {eventFields('martyrdom', t('martyred'))}
+          <EditorialBooks profileId={profile.id} />
           <section className="panel" style={{marginBottom: 12}}>
             <h2>{t('sources')}</h2>
             <ul className="sources" style={{paddingInlineStart: 0}}>

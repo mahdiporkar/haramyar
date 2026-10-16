@@ -51,12 +51,21 @@ class MartyrsApiIT {
       .withCommand("server", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-dir=/data", "-master.volumeSizeLimitMB=64", "-volume.max=4")
       .withExposedPorts(8333)
       .waitingFor(Wait.forHttp("/").forPort(8333).forStatusCode(403).withStartupTimeout(java.time.Duration.ofMinutes(2)));
+  @Container static final GenericContainer<?> MINIO = new GenericContainer<>("minio/minio:RELEASE.2025-09-07T16-13-09Z")
+      .withEnv("MINIO_ROOT_USER", "books-access-key")
+      .withEnv("MINIO_ROOT_PASSWORD", "books-secret-key-0001")
+      .withCommand("server", "/data", "--address", ":9000")
+      .withExposedPorts(9000)
+      .waitingFor(Wait.forHttp("/minio/health/live").forPort(9000).forStatusCode(200));
 
   @DynamicPropertySource
   static void storage(DynamicPropertyRegistry registry) {
     registry.add("haramyar.martyrs.storage.endpoint", () -> "http://" + S3.getHost() + ":" + S3.getMappedPort(8333));
     registry.add("haramyar.martyrs.storage.access-key", () -> "test-access-key");
     registry.add("haramyar.martyrs.storage.secret-key", () -> "test-secret-key-0001");
+    registry.add("haramyar.martyrs.books.endpoint", () -> "http://" + MINIO.getHost() + ":" + MINIO.getMappedPort(9000));
+    registry.add("haramyar.martyrs.books.access-key", () -> "books-access-key");
+    registry.add("haramyar.martyrs.books.secret-key", () -> "books-secret-key-0001");
   }
 
   static final UUID EDITOR = UUID.randomUUID();
@@ -70,6 +79,8 @@ class MartyrsApiIT {
 
   @BeforeEach
   void clean() {
+    db.update("delete from martyr_book_edition");
+    db.update("delete from martyr_book");
     db.update("delete from media_object");
     db.update("alter table martyr_editorial_history disable trigger martyr_history_no_update");
     db.update("delete from martyr_editorial_history");
@@ -211,5 +222,29 @@ class MartyrsApiIT {
     String id = publishedProfile("history-fixture");
     org.assertj.core.api.Assertions.assertThatThrownBy(() -> db.update("update martyr_editorial_history set note = 'x' where profile_id = ?::uuid", id))
         .hasMessageContaining("append-only");
+  }
+
+  @Test
+  void aTranslatedBookIsPrivateUntilItsCompletePdfIsApproved() throws Exception {
+    String profileId = publishedProfile("book-pdf-fixture");
+    JsonNode work = ok(call(editor(post("/editorial/profiles/" + profileId + "/books")), Map.of(
+        "kind", "AUTHORED", "originalTitle", "كتاب تجريبي", "sourceUrl", "https://example.org/books/demo")), 201);
+    String bookId = work.path("id").asText();
+    JsonNode editions = ok(call(editor(put("/editorial/books/" + bookId + "/editions/fa")), Map.of(
+        "title", "کتاب نمونه آزمایشی", "summary", "آزمایش مسیر ترجمه و PDF")), 200);
+    String editionId = editions.get(0).path("editions").get(0).path("id").asText();
+    assertThat(ok(call(get("/public/profiles/book-pdf-fixture/books").param("locale", "fa"), null), 200).size()).isZero();
+    assertThat(call(get("/public/books/" + editionId + "/file"), null).getStatus()).isEqualTo(404);
+    var fake = new MockMultipartFile("file", "invalid.pdf", "application/pdf", "not a pdf".getBytes());
+    ok(mvc.perform(editor(multipart("/editorial/books/editions/" + editionId + "/file").file(fake).param("expectedVersion", "0"))).andReturn().getResponse(), 400);
+    var original = new MockMultipartFile("file", "fixture.pdf", "application/pdf", "%PDF-1.7\nfixture".getBytes());
+    ok(mvc.perform(editor(multipart("/editorial/books/editions/" + editionId + "/file").file(original).param("expectedVersion", "0"))).andReturn().getResponse(), 204);
+    ok(call(editor(post("/editorial/books/editions/" + editionId + "/submit")), Map.of("expectedVersion", 1)), 204);
+    JsonNode forbidden = ok(call(editor(post("/editorial/books/editions/" + editionId + "/publish")), Map.of("expectedVersion", 2)), 403);
+    assertThat(forbidden.path("code").asText()).isEqualTo("EDITORIAL_FOUR_EYES_REQUIRED");
+    ok(call(reviewer(post("/editorial/books/editions/" + editionId + "/publish")), Map.of("expectedVersion", 2)), 204);
+    JsonNode available = ok(call(get("/public/profiles/book-pdf-fixture/books").param("locale", "fa"), null), 200);
+    assertThat(available.size()).isEqualTo(1);
+    assertThat(available.get(0).path("selectedEdition").path("locale").asText()).isEqualTo("fa");
   }
 }

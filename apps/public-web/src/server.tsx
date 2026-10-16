@@ -24,6 +24,9 @@ interface Profile {
   portrait?: Media; gallery: Media[]; sources: Source[]; stories: {id: string; title: string; body: string}[]; seo?: {title?: string; description?: string}; firstPublishedAt: string; updatedAt: string;
 }
 interface Summary {slug: string; fullName: string; honorific?: string; shortDescription?: string; portraitMediaId?: string}
+interface Book {id: string; kind: 'AUTHORED' | 'ABOUT'; sourceUrl: string; selectedEdition: {title: string; summary?: string; locale: Locale};
+  availableEditions: {id: string; title: string; locale: Locale}[]}
+const LANGUAGE_NAMES: Record<Locale, string> = {fa: 'فارسی', ar: 'العربية', en: 'English'};
 
 const TEXT = {
   fa: {site: 'حرم‌یار', archive: 'معرفی شهدا', born: 'تولد', martyred: 'شهادت', biography: 'زندگی‌نامه', stories: 'خاطرات و روایت‌ها', sources: 'منابع و مراجع', openApp: 'مشاهده در اپلیکیشن حرم‌یار', notFound: 'این پرونده در دسترس نیست', all: 'همه پرونده‌ها', empty: 'هنوز پرونده‌ای منتشر نشده است', note: 'محتوای حرم‌یار تنها پس از بررسی منبع و تأیید تحریریه منتشر می‌شود.', cal: {SOLAR_HIJRI: 'ه‍.ش', LUNAR_HIJRI: 'ه‍.ق', GREGORIAN: 'م'}},
@@ -77,7 +80,7 @@ function Document({locale, title, description, canonical, image, jsonLd, robots,
   );
 }
 
-function ProfilePage({profile}: {profile: Profile}) {
+function ProfilePage({profile, books}: {profile: Profile; books: Book[]}) {
   const locale: Locale = isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
   const text = TEXT[locale];
   const born = lifeEvent(profile.birth, locale);
@@ -98,6 +101,16 @@ function ProfilePage({profile}: {profile: Profile}) {
         <a className="btn btn-primary open-in-app" href={`/martyrs/profiles/${encodeURIComponent(profile.slug)}`}>{text.openApp}</a>
         {profile.biography && <><h2>{text.biography}</h2>{paragraphs(profile.biography).map((p, i) => <p key={i}>{p}</p>)}</>}
         {profile.stories.length > 0 && <><h2>{text.stories}</h2>{profile.stories.map(s => <section key={s.id}><h3>{s.title}</h3>{paragraphs(s.body).map((p, i) => <p key={i}>{p}</p>)}</section>)}</>}
+        {books.length > 0 && <section className="books-section">
+          <h2>{locale === 'fa' ? 'کتابخانه آثار' : locale === 'ar' ? 'مكتبة المؤلفات' : 'Library of works'}</h2>
+          <ul className="books-list">{books.map(book => <li key={book.id}>
+            <h3 lang={book.selectedEdition.locale}>{book.selectedEdition.title}</h3>
+            {book.selectedEdition.summary && <p lang={book.selectedEdition.locale}>{book.selectedEdition.summary}</p>}
+            {book.availableEditions.map(e => <a key={e.id} href={`/api/routes/martyrs/public/books/${e.id}/file`} target="_blank" rel="noopener noreferrer">
+              PDF · {LANGUAGE_NAMES[e.locale]}
+            </a>)}
+          </li>)}</ul>
+        </section>}
         <h2>{text.sources}</h2>
         <div className="sources"><ul>{profile.sources.map(s => (
           <li key={s.id}><cite>{s.title}</cite>{[s.author, s.publisher, s.year].filter(Boolean).length > 0 && <> — {[s.author, s.publisher, s.year].filter(Boolean).join('، ')}</>}
@@ -157,6 +170,7 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
         <Document locale={locale} title={`${TEXT[locale].notFound} | ${TEXT[locale].site}`} robots="noindex"><div className="public-list"><h1>{TEXT[locale].notFound}</h1><a href="/martyr">{TEXT[locale].all}</a></div></Document>), 'no-store');
     }
     const locale: Locale = isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
+    const {body: books} = await bff<Book[]>(`/public/profiles/${slug}/books?locale=${locale}`);
     const canonical = `${ORIGIN}/martyr/${encodeURIComponent(profile.slug)}`;
     const image = profile.portrait ? `${ORIGIN}/api/routes/martyrs/public/media/${profile.portrait.mediaId}` : undefined;
     const title = `${profile.seo?.title ?? profile.fullName} | ${TEXT[locale].site}`;
@@ -164,7 +178,7 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     const jsonLd = {'@context': 'https://schema.org', '@type': 'Person', name: profile.fullName, ...(description ? {description} : {}), ...(image ? {image} : {}), url: canonical,
       mainEntityOfPage: {'@type': 'ProfilePage', '@id': canonical, dateModified: profile.updatedAt, datePublished: profile.firstPublishedAt}};
     return send(res, 200, 'text/html; charset=utf-8', html(
-      <Document locale={locale} title={title} description={description} canonical={canonical} image={image} jsonLd={jsonLd}><ProfilePage profile={profile} /></Document>), 'public, max-age=300');
+      <Document locale={locale} title={title} description={description} canonical={canonical} image={image} jsonLd={jsonLd}><ProfilePage profile={profile} books={books ?? []} /></Document>), 'public, max-age=300');
   }
   return send(res, 404, 'text/plain', 'Not found', 'no-store');
 }

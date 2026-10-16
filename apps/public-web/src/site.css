@@ -11,3 +11,6 @@
 .open-in-app { display: inline-flex; margin: 10px 0 30px; }
 .public-footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px 16px; border-top: 1px solid var(--line); }
 .public-footer a { color: var(--emerald); }
+.books-list { list-style: none; padding-inline-start: 0; display: grid; gap: 12px; }
+.books-list li { border: 1px solid var(--line); background: var(--white); border-radius: 14px; padding: 14px; }
+.books-list a { display: inline-flex; border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; margin-inline-end: 6px; text-decoration: none; color: var(--emerald); }
