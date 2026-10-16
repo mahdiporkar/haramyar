@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/mahdiporkar/hive-platform.git",
+  "commit": "ee7a1c6596e7bb3b1d0071c160ad0b405b4fa8a7",
+  "version": "0.1.0-dev.0",
+  "sdkPackages": ["contracts", "core", "http-client", "auth", "authorization", "mfe-runtime", "workspace", "react"],
+  "note": "HaramYar consumes Hive only through its published contracts: SDK packages, the Spring Boot starter, container images and admin APIs. Nothing here is copied into this repository; tools/hive-sdk.mjs links the SDK builds of this exact commit."
+}

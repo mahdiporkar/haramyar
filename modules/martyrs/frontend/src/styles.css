@@ -1,0 +1,9 @@
+/* Rendered inside this module's shadow root only (styleIsolation SHADOW_DOM): Tailwind's preflight and utilities and the
+ * HaramYar design system never leak into the host document or other micro-frontends. */
+@import "tailwindcss";
+@import "../../../../shared/design-system/src/styles/system.css";
+@import "../../../../shared/design-system/src/styles/extensions.css";
+@source "./";
+@source "../../../../shared/design-system/src";
+
+:host { display: block; }

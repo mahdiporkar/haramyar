@@ -1,0 +1,21 @@
+{
+  "name": "@haramyar/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "HaramYar visual identity from the approved Figma prototype: tokens, three themes, component styles, brand assets and React components.",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./styles/system.css": "./src/styles/system.css",
+    "./styles/extensions.css": "./src/styles/extensions.css",
+    "./styles/base.css": "./src/styles/base.css",
+    "./assets/*": "./assets/*"
+  },
+  "dependencies": {
+    "@haramyar/i18n": "*"
+  },
+  "peerDependencies": {
+    "react": ">=19 <20"
+  },
+  "sideEffects": ["*.css"]
+}

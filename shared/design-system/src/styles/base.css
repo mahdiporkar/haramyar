@@ -1,0 +1,13 @@
+/* Document-level styles: only the host document (shell, public site) loads this file. Fonts must be declared in the
+ * document because @font-face inside shadow roots is ignored by browsers; the family is inherited by micro-frontends. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/assets/fonts/Vazirmatn-Variable.woff2") format("woff2-variations"), url("/assets/fonts/Vazirmatn-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--warm, #faf8f3); color: var(--ink, #202b27); font-family: "Vazirmatn", Tahoma, sans-serif; }
+body.splash-visible { overflow: hidden; }

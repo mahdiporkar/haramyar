@@ -1,0 +1,11 @@
+{
+  "name": "@haramyar/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Locales (fa, ar, en), direction, calendars (Jalali/Gregorian), formatting and translation helpers shared by HaramYar frontends.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "manifestVersion": "1.0.0",
+  "contractVersion": "1.1.0",
+  "runtimeVersion": "1.0.0",
+  "applicationKey": "haramyar",
+  "moduleKey": "martyrs",
+  "displayName": "معرفی شهدا",
+  "resourceManifestVersion": "1.0.0",
+  "artifact": {"url": "${MFE_BASE_URL}/mfe/1.0.0/entry.js", "integrity": "computed-at-build", "format": "ES_MODULE"},
+  "styleIsolation": "SHADOW_DOM",
+  "routes": [
+    {"key": "home", "path": "/martyrs", "access": "PUBLIC", "navigation": {"label": "معرفی شهدا", "order": 10, "icon": "document"}},
+    {"key": "directory", "path": "/martyrs/directory", "access": "PUBLIC"},
+    {"key": "profile", "path": "/martyrs/profiles/:slug", "access": "PUBLIC"},
+    {"key": "story", "path": "/martyrs/profiles/:slug/stories/:storyId", "access": "PUBLIC"},
+    {"key": "editorial", "path": "/martyrs/editorial", "access": "AUTHENTICATED", "resource": "martyrs.editorial", "action": "view", "navigation": {"label": "تحریریه شهدا", "order": 90, "icon": "edit"}},
+    {"key": "editorial-profile", "path": "/martyrs/editorial/:profileId", "access": "AUTHENTICATED", "resource": "martyrs.editorial", "action": "view"}
+  ]
+}

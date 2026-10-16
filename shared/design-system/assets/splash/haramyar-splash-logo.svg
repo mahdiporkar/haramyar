@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="750" height="805" viewBox="125 48 750 805" version="1.1" id="svg16">
+  <title id="title1">حرم‌یار | HARAMYAR — Luxury Brand Logo</title>
+  <desc id="desc1">Vector reconstruction of the approved Haramyar emerald-and-gold arch, golden dome and journey ribbons logo, with Persian and English lettering. Transparent background.</desc>
+  <defs id="defs14">
+    <linearGradient id="metalGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#916528" id="stop1"/>
+      <stop offset="0.18" stop-color="#D8A851" id="stop2"/>
+      <stop offset="0.42" stop-color="#FFF0BE" id="stop3"/>
+      <stop offset="0.64" stop-color="#D6A456" id="stop4"/>
+      <stop offset="0.85" stop-color="#F4CE7E" id="stop5"/>
+      <stop offset="1" stop-color="#9E722F" id="stop6"/>
+    </linearGradient>
+    <linearGradient id="goldDark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F9E1A1" id="stop7"/>
+      <stop offset="0.48" stop-color="#C8973F" id="stop8"/>
+      <stop offset="1" stop-color="#80561D" id="stop9"/>
+    </linearGradient>
+    <linearGradient id="goldRibbon" x1="0" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#946529" id="stop10"/>
+      <stop offset="0.28" stop-color="#F8D48A" id="stop11"/>
+      <stop offset="0.52" stop-color="#D19A3D" id="stop12"/>
+      <stop offset="0.8" stop-color="#FFF0B6" id="stop13"/>
+      <stop offset="1" stop-color="#A97A33" id="stop14"/>
+    </linearGradient>
+  </defs>
+  <g id="brand-emblem">
+    <path id="arch-well" d="M 500,168 C 450,234 364,263 311,352 C 264,430 261,526 280,646 L 714,646 C 734,526 736,430 689,352 C 636,263 550,234 500,168 Z" fill="#07382F" style="stroke:#0A5948;stroke-width:2"/>
+    <path id="arch-frame" d="M 500,66 C 458,142 338,192 274,278 C 208,366 186,474 205,640 C 221,660 244,668 262,674 C 245,521 258,418 313,342 C 373,260 456,221 500,167 C 544,221 627,260 687,342 C 742,418 755,521 738,674 C 756,668 779,660 795,640 C 814,474 792,366 726,278 C 662,192 542,142 500,66 Z" fill="url(#metalGold)" style="stroke:#F3D496;stroke-width:3"/>
+    <path id="arch-inner-line" d="M 500,184 C 458,239 374,282 324,351 C 280,414 269,491 283,595 M 500,184 C 542,239 626,282 676,351 C 720,414 731,491 717,595" fill="none" style="stroke:#F9DDA6;stroke-width:6;stroke-linecap:round"/>
+    <path id="minaret-base" d="M 651,559 L 651,423 L 680,423 L 680,563 Z" fill="url(#goldDark)" style="stroke:#9C742F;stroke-width:3"/>
+    <path id="minaret-cap" d="M 646,454 L 685,454 L 684,467 L 647,467 Z" fill="url(#metalGold)" style=""/>
+    <path id="minaret-roof" d="M 648,422 C 649,396 653,393 660,389 L 660,379 L 667,370 L 673,379 L 673,389 C 682,393 688,401 689,422 Z" fill="url(#metalGold)" style="stroke:#E1A841;stroke-width:2"/>
+    <path id="minaret-finial" d="M 666,369 L 666,350" fill="none" style="stroke:#EED28C;stroke-width:6;stroke-linecap:round"/>
+    <path id="dome" d="M 357,560 L 357,506 C 356,431 398,384 462,348 C 482,337 495,322 500,302 C 505,322 518,337 538,348 C 602,384 644,431 643,506 L 643,560 Z" fill="url(#metalGold)" style="stroke:#EBC077;stroke-width:3"/>
+    <path id="dome-highlight" d="M 376,527 C 369,447 412,390 478,361 C 422,410 405,472 414,540 Z" fill="#FAE0A0" style=""/>
+    <path id="dome-base" d="M 348,548 C 432,534 564,535 653,548 L 651,579 C 549,566 446,566 349,579 Z" fill="url(#goldDark)" style="stroke:#E9BC6A;stroke-width:2"/>
+    <path id="flagpole" d="M 500,326 L 500,236" fill="none" style="stroke:#F4D38B;stroke-width:7;stroke-linecap:round"/>
+    <path id="flag" d="M 507,231 C 555,217 566,265 619,244 C 602,275 578,278 550,265 C 528,256 518,258 507,265 Z" fill="#0B674C" style="stroke:#DFC278;stroke-width:2"/>
+    <path id="ribbon-back" d="M 190,580 C 205,655 297,684 428,640 C 530,606 616,561 643,587 C 675,617 604,678 525,716 C 425,764 301,755 233,706 C 324,741 407,716 504,668 C 568,638 600,614 579,609 C 552,602 475,653 389,685 C 247,735 181,646 190,580 Z" fill="url(#metalGold)" style="stroke:#D5A451;stroke-width:3"/>
+    <path id="ribbon-back-highlight" d="M 204,604 C 237,662 316,660 419,631 C 480,610 536,588 572,586 C 527,600 469,635 398,658 C 307,684 237,671 204,604 Z" fill="#FFF0BB" style=""/>
+    <path id="ribbon-front" d="M 233,716 C 336,774 441,742 537,698 C 624,658 682,652 736,699 C 765,724 782,760 780,783 C 764,748 730,722 685,724 C 636,724 592,762 531,791 C 416,846 313,810 263,763 C 396,815 511,766 590,724 C 649,692 686,687 704,694 C 648,668 590,715 518,748 C 384,804 299,787 233,716 Z" fill="url(#goldRibbon)" style="stroke:#D3A34B;stroke-width:3"/>
+    <path id="ribbon-front-highlight" d="M 287,745 C 357,766 447,743 535,704 C 616,665 674,651 718,686 C 662,662 597,701 532,733 C 431,784 355,786 287,745 Z" fill="#F9DEA5" style=""/>
+    <circle id="dome-finial-a" cx="500" cy="293" r="10" fill="url(#metalGold)"/>
+    <circle id="dome-finial-b" cx="500" cy="274" r="6" fill="#FFE7AC"/>
+    <circle id="minaret-ball" cx="666" cy="355" r="6" fill="#F3D08A"/>
+    <circle id="crown-spark" cx="500" cy="66" r="5.5" fill="#FFE9AD"/>
+  </g>
+  </svg>

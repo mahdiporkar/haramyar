@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "manifestVersion": "1.0.0",
+  "applicationKey": "haramyar",
+  "moduleKey": "rozeh-booking",
+  "resources": [
+    {"key": "rozeh-booking", "type": "MODULE", "parentKey": "haramyar", "name": "Rozeh Booking", "actions": ["view"]},
+    {"key": "rozeh-booking.requests", "type": "BUSINESS_RESOURCE", "parentKey": "rozeh-booking", "name": "Own ceremony requests", "actions": [
+      "view",
+      {"key": "create", "description": "Submit a ceremony request as host"},
+      {"key": "confirm", "description": "Give final confirmation of an own accepted booking (when the confirmation policy assigns it to hosts)"},
+      {"key": "cancel", "description": "Cancel an own booking within the cancellation policy"}
+    ]},
+    {"key": "rozeh-booking.coordination", "type": "BUSINESS_RESOURCE", "parentKey": "rozeh-booking", "name": "Ceremony coordination", "actions": [
+      "view",
+      {"key": "decide", "description": "Accept or reject requested bookings"},
+      {"key": "assign", "description": "Assign providers to accepted bookings"},
+      {"key": "confirm", "description": "Give final confirmation (when the confirmation policy assigns it to coordinators)"},
+      {"key": "cancel", "description": "Cancel bookings with a reason"},
+      {"key": "complete", "description": "Record a confirmed ceremony as held"}
+    ]},
+    {"key": "rozeh-booking.providers", "type": "BUSINESS_RESOURCE", "parentKey": "rozeh-booking", "name": "Ceremony providers", "actions": [
+      "view",
+      {"key": "maintain", "description": "Register, rename, activate and deactivate providers"}
+    ]}
+  ]
+}

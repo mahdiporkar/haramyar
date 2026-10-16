@@ -1,0 +1,20 @@
+{
+  "name": "@haramyar/rozeh-booking-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rozeh Booking micro-frontend (Hive ES_MODULE artifact, SHADOW_DOM isolation).",
+  "scripts": {
+    "build": "vite build && node scripts/manifests.mjs"
+  },
+  "dependencies": {
+    "@haramyar/design-system": "*",
+    "@haramyar/i18n": "*",
+    "@hive-platform/auth": "*",
+    "@hive-platform/contracts": "*",
+    "@hive-platform/http-client": "*",
+    "@hive-platform/react": "*",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  }
+}

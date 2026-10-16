@@ -1,0 +1,39 @@
+{
+  "name": "haramyar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "HaramYar super app: business solution and consumer built on Hive Platform 0.1.0-dev.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "vendor/hive-sdk/*",
+    "shared/i18n",
+    "shared/design-system",
+    "apps/haramyar-shell",
+    "apps/public-web",
+    "modules/rozeh-booking/frontend",
+    "modules/martyrs/frontend",
+    "tests/e2e"
+  ],
+  "scripts": {
+    "hive:sdk": "node tools/hive-sdk.mjs",
+    "build": "npm run build -w shared/design-system && npm run build -w modules/rozeh-booking/frontend && npm run build -w modules/martyrs/frontend && npm run build -w apps/haramyar-shell && npm run build -w apps/public-web",
+    "typecheck": "tsc -p shared/i18n && tsc -p shared/design-system && tsc -p modules/rozeh-booking/frontend && tsc -p modules/martyrs/frontend && tsc -p apps/haramyar-shell && tsc -p apps/public-web",
+    "test": "node --test tests/unit/*.test.mjs",
+    "validate:manifests": "node tools/validate-manifests.mjs",
+    "test:e2e": "npm test -w tests/e2e"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.1.14",
+    "@types/node": "22.20.5",
+    "@types/react": "19.1.17",
+    "@types/react-dom": "19.1.11",
+    "@vitejs/plugin-react": "5.0.4",
+    "esbuild": "0.25.10",
+    "tailwindcss": "4.1.14",
+    "typescript": "5.9.2",
+    "vite": "7.1.9"
+  }
+}

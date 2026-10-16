@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "manifestVersion": "1.0.0",
+  "applicationKey": "haramyar",
+  "moduleKey": "martyrs",
+  "resources": [
+    {"key": "martyrs", "type": "MODULE", "parentKey": "haramyar", "name": "Martyrs", "actions": ["view"]},
+    {"key": "martyrs.editorial", "type": "BUSINESS_RESOURCE", "parentKey": "martyrs", "name": "Martyrs editorial workflow", "actions": [
+      "view",
+      {"key": "edit", "description": "Create and revise drafts, sources, stories and media"},
+      {"key": "submit", "description": "Submit a draft for review"},
+      {"key": "review", "description": "Return a profile in review for changes"},
+      {"key": "publish", "description": "Publish reviewed profiles and unpublish published ones"}
+    ]}
+  ]
+}

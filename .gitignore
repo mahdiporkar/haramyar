@@ -32,3 +32,4 @@ logs/
 
 # Local verification state
 .local/
+/vendor/
