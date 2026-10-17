@@ -1,7 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, readdirSync} from 'node:fs';
-import {join} from 'node:path';
 
 const rest = new URL('../../modules/martyrs/backend/src/main/java/ir/haramyar/martyrs/interfaces/rest/', import.meta.url);
 const manifest = JSON.parse(readFileSync(new URL('../../integrations/hive/solution/services/martyrs.json', import.meta.url), 'utf8'));
@@ -22,7 +21,7 @@ test('every martyr public and editorial REST endpoint is registered in the Hive 
   }
 
   for (const filename of readdirSync(rest).filter(name => name.endsWith('Controller.java'))) {
-    const source = readFileSync(join(rest.pathname, filename), 'utf8');
+    const source = readFileSync(new URL(filename, rest), 'utf8');
     const prefix = source.match(/@RequestMapping\("([^"]+)"\)/)?.[1] ?? '';
     const mappings = source.matchAll(/@(Get|Post|Put|Delete)Mapping\((?:path\s*=\s*)?"([^"]+)"/g);
     for (const [, kind, path] of mappings) {

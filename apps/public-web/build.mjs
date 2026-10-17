@@ -1,6 +1,6 @@
 // Bundles the SSR server (React included) and assembles the public site stylesheet from the design system.
 import {build} from 'esbuild';
-import {mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {cpSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 
@@ -14,4 +14,7 @@ await build({
 });
 const css = ['base.css', 'system.css', 'extensions.css'].map(f => readFileSync(join(styles, f), 'utf8')).join('\n') + readFileSync(join(root, 'src/site.css'), 'utf8');
 writeFileSync(join(root, 'dist/site.css'), css);
+cpSync(join(root, 'assets/covers/web'), join(root, 'dist/covers'), {recursive: true});
+cpSync(join(root, '../../docs/martyrs/salim-covers.json'), join(root, 'dist/covers.json'));
+cpSync(join(root, 'src/profile.js'), join(root, 'dist/profile.js'));
 console.log('public-web built');
