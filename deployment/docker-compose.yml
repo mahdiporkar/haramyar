@@ -87,6 +87,19 @@ services:
     logging: *logging
     networks: [internal]
 
+  books-storage:
+    # Dedicated private MinIO volume; never mount or reinterpret the existing SeaweedFS objects volume.
+    # The legacy Docker Hub/Quay MinIO images were withdrawn; Chainguard packages MinIO from source.
+    image: cgr.dev/chainguard/minio:latest
+    command: ["server", "/data", "--address", ":9000"]
+    environment:
+      MINIO_ROOT_USER: ${BOOKS_S3_ACCESS_KEY:-${S3_ACCESS_KEY:?required}}
+      MINIO_ROOT_PASSWORD: ${BOOKS_S3_SECRET_KEY:-${S3_SECRET_KEY:?required}}
+    volumes: [books_objects:/data]
+    healthcheck: {test: [CMD-SHELL, "curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null"], interval: 5s, timeout: 5s, retries: 40}
+    logging: *logging
+    networks: [internal]
+
   mailpit:
     image: axllent/mailpit:v1.27
     profiles: [dev]
@@ -224,9 +237,13 @@ services:
       MARTYRS_S3_ENDPOINT: http://object-storage:8333
       MARTYRS_S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       MARTYRS_S3_SECRET_KEY: ${S3_SECRET_KEY}
+      BOOKS_S3_ENDPOINT: http://books-storage:9000
+      BOOKS_S3_ACCESS_KEY: ${BOOKS_S3_ACCESS_KEY:-${S3_ACCESS_KEY:?required}}
+      BOOKS_S3_SECRET_KEY: ${BOOKS_S3_SECRET_KEY:-${S3_SECRET_KEY:?required}}
     depends_on:
       postgres: {condition: service_healthy}
       object-storage: {condition: service_healthy}
+      books-storage: {condition: service_healthy}
       keycloak: {condition: service_healthy}
 
   shell-service:
@@ -297,3 +314,4 @@ volumes:
   postgres:
   rabbitmq:
   objects:
+  books_objects:

@@ -3,9 +3,11 @@ package ir.haramyar.martyrs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,12 +53,21 @@ class MartyrsApiIT {
       .withCommand("server", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-dir=/data", "-master.volumeSizeLimitMB=64", "-volume.max=4")
       .withExposedPorts(8333)
       .waitingFor(Wait.forHttp("/").forPort(8333).forStatusCode(403).withStartupTimeout(java.time.Duration.ofMinutes(2)));
+  @Container static final GenericContainer<?> MINIO = new GenericContainer<>("cgr.dev/chainguard/minio:latest")
+      .withEnv("MINIO_ROOT_USER", "books-access-key")
+      .withEnv("MINIO_ROOT_PASSWORD", "books-secret-key-0001")
+      .withCommand("server", "/data", "--address", ":9000")
+      .withExposedPorts(9000)
+      .waitingFor(Wait.forHttp("/minio/health/live").forPort(9000).forStatusCode(200));
 
   @DynamicPropertySource
   static void storage(DynamicPropertyRegistry registry) {
     registry.add("haramyar.martyrs.storage.endpoint", () -> "http://" + S3.getHost() + ":" + S3.getMappedPort(8333));
     registry.add("haramyar.martyrs.storage.access-key", () -> "test-access-key");
     registry.add("haramyar.martyrs.storage.secret-key", () -> "test-secret-key-0001");
+    registry.add("haramyar.martyrs.books.endpoint", () -> "http://" + MINIO.getHost() + ":" + MINIO.getMappedPort(9000));
+    registry.add("haramyar.martyrs.books.access-key", () -> "books-access-key");
+    registry.add("haramyar.martyrs.books.secret-key", () -> "books-secret-key-0001");
   }
 
   static final UUID EDITOR = UUID.randomUUID();
@@ -70,6 +81,9 @@ class MartyrsApiIT {
 
   @BeforeEach
   void clean() {
+    db.update("delete from martyr_book_edition");
+    db.update("delete from martyr_book");
+    db.update("delete from martyr_profile_translation");
     db.update("delete from media_object");
     db.update("alter table martyr_editorial_history disable trigger martyr_history_no_update");
     db.update("delete from martyr_editorial_history");
@@ -158,6 +172,42 @@ class MartyrsApiIT {
   }
 
   @Test
+  void translatedProfilesAppearOnlyAfterIndependentApproval() throws Exception {
+    String profileId = publishedProfile("translated-profile");
+    String url = "/editorial/profiles/" + profileId + "/translations/en";
+    assertThat(call(get("/editorial/profiles/" + profileId + "/translations"), null).getStatus()).isEqualTo(401);
+    JsonNode saved = ok(call(editor(put(url)), Map.of(
+        "fullName", "Translated Fixture", "shortDescription", "This is an English summary",
+        "biography", "A complete English-language biography for the synthetic test subject.",
+        "seoTitle", "English synthetic fixture")), 200);
+    assertThat(saved.size()).isEqualTo(1);
+    assertThat(saved.get(0).path("status").asText()).isEqualTo("DRAFT");
+
+    JsonNode hidden = ok(call(get("/public/profiles/translated-profile").param("locale", "en"), null), 200);
+    assertThat(hidden.path("contentLocale").asText()).isEqualTo("fa");
+    assertThat(hidden.path("fullName").asText()).doesNotContain("Translated Fixture");
+    assertThat(hidden.toString()).doesNotContain("This is an English summary");
+
+    ok(call(editor(post(url + "/submit")), Map.of("expectedVersion", 0)), 204);
+    JsonNode forbidden = ok(call(editor(post(url + "/publish")), Map.of("expectedVersion", 1)), 403);
+    assertThat(forbidden.path("code").asText()).isEqualTo("EDITORIAL_FOUR_EYES_REQUIRED");
+    assertThat(ok(call(get("/public/profiles/translated-profile").param("locale", "en"), null), 200)
+        .path("contentLocale").asText()).isEqualTo("fa");
+
+    ok(call(reviewer(post(url + "/publish")), Map.of("expectedVersion", 1)), 204);
+    JsonNode translated = ok(call(get("/public/profiles/translated-profile").param("locale", "en"), null), 200);
+    assertThat(translated.path("contentLocale").asText()).isEqualTo("en");
+    assertThat(translated.path("sourceLocale").asText()).isEqualTo("fa");
+    assertThat(translated.path("fullName").asText()).isEqualTo("Translated Fixture");
+    assertThat(translated.path("biography").asText()).contains("English-language biography");
+    assertThat(translated.toString()).doesNotContain(EDITOR.toString(), REVIEWER.toString(), "submittedBy");
+    assertThat(ok(call(get("/public/profiles/translated-profile"), null), 200).path("contentLocale").asText()).isEqualTo("fa");
+
+    ok(call(reviewer(post("/editorial/profiles/" + profileId + "/archive")), Map.of("note", "Archive translation test")), 200);
+    assertThat(call(get("/public/profiles/translated-profile").param("locale", "en"), null).getStatus()).isEqualTo(404);
+  }
+
+  @Test
   void customersCannotEnterTheEditorialWorkspace() throws Exception {
     JsonNode denied = ok(call(as(post("/editorial/profiles"), CUSTOMER, "haramyar-customer"), Map.of("slug", "intruder-profile", "content", content("x", "y"))), 403);
     assertThat(denied.path("code").asText()).isEqualTo("STAFF_AUTHENTICATION_REQUIRED");
@@ -211,5 +261,35 @@ class MartyrsApiIT {
     String id = publishedProfile("history-fixture");
     org.assertj.core.api.Assertions.assertThatThrownBy(() -> db.update("update martyr_editorial_history set note = 'x' where profile_id = ?::uuid", id))
         .hasMessageContaining("append-only");
+  }
+
+  @Test
+  void aTranslatedBookIsPrivateUntilItsCompletePdfIsApproved() throws Exception {
+    String profileId = publishedProfile("book-pdf-fixture");
+    JsonNode work = ok(call(editor(post("/editorial/profiles/" + profileId + "/books")), Map.of(
+        "kind", "AUTHORED", "originalTitle", "كتاب تجريبي", "sourceUrl", "https://example.org/books/demo")), 201);
+    String bookId = work.path("id").asText();
+    JsonNode editions = ok(call(editor(put("/editorial/books/" + bookId + "/editions/fa")), Map.of(
+        "title", "کتاب نمونه آزمایشی", "summary", "آزمایش مسیر ترجمه و PDF")), 200);
+    String editionId = editions.get(0).path("editions").get(0).path("id").asText();
+    assertThat(ok(call(get("/public/profiles/book-pdf-fixture/books").param("locale", "fa"), null), 200).size()).isZero();
+    assertThat(call(get("/public/books/" + editionId + "/file"), null).getStatus()).isEqualTo(404);
+    var fake = new MockMultipartFile("file", "invalid.pdf", "application/pdf", "not a pdf".getBytes());
+    ok(mvc.perform(editor(multipart("/editorial/books/editions/" + editionId + "/file").file(fake).param("expectedVersion", "0"))).andReturn().getResponse(), 400);
+    var original = new MockMultipartFile("file", "fixture.pdf", "application/pdf", "%PDF-1.7\nfixture".getBytes());
+    ok(mvc.perform(editor(multipart("/editorial/books/editions/" + editionId + "/file").file(original).param("expectedVersion", "0"))).andReturn().getResponse(), 204);
+    ok(call(editor(post("/editorial/books/editions/" + editionId + "/submit")), Map.of("expectedVersion", 1)), 204);
+    JsonNode forbidden = ok(call(editor(post("/editorial/books/editions/" + editionId + "/publish")), Map.of("expectedVersion", 2)), 403);
+    assertThat(forbidden.path("code").asText()).isEqualTo("EDITORIAL_FOUR_EYES_REQUIRED");
+    ok(call(reviewer(post("/editorial/books/editions/" + editionId + "/publish")), Map.of("expectedVersion", 2)), 204);
+    JsonNode available = ok(call(get("/public/profiles/book-pdf-fixture/books").param("locale", "fa"), null), 200);
+    assertThat(available.size()).isEqualTo(1);
+    assertThat(available.get(0).path("selectedEdition").path("locale").asText()).isEqualTo("fa");
+    var streamed = mvc.perform(get("/public/books/" + editionId + "/file"))
+        .andExpect(request().asyncStarted()).andReturn();
+    var pdf = mvc.perform(asyncDispatch(streamed)).andReturn().getResponse();
+    assertThat(pdf.getStatus()).isEqualTo(200);
+    assertThat(pdf.getContentType()).isEqualTo("application/pdf");
+    assertThat(pdf.getContentAsByteArray()).isEqualTo(original.getBytes());
   }
 }

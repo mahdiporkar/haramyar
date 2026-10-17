@@ -1,0 +1,74 @@
+{
+  "status": "DRAFT_FOR_EDITORIAL_REVIEW",
+  "slug": "izz-al-din-salim",
+  "sourceLanguage": "ar",
+  "portraitCandidate": {
+    "status": "SOURCE_IDENTIFIED_NOT_YET_UPLOADED",
+    "sourceUrl": "https://www.shahidsalim.com/uploads/gallery/%D8%B5%D9%88%D8%B1-%D8%A7%D9%84%D8%B4%D9%87%D9%8A%D8%AF-%D8%B9%D8%B2%D8%A7%D9%84%D8%AF%D9%8A%D9%86-%D8%B3%D9%84%D9%8A%D9%85-%D9%85%D8%A4%D8%B3%D8%B3%D8%A9-%D8%A7%D9%84%D9%85%D9%81%D9%83%D8%B1-1774972046-224.webp",
+    "caption": "عز الدين سليم (عبد الزهراء عثمان محمد)",
+    "credit": "مؤسسة المفكر الشهيد عز الدين سليم الثقافية",
+    "note": "Portrait visually checked against the source gallery (item 43); identity and reuse permission to be confirmed by the editorial reviewer."
+  },
+  "content": {
+    "fullName": "عز الدين سليم (عبد الزهراء عثمان محمد)",
+    "honorific": "الشهيد",
+    "contentLocale": "ar",
+    "shortDescription": "مفكر وكاتب وناشط سياسي عراقي؛ شغل رئاسة مجلس الحكم الانتقالي في أيار 2004 واغتيل في بغداد في 17 أيار من العام نفسه.",
+    "biography": "عز الدين سليم هو الاسم الذي اشتهر به عبد الزهراء عثمان محمد. وُلد عام 1943 في منطقة الهوير قرب البصرة في جنوب العراق، ونشأ في بيئة اجتماعية ودينية أثرت في اهتماماته الفكرية والتربوية. عمل في مجالات الكتابة والفكر الإسلامي والتربية، وترك مؤلفات تناولت السيرة والتاريخ وقضايا المجتمع والسياسة.\n\nانخرط في النشاط الإسلامي والسياسي معارضاً حكم حزب البعث، وتعرّض للاعتقال والملاحقة. أمضى سنوات من حياته خارج العراق، وشارك في أنشطة إعلامية وثقافية وتنظيمية للمعارضة العراقية. اتخذ اسمه المعروف «عز الدين سليم» في ظروف العمل السري والمنفى.\n\nعاد إلى العراق عام 2003، وانضم إلى مجلس الحكم الانتقالي، وتولى رئاسته الدورية في أيار 2004. كان من الأفكار التي طرحها بناء دولة تقوم على المواطنة والعدالة واحترام الإنسان. في 17 أيار 2004 قُتل في تفجير سيارة مفخخة في بغداد. يجمع هذا الملف بين سيرته ومؤلفاته، مع التمييز بين النصوص العربية الأصلية والترجمات التي لم تُنجز مراجعتها بعد.",
+    "birth": {
+      "date": {"year": 1943, "calendar": "GREGORIAN"},
+      "place": "الهوير، البصرة، العراق"
+    },
+    "martyrdom": {
+      "date": {"year": 2004, "month": 5, "day": 17, "calendar": "GREGORIAN"},
+      "place": "بغداد، العراق"
+    },
+    "seoTitle": "عز الدين سليم | السيرة والمؤلفات",
+    "seoDescription": "سيرة الشهيد عز الدين سليم (عبد الزهراء عثمان محمد) ومكتبة أعماله باللغات العربية والفارسية والإنجليزية."
+  },
+  "translations": {
+    "fa": {
+      "fullName": "عزالدین سلیم (عبدالزهرا عثمان محمد)",
+      "honorific": "شهید",
+      "shortDescription": "اندیشمند، نویسنده و فعال سیاسی عراقی؛ رئیس دوره‌ای شورای حکومتی عراق در مه ۲۰۰۴ که ۱۷ مه همان سال در بغداد ترور شد.",
+      "biography": "عزالدین سلیم نامی است که عبدالزهرا عثمان محمد با آن شناخته می‌شد. او در سال ۱۹۴۳ در منطقهٔ الهُوَیر در نزدیکی بصره در جنوب عراق به دنیا آمد و در محیطی مذهبی و اجتماعی رشد کرد که بر علاقه‌های فکری و تربیتی او تأثیر گذاشت. او در زمینهٔ نویسندگی، اندیشهٔ اسلامی و آموزش فعالیت داشت و آثاری دربارهٔ سیره، تاریخ، جامعه و سیاست برجای گذاشت.\n\nسلیم در فعالیت‌های اسلامی و سیاسی علیه حکومت حزب بعث حضور داشت و با زندان و تعقیب روبه‌رو شد. او سال‌هایی را خارج از عراق گذراند و در فعالیت‌های رسانه‌ای، فرهنگی و سازمانی مخالفان حکومت عراق مشارکت کرد. نام «عزالدین سلیم» را در شرایط فعالیت مخفیانه و تبعید به کار می‌برد.\n\nاو در سال ۲۰۰۳ به عراق بازگشت، به شورای حکومتی انتقالی پیوست و در ماه مه ۲۰۰۴ ریاست دوره‌ای این شورا را بر عهده گرفت. از دیدگاه‌هایی که مطرح می‌کرد، ضرورت ساختن کشوری بر پایهٔ شهروندی، عدالت و احترام به انسان بود. در ۱۷ مه ۲۰۰۴ در انفجار خودروی بمب‌گذاری‌شده در بغداد کشته شد. این پرونده زندگی و آثار او را گرد می‌آورد و میان نسخه‌های اصیل عربی و ترجمه‌هایی که هنوز بازبینی نهایی نشده‌اند تمایز می‌گذارد.",
+      "seoTitle": "شهید عزالدین سلیم | زندگی‌نامه و آثار",
+      "seoDescription": "زندگی‌نامه و کتابخانه آثار شهید عزالدین سلیم (عبدالزهرا عثمان محمد) به زبان‌های فارسی، عربی و انگلیسی."
+    },
+    "en": {
+      "fullName": "Izz al-Din Salim (Abdelzahra Othman Mohammed)",
+      "honorific": "Martyr",
+      "shortDescription": "Iraqi author, thinker and political activist; rotating president of the Iraqi Governing Council in May 2004, killed in Baghdad on 17 May.",
+      "biography": "Izz al-Din Salim was the name by which Abdelzahra Othman Mohammed became widely known. He was born in 1943 in the Al-Huwayr area near Basra in southern Iraq. He grew up in a religious and community environment that shaped his intellectual and educational interests. As an author and educator, he wrote on Islamic thought, prophetic and Imami biographies, history, social questions and politics.\n\nSalim participated in Islamic and political opposition to Ba'ath Party rule and faced imprisonment and persecution. He spent years outside Iraq, working with Iraqi opposition organisations and contributing to their cultural and media activities. He adopted the name Izz al-Din Salim in the circumstances of clandestine political work and exile.\n\nHe returned to Iraq in 2003, joined the Iraqi Governing Council and served as its rotating president in May 2004. Among his stated political aims was the creation of a state founded on citizenship, justice and respect for human dignity. He was killed in a car bombing in Baghdad on 17 May 2004. This profile brings together his life and works while distinguishing original Arabic editions from translations that are still awaiting editorial review.",
+      "seoTitle": "Izz al-Din Salim | Biography and Works",
+      "seoDescription": "The life and works of Izz al-Din Salim, also known as Abdelzahra Othman Mohammed, in Arabic, Persian and English."
+    }
+  },
+  "sources": [
+    {
+      "kind": "WEBSITE",
+      "title": "السيرة الذاتية — مؤسسة المفكر الشهيد عز الدين سليم الثقافية",
+      "url": "https://www.shahidsalim.com/page.php?slug=cv",
+      "note": "Arabic source for the biographical narrative; paraphrased for initial editorial drafts."
+    },
+    {
+      "kind": "ARTICLE",
+      "title": "عز الدين سليم — الجزيرة نت، 17 أيار 2004",
+      "url": "https://www.aljazeera.net/news/2004/5/17/عز-الدين-سليم",
+      "note": "Contemporaneous reporting supporting identity, authorship and assassination date."
+    },
+    {
+      "kind": "ARTICLE",
+      "title": "Head Of Iraqi Governing Council Killed — RFE/RL, 17 May 2004",
+      "url": "https://www.rferl.org/a/1052812.html",
+      "note": "Independent contemporary confirmation of the office held and death in Baghdad."
+    },
+    {
+      "kind": "WEBSITE",
+      "title": "مكتبة الشهيد — فهرس الكتب",
+      "url": "https://www.shahidsalim.com/books.php",
+      "note": "Reference catalogue for the authored works, pending bibliographic review of each PDF title page."
+    }
+  ],
+  "reviewNotes": "This is a sourced, editorial draft. Arabic, Persian and English texts must each be reviewed and independently approved. The birth day is deliberately omitted because it has not been confirmed in the primary biography; year 1943 is supported by secondary biographical sources. Do not publish without review."
+}

@@ -13,8 +13,13 @@ export interface LifeEvent {date?: HistoricalDate; place?: string}
 export interface Media {mediaId: string; caption?: string; credit?: string}
 export interface Source {id: string; kind: 'BOOK' | 'ARCHIVE' | 'INTERVIEW' | 'ARTICLE' | 'WEBSITE' | 'OTHER'; title: string; author?: string; publisher?: string; year?: number; url?: string; note?: string}
 export interface Story {id: string; title: string; body: string; sourceIds: string[]}
+export type BookLocale = 'ar' | 'fa' | 'en';
+export interface BookEdition {id: string; locale: BookLocale; title: string; summary?: string; status: 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED'; hasFile: boolean; version: number; submittedBy?: string}
+export interface EditorialBook {id: string; kind: 'AUTHORED' | 'ABOUT'; originalTitle: string; sourceUrl: string; editions: BookEdition[]}
+export interface PublicBookEdition {id: string; locale: BookLocale; title: string; summary?: string}
+export interface PublicBook {id: string; kind: 'AUTHORED' | 'ABOUT'; originalTitle: string; sourceUrl: string; selectedEdition: PublicBookEdition; availableEditions: PublicBookEdition[]}
 export interface PublicProfile {
-  slug: string; fullName: string; honorific?: string; contentLocale: 'fa' | 'ar' | 'en'; shortDescription?: string; biography?: string;
+  slug: string; fullName: string; honorific?: string; contentLocale: 'fa' | 'ar' | 'en'; sourceLocale: 'fa' | 'ar' | 'en'; shortDescription?: string; biography?: string;
   birth?: LifeEvent; martyrdom?: LifeEvent; portrait?: Media; gallery: Media[]; sources: Source[]; stories: Story[];
   seo?: {title?: string; description?: string}; firstPublishedAt: string; updatedAt: string;
 }
@@ -32,6 +37,10 @@ export interface EditorialProfile {
   id: string; slug: string; status: Status; content: Content; portrait?: Media; gallery: Media[]; sources: Source[]; stories: Story[];
   submittedByViewer: boolean; createdAt: string; updatedAt: string; firstPublishedAt?: string; publishedAt?: string; version: number; history: HistoryEntry[];
 }
+export interface ProfileTranslation {locale: BookLocale; fullName: string; honorific?: string; shortDescription: string; biography: string;
+  seoTitle?: string; seoDescription?: string; status: 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED'; version: number; submittedBy?: string}
+export interface TranslationBody {fullName: string; honorific?: string; shortDescription: string; biography: string;
+  seoTitle?: string; seoDescription?: string; expectedVersion?: number}
 export interface EditorialSummary {id: string; slug: string; fullName: string; status: Status; updatedAt: string; version: number}
 export interface ContentBody {
   fullName: string; honorific?: string; contentLocale: string; shortDescription?: string; biography?: string;
@@ -51,10 +60,28 @@ const id = (value: string) => encodeURIComponent(value);
 
 export const publicMediaUrl = (mediaId: string) => `${BASE}/public/media/${id(mediaId)}`;
 export const previewMediaUrl = (mediaId: string) => `${BASE}/editorial/media/${id(mediaId)}`;
+export const bookPdfUrl = (editionId: string) => `${BASE}/public/books/${id(editionId)}/file`;
 
 export const api = {
   search: (query: string, page = 0, size = 20) => http.get<Page<PublicSummary>>(`${BASE}/public/profiles${q({q: query.trim() || undefined, page, size})}`),
-  profile: (slug: string) => http.get<PublicProfile>(`${BASE}/public/profiles/${id(slug)}`),
+  profile: (slug: string, locale: BookLocale) => http.get<PublicProfile>(`${BASE}/public/profiles/${id(slug)}${q({locale})}`),
+  profileTranslations: (profileId: string) => http.get<ProfileTranslation[]>(`${BASE}/editorial/profiles/${id(profileId)}/translations`),
+  saveProfileTranslation: (profileId: string, locale: BookLocale, body: TranslationBody) =>
+    http.put<ProfileTranslation[]>(`${BASE}/editorial/profiles/${id(profileId)}/translations/${locale}`, body),
+  transitionProfileTranslation: (profileId: string, locale: BookLocale, action: 'submit' | 'publish', expectedVersion: number) =>
+    http.post<void>(`${BASE}/editorial/profiles/${id(profileId)}/translations/${locale}/${action}`, {expectedVersion}),
+  books: (slug: string, locale: string) => http.get<PublicBook[]>(`${BASE}/public/profiles/${id(slug)}/books${q({locale})}`),
+  editorialBooks: (profileId: string) => http.get<EditorialBook[]>(`${BASE}/editorial/profiles/${id(profileId)}/books`),
+  createBook: (profileId: string, body: {kind: 'AUTHORED' | 'ABOUT'; originalTitle: string; sourceUrl: string}) =>
+    http.post<EditorialBook>(`${BASE}/editorial/profiles/${id(profileId)}/books`, body),
+  saveBookEdition: (bookId: string, locale: BookLocale, title: string, summary: string, expectedVersion?: number) =>
+    http.put<EditorialBook[]>(`${BASE}/editorial/books/${id(bookId)}/editions/${locale}`, {title, summary, expectedVersion}),
+  uploadBookPdf: (editionId: string, expectedVersion: number, file: File) => {
+    const form = new FormData(); form.append('file', file);
+    return http.post<void>(`${BASE}/editorial/books/editions/${id(editionId)}/file${q({expectedVersion})}`, form);
+  },
+  transitionBook: (editionId: string, action: 'submit' | 'publish', expectedVersion: number) =>
+    http.post<void>(`${BASE}/editorial/books/editions/${id(editionId)}/${action}`, {expectedVersion}),
   editorialList: (status: Status[], query: string, page = 0) => http.get<Page<EditorialSummary>>(`${BASE}/editorial/profiles${q({status, q: query.trim() || undefined, page})}`),
   create: (slug: string, content: ContentBody) => http.post<EditorialProfile>(`${BASE}/editorial/profiles`, {slug, content}),
   get: (profileId: string) => http.get<EditorialProfile>(`${BASE}/editorial/profiles/${id(profileId)}`),

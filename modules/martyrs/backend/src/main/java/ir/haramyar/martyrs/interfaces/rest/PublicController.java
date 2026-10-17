@@ -2,6 +2,7 @@ package ir.haramyar.martyrs.interfaces.rest;
 
 import ir.haramyar.martyrs.application.Ports;
 import ir.haramyar.martyrs.application.ProfileViews;
+import ir.haramyar.martyrs.application.ProfileTranslations;
 import ir.haramyar.martyrs.application.PublicQueries;
 import java.time.Duration;
 import java.util.List;
@@ -21,8 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/public")
 class PublicController {
   private final PublicQueries queries;
+  private final ProfileTranslations translations;
 
-  PublicController(PublicQueries queries) { this.queries = queries; }
+  PublicController(PublicQueries queries, ProfileTranslations translations) { this.queries = queries; this.translations = translations; }
 
   @GetMapping("/profiles")
   ResponseEntity<Ports.Page<Ports.PublicProfileSummary>> search(@RequestParam(required = false) String q, @RequestParam(defaultValue = "0") int page,
@@ -31,9 +33,9 @@ class PublicController {
   }
 
   @GetMapping("/profiles/{slug}")
-  ResponseEntity<ProfileViews.PublicProfile> profile(@PathVariable String slug) {
+  ResponseEntity<ProfileViews.PublicProfile> profile(@PathVariable String slug, @RequestParam(required = false) String locale) {
     return queries.bySlug(slug)
-        .map(p -> ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)).cachePublic()).body(p))
+        .map(p -> ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)).cachePublic()).body(translations.published(p, locale)))
         .orElseGet(() -> ResponseEntity.status(404).cacheControl(CacheControl.noStore()).build());
   }
 

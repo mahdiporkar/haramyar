@@ -115,7 +115,8 @@ node tools/reset-local-staff-login.mjs --verify
 |---|---|
 | سرویس‌های Java کسب‌وکار | `HARAMYAR_PROFILE=production`، `HARAMYAR_OIDC_ISSUER`، `HARAMYAR_OIDC_JWKS_URI` (داخلی)، `ROZEH_DB_*` / `MARTYRS_DB_*` / `SHELL_DB_*` (URL، USER، PASSWORD)، `JAVA_TOOL_OPTIONS` |
 | booking-api، shell-service | `RABBITMQ_HOST`، `RABBITMQ_PASSWORD`؛ shell-service همچنین `HIVE_AUTHORIZATION_URL`، `HIVE_PROVISIONING_PASSWORD` |
-| martyrs-api | `MARTYRS_S3_ENDPOINT`، `MARTYRS_S3_ACCESS_KEY`، `MARTYRS_S3_SECRET_KEY` |
+| martyrs-api | `MARTYRS_S3_ENDPOINT`، `MARTYRS_S3_ACCESS_KEY`، `MARTYRS_S3_SECRET_KEY` برای عکس‌های موجود؛ `BOOKS_S3_ENDPOINT`، `BOOKS_S3_ACCESS_KEY`، `BOOKS_S3_SECRET_KEY`، `BOOKS_S3_BUCKET` برای PDF کتاب‌ها در MinIO |
+| books-storage (MinIO) | `MINIO_ROOT_USER`، `MINIO_ROOT_PASSWORD`؛ داده‌ها در حجم اختصاصی `haramyar-books-data` و bucket خصوصی `haramyar-books` |
 | hive-authorization | `HIVE_DB_*`، `HIVE_OPENFGA_URL`، `HIVE_OPENFGA_API_TOKEN`، `HIVE_PROVISIONING_PASSWORD`، `HIVE_INTERNAL_PASSWORD`، `HIVE_REDIS_*`، `HIVE_PRIMARY_ISSUER`، `HIVE_ARTIFACT_*`، `HIVE_TARGET_*` |
 | hive-bff | `HIVE_OIDC_ISSUER`، `HIVE_OIDC_CLIENT_ID`، `HIVE_OIDC_CLIENT_SECRET`، `HIVE_VAULT_KEY`، `HIVE_INTERNAL_PASSWORD`، `HIVE_REDIS_*`، `HIVE_PROXY_*`، `HIVE_MFE_*` |
 | keycloak | `KC_DB_*`، `KC_HOSTNAME`، `KC_PROXY_HEADERS`، `KC_CACHE`، `KC_BOOTSTRAP_ADMIN_*`، `HARAMYAR_PUBLIC_ORIGIN`، `HARAMYAR_OIDC_CLIENT_SECRET` |
@@ -124,12 +125,15 @@ node tools/reset-local-staff-login.mjs --verify
 | bootstrap | `HIVE_AUTHORIZATION_URL`، `HIVE_PROVISIONING_PASSWORD`، `ROZEH_BOOKING_URL`، `MARTYRS_URL`، `SHELL_SERVICE_URL`، `ROZEH_BOOKING_MFE_URL`، `MARTYRS_MFE_URL`، `KEYCLOAK_URL`، `KEYCLOAK_ADMIN_*`، `HARAMYAR_OIDC_ISSUER`، `HARAMYAR_DEV_FIXTURES`، `HARAMYAR_FIXTURE_*`، `HARAMYAR_SELF_REGISTRATION`، `HARAMYAR_PASSWORD_RESET` |
 | rabbitmq، object-storage، openfga، postgres | `HARAMYAR_RABBITMQ_USER/PASSWORD`؛ `S3_ACCESS_KEY/SECRET_KEY`؛ `OPENFGA_DATASTORE_URI`، `OPENFGA_AUTHN_PRESHARED_KEYS`؛ `POSTGRES_PASSWORD` و `*_DB_PASSWORD` |
 
+**احتیاط MinIO:** سرویس `books-storage` جدید است و از حجم `objects` متعلق به SeaweedFS استفاده نمی‌کند؛ تغییر image سرویس قدیمی یا اتصال MinIO به همان حجم مجاز نیست. پیش از استقرار `martyrs-api` جدید، ابتدا MinIO را با حجم مجزا مستقر و سلامت آن را بررسی کنید. فایل‌ها خصوصی‌اند و فقط PDF تأییدشدهٔ پروفایل منتشرشده از مسیر API عرضه می‌شود. حداکثر حجم فعلی هر PDF برابر ۳۰ MiB است؛ برای کتاب‌های بزرگ‌تر باید بارگذاری چندبخشی اضافه شود. image قدیمی `minio/minio` از Docker Hub حذف و mirror عمومی Quay غیرقابل‌دریافت شده است؛ از نسخهٔ عمومی MinIO که Chainguard از کد منبع می‌سازد استفاده می‌کنیم. **OCI index digest `sha256:c93745c56fccdaf0e5dcb88999a96a65a136428beb045ef5d546255a80d747a7` در تاریخ ۲۰۲۶-۱۰-۱۶ از Registry رسمی تأیید و در اسکریپت استقرار ثابت شده است.** این به معنی آزمایش نصب روی CapRover نیست؛ سلامت و حق نوشتن در volume باید پیش از اتصال API بررسی شود. مجوز AGPLv3 و راهبرد پشتیبانی/به‌روزرسانی باید در ارزیابی استقرار لحاظ شود.
+
 ### روش استقرار
 
 [deploy.mjs](../deployment/caprover/deploy.mjs) از نشست CLI موجود CapRover (یا `CAPROVER_URL` + `CAPROVER_TOKEN` در CI) استفاده می‌کند. برای هر جزء، context ساخت (jar یا dist + Dockerfile) را آماده و از طریق API به CapRover می‌فرستد. CapRover image را می‌سازد، در registry پیکربندی‌شدهٔ خود (`ghcr.io/mahdiporkar/img-captain-haramyar-<name>:<version>`) push و مستقر می‌کند. برچسب build شامل SHA کامیت است و نسخهٔ قبلی هر اپ در `.local/caprover/history.jsonl` ثبت می‌شود.
 
 ```bash
 npm run build && ./mvnw -B -q package -DskipTests && npm run validate:manifests
+node deployment/caprover/deploy.mjs deploy books-storage  # پیش از martyrs-api جدید؛ حجم مستقل MinIO
 node deployment/caprover/deploy.mjs deploy booking-api martyrs-api shell-service booking-frontend martyrs-frontend public-web web
 node deployment/caprover/deploy.mjs deploy bootstrap   # ثبت manifest/artifact جدید در Hive؛ idempotent
 node deployment/caprover/deploy.mjs stop bootstrap     # پس از پایان اجرا
