@@ -72,7 +72,8 @@ function prepare(name){
  if(name==='object-storage'){writeFileSync(join(dir,'entrypoint.sh'),readFileSync(join(root,'deployment/seaweedfs/entrypoint.sh'),'utf8').replaceAll('\r\n','\n'));writeFileSync(join(dir,'Dockerfile'),`FROM ${a.base}\nCOPY entrypoint.sh /opt/haramyar/entrypoint.sh\nENTRYPOINT ["/bin/sh","/opt/haramyar/entrypoint.sh"]\n`);}
  if(name==='bootstrap'){
   const hive=hiveDir;
-  copy(join(root,'integrations/Dockerfile'),join(dir,'Dockerfile'));
+  // HARAMYAR_BOOTSTRAP_REGISTRATION_ONLY=true: Hive registration only, without realm policy or staff fixtures.
+  copy(join(root,process.env.HARAMYAR_BOOTSTRAP_REGISTRATION_ONLY==='true'?'integrations/Dockerfile.registration-only':'integrations/Dockerfile'),join(dir,'Dockerfile'));
   cpSync(join(hive,'cli'),join(dir,'.hive-cli/cli'),{recursive:true,filter:p=>!p.includes('node_modules')});
   copy(join(root,'vendor/hive-sdk/contracts'),join(dir,'.hive-cli/contracts'));
   copy(join(root,'integrations/hive'),join(dir,'hive'));

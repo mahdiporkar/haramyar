@@ -3,12 +3,13 @@
 // credentials, write CapRover config, or contact the production environment.
 import {cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
+import {execFileSync} from 'node:child_process';
 
 const root = resolve(import.meta.dirname, '../..');
 const outputRoot = resolve(root, '../.build-tools/caprover');
 const hive = resolve(root, '../hive-platform');
 const lock = JSON.parse(readFileSync(join(root, 'hive.lock.json'), 'utf8'));
-const actualHiveCommit = readFileSync(join(hive, '.git/HEAD'), 'utf8').trim();
+const actualHiveCommit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: hive, encoding: 'utf8'}).trim();
 if (actualHiveCommit !== lock.commit) throw new Error('Hive checkout is not pinned to hive.lock.json');
 if (!existsSync(join(root, 'modules/martyrs/frontend/dist/hive/mf-manifest.json')))
   throw new Error('Build the martyrs micro-frontend before preparing the rollout');
