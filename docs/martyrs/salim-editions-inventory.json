@@ -1,0 +1,787 @@
+{
+  "profileSlug": "izz-al-din-salim",
+  "sourceRoot": "ebook",
+  "note": "User-supplied PDFs. Technical validation and title-page sampling, not a full scholarly translation review. Publication status is recorded separately.",
+  "excluded": [
+    {
+      "file": "fa/Peyrovan-Ahl-al-Bayt-dar-Iraq_FA.pdf",
+      "reason": "Alternate formatting of the same Persian title; preferred Followers-of-Ahl-al-Bayt-in-Iraq_FA.pdf with Persian digits."
+    }
+  ],
+  "books": [
+    {
+      "sourceId": "46",
+      "originalTitle": "هكذا نقرأ السيرة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "هكذا نقرأ السيرة",
+          "file": "ar/هکذی نقرآة السیرة.pdf",
+          "pages": 224,
+          "bytes": 7778073,
+          "sha256": "c773bd8b27055461a1c0206c379464e952094b38704b49f308905269c882fd2a"
+        }
+      ]
+    },
+    {
+      "sourceId": "45",
+      "originalTitle": "وصية الإمام علي إلى ولده محمد بن الحنفية",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "وصية الإمام علي إلى ولده محمد بن الحنفية",
+          "file": "ar/وصية الامام للحنفية.pdf",
+          "pages": 32,
+          "bytes": 174943,
+          "sha256": "9758b674036552367e1560c8d06ea7e6066b09f022badc0a1819ac2dccd74ec2"
+        },
+        {
+          "locale": "fa",
+          "title": "وصیت امام علی (ع) به فرزندش محمد بن حنفیه",
+          "file": "fa/Testament-of-Imam-Ali-to-Ibn-al-Hanafiyya_FA.pdf",
+          "pages": 22,
+          "bytes": 3490312,
+          "sha256": "d67382388f9700803a98f1417e161689f6301af0d23ed13dcd64e7b5b8f41ed7"
+        },
+        {
+          "locale": "en",
+          "title": "The Testament of Imam Ali to His Son Muhammad ibn al-Hanafiyya",
+          "file": "en/Testament-of-Imam-Ali-to-Ibn-al-Hanafiyya_EN.pdf",
+          "pages": 28,
+          "bytes": 3166175,
+          "sha256": "0386d855eda07ade1380ffb25532f314a7965607440c198f52edb8be8ffd174e"
+        }
+      ]
+    },
+    {
+      "sourceId": "44",
+      "originalTitle": "نهج الامام الخمینی",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "نهج الامام الخمینی",
+          "file": "ar/نهج الامام الخمینی.pdf",
+          "pages": 128,
+          "bytes": 6896263,
+          "sha256": "84119fe966d2a640e594e404c5fed90259a32d464489730ebd8e6d3252623a02"
+        }
+      ]
+    },
+    {
+      "sourceId": "43",
+      "originalTitle": "من حصاد التجربة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "من حصاد التجربة",
+          "file": "ar/من حصاد التجربة.pdf",
+          "pages": 256,
+          "bytes": 9997532,
+          "sha256": "844515e5f47c27e2f4ead021267f6c4a635474a9c73fd6cf66189c62d5ba666f"
+        }
+      ]
+    },
+    {
+      "sourceId": "42",
+      "originalTitle": "مكانة الانسان في الاسلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "مكانة الانسان في الاسلام",
+          "file": "ar/مكانة الانسان في الاسلام.pdf",
+          "pages": 120,
+          "bytes": 509869,
+          "sha256": "fed90acdf56566cdea518a64fa056e12af3fabcbfde572aa4d73d7e34c4cca5b"
+        }
+      ]
+    },
+    {
+      "sourceId": "41",
+      "originalTitle": "مقتل أمير المؤمنين",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "مقتل أمير المؤمنين",
+          "file": "ar/مقتل أمير المؤمنين.pdf",
+          "pages": 75,
+          "bytes": 1021851,
+          "sha256": "ebd0eb068dc85c16bb50a06d583590dd4bc4b00392664ce081c5c5a8c1cd7f95"
+        },
+        {
+          "locale": "fa",
+          "title": "شهادت امیرالمؤمنین",
+          "file": "fa/The-Martyrdom-of-Imam-Ali_FA.pdf",
+          "pages": 45,
+          "bytes": 6695042,
+          "sha256": "ba814ab8f4c6290ef8961ff7bb78c1406a1b385761cbf5f28ee5266cf2ba2e76"
+        },
+        {
+          "locale": "en",
+          "title": "The Martyrdom of the Commander of the Faithful",
+          "file": "en/The-Martyrdom-of-Imam-Ali_EN.pdf",
+          "pages": 53,
+          "bytes": 5828793,
+          "sha256": "dcbf01d3aa33142f1d566f6fa8f7f5a55994a1d96331d702c883d5d3f9059ecd"
+        }
+      ]
+    },
+    {
+      "sourceId": "40",
+      "originalTitle": "معالم علی الطریق",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "معالم علی الطریق",
+          "file": "ar/معالم علی الطریق.pdf",
+          "pages": 79,
+          "bytes": 514641,
+          "sha256": "498b01556d18ff86d5df5a37334b0a389089ef68eb6e069fbe4423014cffe6c4"
+        }
+      ]
+    },
+    {
+      "sourceId": "39",
+      "originalTitle": "معالم التوحيد",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "معالم التوحيد",
+          "file": "ar/معالم التوحيد.pdf",
+          "pages": 327,
+          "bytes": 1325908,
+          "sha256": "3c6648eb174f22dcb47280bd908689c8f30821a20381182019a2c1fc65e70d3f"
+        }
+      ]
+    },
+    {
+      "sourceId": "38",
+      "originalTitle": "محمد رسول الله",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "محمد رسول الله",
+          "file": "ar/محمد رسول الله.pdf",
+          "pages": 280,
+          "bytes": 13831336,
+          "sha256": "803f0b0a4d3007769e663a1e1374249bedd93e6eb35f6917bca132643aaf7a92"
+        }
+      ]
+    },
+    {
+      "sourceId": "37",
+      "originalTitle": "مبادئ التربیة الاسلامیة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "مبادئ التربیة الاسلامیة",
+          "file": "ar/مبادئ التربیة الاسلامیة.pdf",
+          "pages": 80,
+          "bytes": 2601995,
+          "sha256": "98cade24ec07a1df4a46dcab0769cea13ecd548385d7ea62e14923f21a6ac1a8"
+        }
+      ]
+    },
+    {
+      "sourceId": "36",
+      "originalTitle": "لماذا الصوم",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "لماذا الصوم",
+          "file": "ar/لماذا الصوم.pdf",
+          "pages": 152,
+          "bytes": 5101036,
+          "sha256": "da38ba4750b29b3627e65f34446d21fa88daaefbf601ff8841da3b431ae2a07c"
+        }
+      ]
+    },
+    {
+      "sourceId": "35",
+      "originalTitle": "كيف نواجه الحرب النفسية",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "كيف نواجه الحرب النفسية",
+          "file": "ar/کیف نواجه الحرب النفسیة.pdf",
+          "pages": 30,
+          "bytes": 2533139,
+          "sha256": "d1765faf1f092efa94111e27130e4b161baa473b166f7992389bb7886a8c85df"
+        },
+        {
+          "locale": "fa",
+          "title": "چگونه با جنگ روانی رویارو شویم؟",
+          "file": "fa/How-Do-We-Confront-Psychological-Warfare_FA.pdf",
+          "pages": 20,
+          "bytes": 3222831,
+          "sha256": "a355107b5394214107a272033180a6fcd6700cc6e813840cea038ebe2107c716"
+        },
+        {
+          "locale": "en",
+          "title": "How Do We Confront Psychological Warfare?",
+          "file": "en/How-Do-We-Confront-Psychological-Warfare_EN.pdf",
+          "pages": 24,
+          "bytes": 3030763,
+          "sha256": "a24cf587111a117c76650af58205106a0a70e783d80f410b341db2065c5e77fe"
+        }
+      ]
+    },
+    {
+      "sourceId": "34",
+      "originalTitle": "عبدالعظیم الحسنی",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "عبدالعظیم الحسنی",
+          "file": "ar/عبدالعظیم الحسنی.pdf",
+          "pages": 91,
+          "bytes": 531807,
+          "sha256": "67302ab59d2acc3999b68412d841dd3ca53461265edd4bc17bbbc0a891b05915"
+        }
+      ]
+    },
+    {
+      "sourceId": "33",
+      "originalTitle": "سیرة أمير المؤمنين علیه السلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "سیرة أمير المؤمنين علیه السلام",
+          "file": "ar/سیرة أمير المؤمنين علیه السلام.pdf",
+          "pages": 244,
+          "bytes": 1278846,
+          "sha256": "72a8ca0478481a1df2f63b6fcf15356e19516834da1c092c751f70fba9f7b398"
+        }
+      ]
+    },
+    {
+      "sourceId": "32",
+      "originalTitle": "رسالة الدین",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "رسالة الدین",
+          "file": "ar/رسالة الدین.pdf",
+          "pages": 79,
+          "bytes": 1040807,
+          "sha256": "ee107c22953588a04ffb2d9c61beac158fd968f414b6095b190b85c80ccde9bf"
+        }
+      ]
+    },
+    {
+      "sourceId": "31",
+      "originalTitle": "دور المساجد فی حیاة المسلمین",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "دور المساجد فی حیاة المسلمین",
+          "file": "ar/دور المساجد فی حیاة المسلمین.pdf",
+          "pages": 154,
+          "bytes": 669516,
+          "sha256": "464a558566bdeb59b66ff4a270e24a1b5d45c344585db378a41a3a19ec0dd25c"
+        }
+      ]
+    },
+    {
+      "sourceId": "30",
+      "originalTitle": "دوافع النهضة الحسینیة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "دوافع النهضة الحسینیة",
+          "file": "ar/دوافع النهضة الحسینیة.pdf",
+          "pages": 106,
+          "bytes": 404514,
+          "sha256": "e2dde1241ac0e90247785c6c4fa909b96a816db64db871aba84281ac1465aa61"
+        }
+      ]
+    },
+    {
+      "sourceId": "29",
+      "originalTitle": "خديجة بنت خويلد",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "خديجة بنت خويلد",
+          "file": "ar/خديجة بنت خويلد.pdf",
+          "pages": 119,
+          "bytes": 504667,
+          "sha256": "ad05bf11d8b9a51205b2794492d72bb3e5b9a724dfc1f1cfc532f74d79f6cb1a"
+        }
+      ]
+    },
+    {
+      "sourceId": "28",
+      "originalTitle": "حقوق الإنسان في الإسلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "حقوق الإنسان في الإسلام",
+          "file": "ar/حقوق الانسان فی السلام.pdf",
+          "pages": 36,
+          "bytes": 176014,
+          "sha256": "cac03c8a85b85d3cbfec78bf816db309b4bd91d8742379f9b472f25af69602a5"
+        },
+        {
+          "locale": "fa",
+          "title": "حقوق بشر در اسلام",
+          "file": "fa/Human-Rights-in-Islam_FA.pdf",
+          "pages": 20,
+          "bytes": 3433932,
+          "sha256": "4b99fae1c01700ead23a95e4faa530646c0b0f8f4dccf731f37b071c8b49ce45"
+        },
+        {
+          "locale": "en",
+          "title": "Human Rights in Islam",
+          "file": "en/Human-Rights-in-Islam_EN.pdf",
+          "pages": 25,
+          "bytes": 3165496,
+          "sha256": "cc9b900e2d8266047d449df8b19af8d552203fc29c0628c58b6634b9d1d2457e"
+        }
+      ]
+    },
+    {
+      "sourceId": "27",
+      "originalTitle": "حدیث الغدیر",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "حدیث الغدیر",
+          "file": "ar/حدیث الغدیر.pdf",
+          "pages": 202,
+          "bytes": 993329,
+          "sha256": "4a107f267d3cec8203bf4c15f52d2b3523ef355e0d8e2a81f9b9995c7c171a0a"
+        }
+      ]
+    },
+    {
+      "sourceId": "26",
+      "originalTitle": "اية التطهير",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "اية التطهير",
+          "file": "ar/اية التطهير.pdf",
+          "pages": 40,
+          "bytes": 291945,
+          "sha256": "e9846dcf44a8fdcde1df582e743fc3959e49aa91a96f59e861025417a0fae1f6"
+        },
+        {
+          "locale": "fa",
+          "title": "آیهٔ تطهیر",
+          "file": "fa/The-Verse-of-Purification_FA.pdf",
+          "pages": 51,
+          "bytes": 8076707,
+          "sha256": "b804f2baa81803a8b182d4d8f96bddbd5d7f9031196a27662ffd01a792d3464d"
+        },
+        {
+          "locale": "en",
+          "title": "The Verse of Purification",
+          "file": "en/The-Verse-of-Purification_EN.pdf",
+          "pages": 67,
+          "bytes": 7316925,
+          "sha256": "042ae9218e7cc5003a9f4f214fecc3304aa3f8c50987fce47bee5215363b2d4b"
+        }
+      ]
+    },
+    {
+      "sourceId": "25",
+      "originalTitle": "المعارضة السیاسیة في تجربة امیر المؤمنین",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "المعارضة السیاسیة في تجربة امیر المؤمنین",
+          "file": "ar/المعارضة السیاسیة في تجربة امیر المؤمنین.pdf",
+          "pages": 328,
+          "bytes": 8484665,
+          "sha256": "db19858541f4e8343f4bfbbe912daa04b8db33e6cb6b2452d5867b8a452b630b"
+        }
+      ]
+    },
+    {
+      "sourceId": "24",
+      "originalTitle": "المرأة في ظل المجتمع الإسلامي",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "المرأة في ظل المجتمع الإسلامي",
+          "file": "ar/المرة في ضل المجتمع الاسلامي.pdf",
+          "pages": 73,
+          "bytes": 272912,
+          "sha256": "78b353444efcf7ee9e4bf4136c7c93a11b01033e02c7908b04d28e8bfbc34827"
+        },
+        {
+          "locale": "fa",
+          "title": "زن در سایهٔ جامعهٔ اسلامی",
+          "file": "fa/Woman-in-the-Islamic-Society_FA.pdf",
+          "pages": 38,
+          "bytes": 5745338,
+          "sha256": "3fd1b02d952c0ced10ee2778bfaacb581a1f999a0f4be4285980088515aa7aab"
+        },
+        {
+          "locale": "en",
+          "title": "Woman in the Islamic Society",
+          "file": "en/Woman-in-the-Islamic-Society_EN.pdf",
+          "pages": 46,
+          "bytes": 4933006,
+          "sha256": "6d0e793086a9a927c1128bf1021641613764608771123d611f5ca29de1e79202"
+        }
+      ]
+    },
+    {
+      "sourceId": "23",
+      "originalTitle": "الفقر دراسة و علاج",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الفقر دراسة و علاج",
+          "file": "ar/الفقر دراسة و علاج.pdf",
+          "pages": 64,
+          "bytes": 961772,
+          "sha256": "0909e81328a88925fecbd02fe530eafaad3bc072e13c33aa4684b24789b8cf4b"
+        },
+        {
+          "locale": "fa",
+          "title": "فقر: بررسی و درمان",
+          "file": "fa/Poverty-Study-and-Treatment_FA.pdf",
+          "pages": 28,
+          "bytes": 4795897,
+          "sha256": "2f23bf9fe4d310577db7cd1bffa41daa27c95c23d0492e340ef07c277f2b061c"
+        },
+        {
+          "locale": "en",
+          "title": "Poverty: Study and Treatment",
+          "file": "en/Poverty-Study-and-Treatment_EN.pdf",
+          "pages": 34,
+          "bytes": 4307124,
+          "sha256": "286f57dc5411d6b9a7e666ddd4a4e82b2b4861ae5698b32a06dbd59c3af03b1c"
+        }
+      ]
+    },
+    {
+      "sourceId": "22",
+      "originalTitle": "العقدة القرشية",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "العقدة القرشية",
+          "file": "ar/العقدة القرشية.pdf",
+          "pages": 73,
+          "bytes": 333475,
+          "sha256": "fc72fabec034f82781df410fb750ae24b37a506ec8a8eb52f62f919b2c631537"
+        },
+        {
+          "locale": "fa",
+          "title": "عقدهٔ قریشی",
+          "file": "fa/The-Qurayshite-Complex_FA.pdf",
+          "pages": 39,
+          "bytes": 6036698,
+          "sha256": "2ae3acb4caf5411c70e1f98a9c10fac3800ee6bdeb304a6a02c7b01c92dda0a9"
+        },
+        {
+          "locale": "en",
+          "title": "The Qurayshite Complex",
+          "file": "en/The-Qurayshite-Complex_EN.pdf",
+          "pages": 52,
+          "bytes": 5358121,
+          "sha256": "3def1776c9c04388100eb77a827decdcb02cc950a42b51420b1e7ca7cc26b589"
+        }
+      ]
+    },
+    {
+      "sourceId": "21",
+      "originalTitle": "الصديقة الزهراء بين المحنة والمقاومة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الصديقة الزهراء بين المحنة والمقاومة",
+          "file": "ar/الصدیة الزهرا بین المحنة و المقاومة.pdf",
+          "pages": 160,
+          "bytes": 15115210,
+          "sha256": "166ac26883b322babd36280ebeebeb03f194009e31a499d03ee0a05ac91ddd89"
+        }
+      ]
+    },
+    {
+      "sourceId": "20",
+      "originalTitle": "الشهيد محمد باقر الصدر",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الشهيد محمد باقر الصدر",
+          "file": "ar/الشید محمد باقر الصدر.pdf",
+          "pages": 108,
+          "bytes": 2112746,
+          "sha256": "1849a87c6db9ff2abc15669aa5c7b03265320e62fe6a29874d39a715df77bc22"
+        }
+      ]
+    },
+    {
+      "sourceId": "19",
+      "originalTitle": "السیاسة الخارجیة الامریکیة فی الشرق الاوسط",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "السیاسة الخارجیة الامریکیة فی الشرق الاوسط",
+          "file": "ar/السیاسة الخارجیة الامریکیة فی الشرق الاوسط.pdf",
+          "pages": 312,
+          "bytes": 11452185,
+          "sha256": "ccbbf310400fa8e2ba2e4408098b9a637a8910055da3b9a1551bafd793a20e5a"
+        }
+      ]
+    },
+    {
+      "sourceId": "18",
+      "originalTitle": "الزهرا فاطمة بنت محمد",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الزهرا فاطمة بنت محمد",
+          "file": "ar/الزهرا فاطمة بنت محمد.pdf",
+          "pages": 331,
+          "bytes": 1581977,
+          "sha256": "0901e7ef038f42e7c398c2039cd9cb3e285c5423ae2998513720de430297528a"
+        }
+      ]
+    },
+    {
+      "sourceId": "17",
+      "originalTitle": "الحجاب الإسلامي",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الحجاب الإسلامي",
+          "file": "ar/الحجاب الإسلامي.pdf",
+          "pages": 103,
+          "bytes": 435198,
+          "sha256": "056f35f085826c65a352eba63d50ac9dc8fea90901ec5e2806524c125a12c162"
+        }
+      ]
+    },
+    {
+      "sourceId": "16",
+      "originalTitle": "التعددیة و الحوار",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "التعددیة و الحوار",
+          "file": "ar/التعددیة و الحوار.pdf",
+          "pages": 202,
+          "bytes": 6702746,
+          "sha256": "9ac1a2ce2db5805bf6298ff778bc2c5eec89e943a02dafb05754c8adfff64e19"
+        }
+      ]
+    },
+    {
+      "sourceId": "15",
+      "originalTitle": "التربية الاسلامية",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "التربية الاسلامية",
+          "file": "ar/التربية الاسلامية.pdf",
+          "pages": 106,
+          "bytes": 456618,
+          "sha256": "423babf5a462e3ad6975055187a2c0cdc9b50be773b3456c894298b48df09b37"
+        }
+      ]
+    },
+    {
+      "sourceId": "14",
+      "originalTitle": "الانتهاکات الامریکیة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الانتهاکات الامریکیة",
+          "file": "ar/الانتهاکات الامریکیة.pdf",
+          "pages": 184,
+          "bytes": 10165941,
+          "sha256": "3ddeb0e6f2c72b9d97cf0a202c463309f5e5a62feadc16353cb27b00e295efa9"
+        }
+      ]
+    },
+    {
+      "sourceId": "13",
+      "originalTitle": "الإمامة في الرسالة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الإمامة في الرسالة",
+          "file": "ar/الإمامة في الرسالة.pdf",
+          "pages": 262,
+          "bytes": 1299311,
+          "sha256": "e4bea475707b3e138fc2641165fa91bcfd8dacdf33bb390009a55e84ae56eb25"
+        }
+      ]
+    },
+    {
+      "sourceId": "12",
+      "originalTitle": "الامام محمد الباقر علیه السلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الامام محمد الباقر علیه السلام",
+          "file": "ar/الامام محمد الباقر علیه السلام.pdf",
+          "pages": 80,
+          "bytes": 1045451,
+          "sha256": "27294e4a23f607d78ea68b2c8818031d5f0e24ed1d60b8bf5eeb408564bc252a"
+        }
+      ]
+    },
+    {
+      "sourceId": "11",
+      "originalTitle": "الامام علی ابن الحسین علیه السلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الامام علی ابن الحسین علیه السلام",
+          "file": "ar/الامام علی ابن الحسین علیه السلام.pdf",
+          "pages": 145,
+          "bytes": 694552,
+          "sha256": "62d0d6b616f36cad667db99ae78666a05876a3cc9df091f6f775aaa21f252cd7"
+        }
+      ]
+    },
+    {
+      "sourceId": "10",
+      "originalTitle": "الامام حسن ابن علی علیه السلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الامام حسن ابن علی علیه السلام",
+          "file": "ar/الامام حسن ابن علی علیه السلام.pdf",
+          "pages": 84,
+          "bytes": 513724,
+          "sha256": "1211c0cbdc49b5d9e78b039d758ea62b8574599d7c00ae7e980842d1fdc99be0"
+        }
+      ]
+    },
+    {
+      "sourceId": "9",
+      "originalTitle": "الامام الحسین ابن علی علیه السلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الامام الحسین ابن علی علیه السلام",
+          "file": "ar/الامام الحسین ابن علی علیه السلام.pdf",
+          "pages": 102,
+          "bytes": 463943,
+          "sha256": "1f72004f15bb38629636f866cccc144f84ee565dc949defd357485ca5fc2705d"
+        }
+      ]
+    },
+    {
+      "sourceId": "8",
+      "originalTitle": "الإمام الجواد علیة السلام",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الإمام الجواد علیة السلام",
+          "file": "ar/الإمام الجواد علیة السلام.pdf",
+          "pages": 235,
+          "bytes": 1029093,
+          "sha256": "9ad476a3144bd146f6e83d1dd297d14762a7dadd175af651ef6ebfa761407b87"
+        }
+      ]
+    },
+    {
+      "sourceId": "7",
+      "originalTitle": "الاسلام و رسالتة الخالدة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "الاسلام و رسالتة الخالدة",
+          "file": "ar/الاسلام و رسالتة الخالدة.pdf",
+          "pages": 153,
+          "bytes": 687343,
+          "sha256": "cb9d4598cba9536a38bc0eb88489f87fdab96b823c87ca4c0301febdb292cc52"
+        }
+      ]
+    },
+    {
+      "sourceId": "6",
+      "originalTitle": "استراتیجیة الهیمنة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "استراتیجیة الهیمنة",
+          "file": "ar/استراتیجیة الهیمنة.pdf",
+          "pages": 232,
+          "bytes": 6120116,
+          "sha256": "41940cf0d878608ad84219a6d0382f1c60aa53fdadbf74cdebd1bebcfa6b959e"
+        }
+      ]
+    },
+    {
+      "sourceId": "5",
+      "originalTitle": "اتباع اهل البيت في العراق",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "اتباع اهل البيت في العراق",
+          "file": "ar/اتباع اهل البيت في العراق.pdf",
+          "pages": 15,
+          "bytes": 173583,
+          "sha256": "f29f2acd4fe451072c837ef535fa4c33d407d1492083789c5daf6ac18d4a9edb"
+        },
+        {
+          "locale": "fa",
+          "title": "پیروان اهل‌بیت (ع) در عراق",
+          "file": "fa/Followers-of-Ahl-al-Bayt-in-Iraq_FA.pdf",
+          "pages": 25,
+          "bytes": 4120615,
+          "sha256": "df016959c44d53783e2ae44d25d70a69494c430a5b3f680c2edbc25e07e9d22d"
+        },
+        {
+          "locale": "en",
+          "title": "The Followers of Ahl al-Bayt in Iraq",
+          "file": "en/Followers-of-Ahl-al-Bayt-in-Iraq_EN.pdf",
+          "pages": 32,
+          "bytes": 3527451,
+          "sha256": "70bbb449c2218650b30d8f93daf1fbf61d3dafaca6ecdc27fd84a7985c432fda"
+        }
+      ]
+    },
+    {
+      "sourceId": "4",
+      "originalTitle": "ابو طالب الصحابی المفتری علیه",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "ابو طالب الصحابی المفتری علیه",
+          "file": "ar/ابو طالب الصحابی المفتری علیه.pdf",
+          "pages": 112,
+          "bytes": 3484325,
+          "sha256": "6de9dd74cc129b254dac78fadead0b0c2ae96b3741269bef8ac62e9b692ee1a2"
+        }
+      ]
+    },
+    {
+      "sourceId": "3",
+      "originalTitle": "أبحاث وقضايا سياسية",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "أبحاث وقضايا سياسية",
+          "file": "ar/أبحاث وقضايا سياسية.pdf",
+          "pages": 150,
+          "bytes": 2813679,
+          "sha256": "6383fbf8d3d5df4677ebd3922936fc457258f991e69bcb7690a7123db3847457"
+        }
+      ]
+    },
+    {
+      "sourceId": "2",
+      "originalTitle": "أبحاث في شؤون النهضة",
+      "editions": [
+        {
+          "locale": "ar",
+          "title": "أبحاث في شؤون النهضة",
+          "file": "ar/أبحاث في شؤون النهضة.pdf",
+          "pages": 286,
+          "bytes": 1083153,
+          "sha256": "aa1ab9e80d824864913cc2e70fed46ce87897f66507cf4e86bc0e14b34b07bfb"
+        }
+      ]
+    }
+  ]
+}

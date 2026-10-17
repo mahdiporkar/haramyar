@@ -24,14 +24,15 @@ interface Profile {
   portrait?: Media; gallery: Media[]; sources: Source[]; stories: {id: string; title: string; body: string}[]; seo?: {title?: string; description?: string}; firstPublishedAt: string; updatedAt: string;
 }
 interface Summary {slug: string; fullName: string; honorific?: string; shortDescription?: string; portraitMediaId?: string}
-interface Book {id: string; kind: 'AUTHORED' | 'ABOUT'; sourceUrl: string; selectedEdition: {title: string; summary?: string; locale: Locale};
+/** selectedEdition is chosen by the martyrs service (requested language, else Arabic) among published editions with a PDF. */
+interface Book {id: string; kind: 'AUTHORED' | 'ABOUT'; originalTitle: string; sourceUrl: string; selectedEdition: {id: string; title: string; summary?: string; locale: Locale};
   availableEditions: {id: string; title: string; locale: Locale}[]}
 const LANGUAGE_NAMES: Record<Locale, string> = {fa: 'فارسی', ar: 'العربية', en: 'English'};
 
 const TEXT = {
-  fa: {site: 'حرم‌یار', archive: 'معرفی شهدا', born: 'تولد', martyred: 'شهادت', biography: 'زندگی‌نامه', stories: 'خاطرات و روایت‌ها', sources: 'منابع و مراجع', openApp: 'مشاهده در اپلیکیشن حرم‌یار', notFound: 'این پرونده در دسترس نیست', all: 'همه پرونده‌ها', empty: 'هنوز پرونده‌ای منتشر نشده است', note: 'محتوای حرم‌یار تنها پس از بررسی منبع و تأیید تحریریه منتشر می‌شود.', language: 'زبان نمایش', sourceLanguage: 'متن زندگی‌نامه هنوز فقط به زبان اصلی ({language}) منتشر شده است.', bookFallback: 'ترجمهٔ این اثر هنوز به زبان انتخاب‌شده منتشر نشده است؛ عنوان زبان موجود نمایش داده می‌شود.', cal: {SOLAR_HIJRI: 'ه‍.ش', LUNAR_HIJRI: 'ه‍.ق', GREGORIAN: 'م'}},
-  ar: {site: 'حرم‌يار', archive: 'التعريف بالشهداء', born: 'الولادة', martyred: 'الشهادة', biography: 'السيرة', stories: 'الذكريات والروايات', sources: 'المصادر والمراجع', openApp: 'العرض في تطبيق حرم‌يار', notFound: 'هذا الملف غير متاح', all: 'كل الملفات', empty: 'لم يُنشر أي ملف بعد', note: 'لا يُنشر محتوى حرم‌يار إلا بعد التحقق من المصدر واعتماد التحرير.', language: 'لغة العرض', sourceLanguage: 'السيرة متاحة حالياً بلغتها الأصلية فقط ({language}).', bookFallback: 'ترجمة هذا الكتاب غير منشورة باللغة المختارة؛ يظهر عنوان النسخة المتاحة.', cal: {SOLAR_HIJRI: 'هـ.ش', LUNAR_HIJRI: 'هـ', GREGORIAN: 'م'}},
-  en: {site: 'Haramyar', archive: 'Martyrs archive', born: 'Born', martyred: 'Martyred', biography: 'Biography', stories: 'Memories and stories', sources: 'Sources and references', openApp: 'Open in the Haramyar app', notFound: 'This profile is not available', all: 'All profiles', empty: 'No profile has been published yet', note: 'Haramyar publishes content only after source review and editorial approval.', language: 'Display language', sourceLanguage: 'The biography is currently published only in its source language ({language}).', bookFallback: 'A translation into the selected language has not been published; the available edition is shown.', cal: {SOLAR_HIJRI: 'SH', LUNAR_HIJRI: 'AH', GREGORIAN: 'CE'}},
+  fa: {site: 'حرم‌یار', archive: 'معرفی شهدا', born: 'تولد', martyred: 'شهادت', biography: 'زندگی‌نامه', stories: 'خاطرات و روایت‌ها', sources: 'منابع و مراجع', openApp: 'مشاهده در اپلیکیشن حرم‌یار', notFound: 'این پرونده در دسترس نیست', all: 'همه پرونده‌ها', empty: 'هنوز پرونده‌ای منتشر نشده است', note: 'محتوای حرم‌یار تنها پس از بررسی منبع و تأیید تحریریه منتشر می‌شود.', language: 'زبان نمایش', sourceLanguage: 'متن زندگی‌نامه هنوز فقط به زبان اصلی ({language}) منتشر شده است.', bookFallback: 'ترجمهٔ این اثر هنوز به زبان انتخاب‌شده منتشر نشده است؛ عنوان زبان موجود نمایش داده می‌شود.', bookFallbackArabic: 'ترجمهٔ فارسی این کتاب هنوز موجود نیست؛ نسخهٔ اصلی عربی در دسترس است.', library: 'کتابخانه آثار', download: 'دانلود نسخهٔ {language}', otherEditions: 'نسخه‌های دیگر', editionLanguage: 'زبان نسخه', languages: {fa: 'فارسی', ar: 'عربی', en: 'انگلیسی'}, cal: {SOLAR_HIJRI: 'ه‍.ش', LUNAR_HIJRI: 'ه‍.ق', GREGORIAN: 'م'}},
+  ar: {site: 'حرم‌يار', archive: 'التعريف بالشهداء', born: 'الولادة', martyred: 'الشهادة', biography: 'السيرة', stories: 'الذكريات والروايات', sources: 'المصادر والمراجع', openApp: 'العرض في تطبيق حرم‌يار', notFound: 'هذا الملف غير متاح', all: 'كل الملفات', empty: 'لم يُنشر أي ملف بعد', note: 'لا يُنشر محتوى حرم‌يار إلا بعد التحقق من المصدر واعتماد التحرير.', language: 'لغة العرض', sourceLanguage: 'السيرة متاحة حالياً بلغتها الأصلية فقط ({language}).', bookFallback: 'ترجمة هذا الكتاب غير منشورة باللغة المختارة؛ يظهر عنوان النسخة المتاحة.', bookFallbackArabic: 'ترجمة هذا الكتاب غير منشورة باللغة المختارة؛ يظهر عنوان النسخة المتاحة.', library: 'مكتبة المؤلفات', download: 'تحميل النسخة {language}', otherEditions: 'نسخ أخرى', editionLanguage: 'لغة النسخة', languages: {fa: 'الفارسية', ar: 'العربية', en: 'الإنجليزية'}, cal: {SOLAR_HIJRI: 'هـ.ش', LUNAR_HIJRI: 'هـ', GREGORIAN: 'م'}},
+  en: {site: 'Haramyar', archive: 'Martyrs archive', born: 'Born', martyred: 'Martyred', biography: 'Biography', stories: 'Memories and stories', sources: 'Sources and references', openApp: 'Open in the Haramyar app', notFound: 'This profile is not available', all: 'All profiles', empty: 'No profile has been published yet', note: 'Haramyar publishes content only after source review and editorial approval.', language: 'Display language', sourceLanguage: 'The biography is currently published only in its source language ({language}).', bookFallback: 'A translation into the selected language has not been published; the available edition is shown.', bookFallbackArabic: 'An English translation is not yet available. The original Arabic edition is available.', library: 'Library of works', download: 'Download {language} PDF', otherEditions: 'Other editions', editionLanguage: 'Edition language', languages: {fa: 'Persian', ar: 'Arabic', en: 'English'}, cal: {SOLAR_HIJRI: 'SH', LUNAR_HIJRI: 'AH', GREGORIAN: 'CE'}},
 } as const;
 
 async function bff<T>(path: string): Promise<{status: number; body: T | null}> {
@@ -84,6 +85,33 @@ function Document({locale, title, description, canonical, alternateSlug, image, 
   );
 }
 
+const bookFile = (editionId: string) => `/api/routes/martyrs/public/books/${editionId}/file`;
+
+/** One work: the edition the service selected for this language is primary; a fallback is always labelled as such. */
+function BookCard({book, locale}: {book: Book; locale: Locale}) {
+  const text = TEXT[locale];
+  const selected = book.selectedEdition;
+  const fallback = selected.locale !== locale;
+  const download = (edition: Locale) => text.download.replace('{language}', text.languages[edition]);
+  const others = book.availableEditions.filter(e => e.id !== selected.id);
+  return (
+    <li className="book-card" data-book-id={book.id} data-edition-id={selected.id} data-edition-locale={selected.locale} data-fallback={fallback}>
+      <h3 lang={selected.locale} dir={directionOf(selected.locale)}>{selected.title}</h3>
+      <span className="edition-language">{text.editionLanguage}: <span lang={locale}>{text.languages[selected.locale]}</span></span>
+      {fallback && <p className="book-fallback" role="note">{selected.locale === 'ar' ? text.bookFallbackArabic : text.bookFallback}</p>}
+      {selected.summary && <p lang={selected.locale} dir={directionOf(selected.locale)}>{selected.summary}</p>}
+      <div className="book-actions">
+        <a className="btn btn-primary book-download" data-primary="true" href={bookFile(selected.id)} hrefLang={selected.locale} type="application/pdf"
+          target="_blank" rel="noopener noreferrer">{download(selected.locale)}</a>
+        {others.length > 0 && <div className="book-editions"><span>{text.otherEditions}:</span>
+          {others.map(e => <a key={e.id} href={bookFile(e.id)} hrefLang={e.locale} lang={e.locale} type="application/pdf" target="_blank" rel="noopener noreferrer"
+            data-edition-locale={e.locale} aria-label={download(e.locale)}>{LANGUAGE_NAMES[e.locale]}</a>)}
+        </div>}
+      </div>
+    </li>
+  );
+}
+
 function ProfilePage({profile, books, locale}: {profile: Profile; books: Book[]; locale: Locale}) {
   const text = TEXT[locale];
   const sourceLocale: Locale = isLocale(profile.contentLocale) ? profile.contentLocale : 'fa';
@@ -112,15 +140,8 @@ function ProfilePage({profile, books, locale}: {profile: Profile; books: Book[];
         {profile.biography && <><h2>{text.biography}</h2><div lang={sourceLocale} dir={directionOf(sourceLocale)}>{paragraphs(profile.biography).map((p, i) => <p key={i}>{p}</p>)}</div></>}
     {profile.stories.length > 0 && <><h2>{text.stories}</h2>{profile.stories.map(s => <section key={s.id} lang={isLocale(profile.sourceLocale) ? profile.sourceLocale : sourceLocale} dir={directionOf(isLocale(profile.sourceLocale) ? profile.sourceLocale : sourceLocale)}><h3>{s.title}</h3>{paragraphs(s.body).map((p, i) => <p key={i}>{p}</p>)}</section>)}</>}
         {books.length > 0 && <section className="books-section">
-          <h2>{locale === 'fa' ? 'کتابخانه آثار' : locale === 'ar' ? 'مكتبة المؤلفات' : 'Library of works'}</h2>
-          <ul className="books-list">{books.map(book => <li key={book.id}>
-            <h3 lang={book.selectedEdition.locale}>{book.selectedEdition.title}</h3>
-            {book.selectedEdition.locale !== locale && <small className="book-fallback">{text.bookFallback}</small>}
-            {book.selectedEdition.summary && <p lang={book.selectedEdition.locale}>{book.selectedEdition.summary}</p>}
-            {book.availableEditions.map(e => <a key={e.id} href={`/api/routes/martyrs/public/books/${e.id}/file`} target="_blank" rel="noopener noreferrer">
-              PDF · {LANGUAGE_NAMES[e.locale]}
-            </a>)}
-          </li>)}</ul>
+          <h2>{text.library}</h2>
+          <ul className="books-list">{books.map(book => <BookCard key={book.id} book={book} locale={locale} />)}</ul>
         </section>}
         <h2>{text.sources}</h2>
         <div className="sources"><ul>{profile.sources.map(s => (

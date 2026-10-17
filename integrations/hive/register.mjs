@@ -3,7 +3,8 @@
 //   2. modules, resource manifests, micro-frontend artifacts, service targets, proxy routes and operations
 //      (the Hive CLI's own `hive register`),
 //   3. business roles and their resource-action grants (admin API).
-// Idempotent: existing objects are kept; new manifest versions are added and activated.
+// Idempotent: existing objects are kept, except service targets whose declared settings changed; new manifest
+// versions are added and activated.
 //
 // Environment: HIVE_AUTHORIZATION_URL, HIVE_PROVISIONING_PASSWORD, HIVE_CLI (path to hive.mjs, default
 // $HIVE_PLATFORM_DIR/cli/bin/hive.mjs), ROZEH_BOOKING_URL, MARTYRS_URL, SHELL_SERVICE_URL (internal base URLs).
@@ -75,6 +76,15 @@ for (const r of access.manualResources) await call('POST', `/admin/applications/
 const solution = assemble();
 if (!existsSync(cli)) throw new Error(`Hive CLI not found at ${cli}; set HIVE_CLI or HIVE_PLATFORM_DIR`);
 execFileSync(process.execPath, [cli, 'register', '--solution', solution, '--authorization', authorization], {stdio: 'inherit', env: {...process.env, HIVE_PROVISIONING_PASSWORD: password}});
+
+// `hive register` only creates service targets (409 keeps the stored one), so declared limits and URLs that
+// changed after the first registration are reconciled here through the supported update API.
+for (const file of readdirSync(join(solution, 'services'))) {
+  const declared = JSON.parse(readFileSync(join(solution, 'services', file), 'utf8')).target;
+  const current = await call('GET', `/admin/service-targets/${declared.key}`);
+  if (Object.entries(declared).every(([field, value]) => current[field] === value)) continue;
+  await call('PUT', `/admin/service-targets/${declared.key}`, {...current, ...declared, revision: current.revision});
+}
 
 // 3. Business roles and grants. Hive platform roles are never assigned here.
 for (const role of access.roles) {
