@@ -70,3 +70,8 @@ node tools/martyrs-import-books.mjs --source-dir ../upload --apply --ensure-prof
 بدون دسترسی معتبر به CapRover، MinIO و تحریریه ورود داده و انتشار واقعی امکان‌پذیر نیست؛ بدون ترجمهٔ کامل نیز فایل عربی نباید به جای فارسی یا انگلیسی ثبت شود.
 
 منبع: https://www.shahidsalim.com/books.php ؛ https://www.shahidsalim.com/page.php?slug=cv
+
+## Original covers and public memorial
+
+The 2026-10-18 cover mapping, asset rebuild instructions, design changes and deployment evidence are in [the memorial report](../reports/salim-memorial-2026-10-18.md). Cover verification: `node tools/verify-salim-covers.mjs`. The existing 63 PDF editions are preserved.
+
