@@ -1,4 +1,6 @@
 import {test} from 'node:test';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import {mkdtemp, writeFile, rm, readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -173,5 +175,56 @@ test('source portrait URL is allowlisted and fetched without staff credentials',
     assert.equal(result.toString(), 'RIFF1234WEBP');
   } finally {
     globalThis.fetch = original;
+  }
+});
+
+
+test('profile-only dry run requires no PDFs and does not use the network', () => {
+  const script = fileURLToPath(new URL('../../tools/martyrs-import-books.mjs', import.meta.url));
+  const result = spawnSync(process.execPath,
+    [script, '--profile-only', '--ensure-profile', '--source-dir', '/path/that/does/not/exist'],
+    {encoding: 'utf8'});
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Profile-only dry run/);
+  assert.doesNotMatch(result.stdout, /uploaded|PUBLISHED/);
+  const invalid = spawnSync(process.execPath,
+    [script, '--profile-only', '--profile-id', profileId], {encoding: 'utf8'});
+  assert.notEqual(invalid.status, 0);
+  assert.match(invalid.stderr, /requires --ensure-profile/);
+});
+
+test('profile-only authenticated import stages biography without touching books', async () => {
+  const previousFetch = globalThis.fetch;
+  const previousToken = process.env.HARAMYAR_EDITOR_TOKEN;
+  const previousCookie = process.env.HARAMYAR_EDITOR_SESSION_COOKIE;
+  const draft = JSON.parse(await readFile(new URL('../../docs/martyrs/salim-profile-draft.json', import.meta.url), 'utf8'));
+  const calls = [];
+  try {
+    process.env.HARAMYAR_EDITOR_TOKEN = 'test-token-only';
+    delete process.env.HARAMYAR_EDITOR_SESSION_COOKIE;
+    const profile = {id: profileId, slug: draft.slug, status: 'DRAFT', version: 4,
+      sources: draft.sources.map(source => ({url: source.url})), portrait: {mediaId: 'already-staged'}};
+    globalThis.fetch = async (url, options) => {
+      const path = new URL(url).pathname;
+      calls.push({method: options.method, path});
+      assert.ok(!path.includes('/books'));
+      if (options.method === 'GET' && path.endsWith('/editorial/profiles'))
+        return Response.json({items: [{id: profileId, slug: draft.slug}], total: 1});
+      if (options.method === 'GET' && path.endsWith('/editorial/profiles/' + profileId))
+        return Response.json(profile);
+      if (options.method === 'GET' && path.endsWith('/translations'))
+        return Response.json([{locale: 'fa'}, {locale: 'en'}]);
+      throw new Error('Unexpected API operation: ' + options.method + ' ' + path);
+    };
+    await importIntoProfile([], {profileOnly: true, ensureProfile: true, origin: 'http://localhost:8080',
+      profileDraft: fileURLToPath(new URL('../../docs/martyrs/salim-profile-draft.json', import.meta.url))});
+    assert.equal(calls.length, 3);
+    assert.ok(calls.every(call => call.method === 'GET'));
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousToken === undefined) delete process.env.HARAMYAR_EDITOR_TOKEN;
+    else process.env.HARAMYAR_EDITOR_TOKEN = previousToken;
+    if (previousCookie === undefined) delete process.env.HARAMYAR_EDITOR_SESSION_COOKIE;
+    else process.env.HARAMYAR_EDITOR_SESSION_COOKIE = previousCookie;
   }
 });
