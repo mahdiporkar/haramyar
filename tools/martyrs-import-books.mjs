@@ -77,11 +77,12 @@ export async function inspectFiles(works, sourceDirectory) {
 function argsFrom(argv) {
   const options = {sourceDir: resolve(root, '../upload'), manifest: defaultManifest,
     profileDraft: defaultProfileDraft, origin: 'https://haramyar.com',
-    profileId: undefined, ensureProfile: false, apply: false};
+    profileId: undefined, ensureProfile: false, profileOnly: false, apply: false};
   for (let i = 0; i < argv.length; i++) {
     const argument = argv[i];
     if (argument === '--apply') { options.apply = true; continue; }
     if (argument === '--ensure-profile') { options.ensureProfile = true; continue; }
+    if (argument === '--profile-only') { options.profileOnly = true; continue; }
     if (['--source-dir', '--manifest', '--profile-draft', '--origin', '--profile-id'].includes(argument)) {
       if (!argv[i + 1]) throw new Error(`Missing value for ${argument}`);
       const value = argv[++i];
@@ -218,6 +219,10 @@ export async function importIntoProfile(works, options) {
   const profileId = options.ensureProfile ?
     await seedProfile(request, JSON.parse(await readFile(options.profileDraft || defaultProfileDraft, 'utf8')), loadSourcePortrait) :
     options.profileId;
+  if (options.profileOnly) {
+    console.log(`Profile ${profileId} and available biography translations staged for editorial review. No books imported or content published.`);
+    return;
+  }
   const profile = encodeURIComponent(profileId);
   const path = `/editorial/profiles/${profile}/books`;
   let existing = await request('GET', path);
@@ -259,6 +264,20 @@ export async function importIntoProfile(works, options) {
 
 async function main() {
   const options = argsFrom(process.argv.slice(2));
+  if (options.profileOnly) {
+    if (!options.ensureProfile || options.profileId)
+      throw new Error('--profile-only requires --ensure-profile and cannot be combined with --profile-id');
+    const draft = JSON.parse(await readFile(options.profileDraft, 'utf8'));
+    if (draft.status !== 'DRAFT_FOR_EDITORIAL_REVIEW' || draft.slug !== 'izz-al-din-salim' ||
+        draft.sourceLanguage !== 'ar' || !draft.translations?.fa || !draft.translations?.en)
+      throw new Error('Invalid three-language Salim profile draft');
+    if (!options.apply) {
+      console.log('Validated Arabic source biography and Persian/English drafts. Profile-only dry run; no PDF files required and no changes made.');
+      return;
+    }
+    await importIntoProfile([], options);
+    return;
+  }
   const inventory = parseCatalog(await readFile(options.manifest, 'utf8'));
   const works = await inspectFiles(inventory.authored, options.sourceDir);
   const bytes = works.reduce((total, w) => total + w.bytes, 0);
