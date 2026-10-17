@@ -47,9 +47,29 @@ Below-fold images are lazy, dimensioned, responsive and uncropped. The portrait 
 - Full workspace TypeScript checks and public-web build passed.
 - Cover verification checks all 45 mappings, original PNG hashes and dimensions, WebP signatures and filename hashes.
 - New browser suite: **8/8 passed** against the local built service with live public data. Six language/viewport combinations verify biography equality, all covers decoded, locale/fallback counts, search and translation filters, SEO, no JS errors and no horizontal overflow; remaining cases verify image failures, no-JS downloads and all 86 delivery URLs.
-- Unit suite initially exposed an existing Windows `URL.pathname` path bug in the Hive route coverage test. Reading with a file URL fixes Windows compatibility without changing any assertions.
+- All **14 unit tests passed**. The suite initially exposed an existing Windows `URL.pathname` path bug in the Hive route coverage test. Reading with a file URL fixes Windows compatibility without changing any assertions.
 - Screenshots generated under `tests/e2e/test-results/memorial/`: `<fa|ar|en>-<1366|390>-<hero|biography|library|references>.png`. Hero, authentic portrait, RTL/LTR book cards, bibliography and mobile prose were visually inspected. Final production evidence will be recorded below.
 
 ## Production completion
 
-Pending the redesign PR's required checks, merge and targeted deployment. The completion record will include its final main SHA, CapRover version, production browser/download results and screenshots. No deployment success is inferred from the local build.
+The redesign is merged through [PR #4](https://github.com/mahdiporkar/haramyar/pull/4), after all three CI jobs passed on the final head (`c5b58ff7574f5efb5372c168fccc46e492eb4534`, [run 39069136063](https://github.com/mahdiporkar/haramyar/actions/runs/39069136063)). Main merge and deployed source commit: **`7429c32495168514c85813b3b5b438107f41faa8`**. No branch protections were changed, and no force-push was used.
+
+Deployment used the existing `deployment/caprover/deploy.mjs deploy public-web` workflow after fetching main and rebuilding from that merge. CapRover confirms **haramyar-public-web v5**, gitHash **`7429c3249516-0e06a8ae0070`**, image `ghcr.io/mahdiporkar/img-captain-haramyar-public-web:5`, one instance, build finished. Artifact SHA-256: `0e06a8ae007048f775622d277364c244b756d39d8c3ff4c4bd1ac369c11e0c97`. All other service versions stayed unchanged. The GitHub automatic deployment workflow skips deployment because its deployment secrets are not configured; the existing authenticated local CapRover workflow performed this targeted release.
+
+The first smoke checks started immediately after the build completed and encountered transient **502** responses while the new instance was starting. Subsequent independent requests returned 200 for HTML, CSS, JavaScript and APIs. The complete suites were rerun against the ready service; those initial failures are not hidden or counted as successful tests. No rollback or additional service restart was needed.
+
+Final production results:
+
+- Unchanged library acceptance suite **7/7 passed** in 167 seconds, including anonymous download of **all 63 PDFs**, correct MIME/signature, byte lengths and exact SHA-256 matches against the inventory. The same suite also passed on the redesigned local preview before merge. No tests were weakened.
+- New memorial suite **8/8 passed** in 64 seconds: six language/viewport combinations; all 43 visible covers decoded and matched to UUID/title; all 86 WebP URLs; immutable cache headers; absent-image and network-error fallbacks; normalized search; translation filters; no-JS catalogue; keyboard skip link; reduced motion; canonical/hreflang; biography equality; no horizontal overflow or JavaScript exceptions.
+- Axe-core Playwright **4.10.2**, WCAG 2 A/AA and 2.1 AA tags: **zero reported violations across all six layouts**, including automated contrast checks. [Raw results](screenshots/salim-memorial-2026-10-18/accessibility.json). This remains an automated audit, not a substitute for a full screen-reader/user study.
+- Four published profiles (Salim and the three existing fixture profiles), archive, home, login entry, console entry, sitemap and robots all returned **200**. Login continued to redirect to the existing Keycloak authorization page. Anonymous editorial profile and book endpoints returned **401**. Authentication and editorial code/configuration were not changed; no production editorial mutation was performed as a smoke test.
+- Production PNGs are preserved in [screenshots/salim-memorial-2026-10-18](screenshots/salim-memorial-2026-10-18/): all six layouts, each with hero, biography, library and references (24 screenshots). The live production portrait, typography, RTL/LTR, book cards, mobile navigation and references were visually inspected after deployment.
+
+| Locale | Desktop hero | Desktop library | Mobile hero | Mobile library |
+|---|---|---|---|---|
+| Persian | [View](screenshots/salim-memorial-2026-10-18/fa-1366-hero.png) | [View](screenshots/salim-memorial-2026-10-18/fa-1366-library.png) | [View](screenshots/salim-memorial-2026-10-18/fa-390-hero.png) | [View](screenshots/salim-memorial-2026-10-18/fa-390-library.png) |
+| Arabic | [View](screenshots/salim-memorial-2026-10-18/ar-1366-hero.png) | [View](screenshots/salim-memorial-2026-10-18/ar-1366-library.png) | [View](screenshots/salim-memorial-2026-10-18/ar-390-hero.png) | [View](screenshots/salim-memorial-2026-10-18/ar-390-library.png) |
+| English | [View](screenshots/salim-memorial-2026-10-18/en-1366-hero.png) | [View](screenshots/salim-memorial-2026-10-18/en-1366-library.png) | [View](screenshots/salim-memorial-2026-10-18/en-390-hero.png) | [View](screenshots/salim-memorial-2026-10-18/en-390-library.png) |
+
+Remaining source limitations: two genuine missing covers, two 120 px originals, one 300 px original, and the official duplicate artwork for IDs 15/37. No translation-specific artwork or extra historical facts were invented. Cover editing through the admin UI is outside this curated presentation change. This post-deployment evidence is documentation-only and does not require redeploying unchanged application services.

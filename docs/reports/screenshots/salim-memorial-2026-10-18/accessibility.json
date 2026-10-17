@@ -1,0 +1,32 @@
+[
+  {
+    "locale": "fa",
+    "width": 1366,
+    "violations": []
+  },
+  {
+    "locale": "fa",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "locale": "ar",
+    "width": 1366,
+    "violations": []
+  },
+  {
+    "locale": "ar",
+    "width": 390,
+    "violations": []
+  },
+  {
+    "locale": "en",
+    "width": 1366,
+    "violations": []
+  },
+  {
+    "locale": "en",
+    "width": 390,
+    "violations": []
+  }
+]
