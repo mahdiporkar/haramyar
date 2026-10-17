@@ -74,4 +74,3 @@ node tools/martyrs-import-books.mjs --source-dir ../upload --apply --ensure-prof
 ## Original covers and public memorial
 
 The 2026-10-18 cover mapping, asset rebuild instructions, design changes and deployment evidence are in [the memorial report](../reports/salim-memorial-2026-10-18.md). Cover verification: `node tools/verify-salim-covers.mjs`. The existing 63 PDF editions are preserved.
-

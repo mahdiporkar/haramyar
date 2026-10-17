@@ -49,3 +49,11 @@
 @media(prefers-reduced-motion:no-preference){html:has(.memorial){scroll-behavior:smooth}.hero-copy{animation:memorial-rise .65s ease-out both}@keyframes memorial-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}
 @media(prefers-reduced-motion:reduce){.memorial *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .memorial .profile-languages a:focus-visible{outline:3px solid #e6ca93;outline-offset:4px}
+@media(max-width:700px){
+  .memorial .profile-languages a{min-height:44px;display:inline-flex;align-items:center}
+  .memorial-nav a{min-height:44px}
+  .memorial .book-download,.memorial .book-editions a{min-height:44px}
+  .memorial .book-editions a,.memorial .book-fallback{font-size:11px}
+  .memorial .book-art figcaption{font-size:9px}
+  .memorial .app-link{min-height:44px}
+}
