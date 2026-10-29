@@ -130,4 +130,6 @@ else if(command==='rollback'){
 }
 else if(command==='stop')for(const n of selected){const a=(await getApps()).find(x=>x.appName==='haramyar-'+n);if(a){await api('/user/apps/appDefinitions/update',{...a,instanceCount:0});console.log('haramyar-'+n+' scaled to 0');}}
 else if(command==='logs')for(const n of selected){const d=await api('/user/apps/appData/haramyar-'+n);console.log(n,JSON.stringify(d));}
-else throw Error('Usage: node deployment/caprover/deploy.mjs prepare|deploy|configure|stop|rollback|status|logs [components]');
+// Container output (e.g. the one-shot bootstrap), with Docker stream framing bytes removed.
+else if(command==='runtime-logs')for(const n of selected){const d=await api('/user/apps/appData/haramyar-'+n+'/logs');console.log(String(d?.logs??'').replace(/[ --]/g,''));}
+else throw Error('Usage: node deployment/caprover/deploy.mjs prepare|deploy|configure|stop|rollback|status|logs|runtime-logs [components]');
