@@ -55,7 +55,8 @@ export function ShellProvider({initial, children}: {initial: AnyHiveContext; chi
   }, []);
 
   const refresh = useCallback(async () => {
-    const next = await loadContext();
+    // Background refreshes keep the current state on an onboarding failure; App shows it on the next full load.
+    const {context: next} = await loadContext();
     setContext(previous => (JSON.stringify(previous) === JSON.stringify(next) ? previous : next));
   }, []);
 
