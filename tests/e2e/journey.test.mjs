@@ -12,8 +12,9 @@ const run = Date.now().toString().slice(-7);
 // haramyar.com). Fixture customers may exist at the same time; they are used only when registration is off.
 const SELF_REGISTRATION = (process.env.HARAMYAR_SELF_REGISTRATION ?? ENV.HARAMYAR_SELF_REGISTRATION ?? 'true') === 'true';
 const fromE164 = (e164, password) => ({national: '0' + e164.slice(3), e164, spaced: `${e164.slice(0, 3)} ${e164.slice(3, 6)} ${e164.slice(6, 9)} ${e164.slice(9)}`, password});
-// Accounts created by a run live in the recognisable test range +98 999 N xxxxxx (N = 1 booking host, 2 second host, 3 sign-up).
-const testNumber = (lead, password) => fromE164(`+98999${lead}${run.slice(-6)}`, password);
+// Accounts created by a run live in the recognisable test range +98 9991 N xxxxx (N = 1 booking host, 2 second host,
+// 3 sign-up). Keycloak validates numbers with libphonenumber, which accepts this block but not +98 9992-9999.
+const testNumber = (lead, password) => fromE164(`+989991${lead}${run.slice(-5)}`, password);
 const customer = SELF_REGISTRATION ? testNumber(1, `Customer-${run}9x`) : fromE164(FIXTURE_CUSTOMERS[0], STAFF_PASSWORD);
 const other = SELF_REGISTRATION ? testNumber(2, `Second-${run}7y`) : fromE164(FIXTURE_CUSTOMERS[1], STAFF_PASSWORD);
 const newcomer = testNumber(3, `Newcomer-${run}3k`);
@@ -302,7 +303,7 @@ test('editorial workflow: draft and submit by an editor, publication by a differ
   const ssr = await fetch(`${BASE}/martyr/${slug}`);
   assert.equal(ssr.status, 200);
   const html = await ssr.text();
-  assert.match(html, new RegExp(`<link rel="canonical" href="[^"]*/martyr/${slug}"`));
+  assert.match(html, new RegExp(`<link rel="canonical" href="[^"]*/martyr/${slug}\\?lang=fa"`));
   assert.match(html, /property="og:title"/);
   assert.match(html, /application\/ld\+json/);
   assert.match(await (await fetch(`${BASE}/sitemap.xml`)).text(), new RegExp(`/martyr/${slug}<`));
