@@ -24,8 +24,9 @@ s.BOOKS_S3_ACCESS_KEY ??= s.S3_ACCESS_KEY;
 s.BOOKS_S3_SECRET_KEY ??= s.S3_SECRET_KEY;
 // Secrets added after the first run are generated once and appended (values never printed).
 for(const [k,make] of [['HARAMYAR_FIXTURE_STAFF_PASSWORD',()=>'Fx-'+randomBytes(12).toString('base64url')+'9']])if(!s[k]){s[k]=make();writeFileSync(secretPath,JSON.stringify(s,null,2),{mode:0o600});}
-// Test deployment switches (docs/DEPLOYMENT.md): restricted fixture accounts, self-registration and password reset off.
-const testDeployment={HARAMYAR_DEV_FIXTURES:'true',HARAMYAR_FIXTURE_CUSTOMERS:'+989990000001,+989990000002',HARAMYAR_SELF_REGISTRATION:'false',HARAMYAR_PASSWORD_RESET:'false'};
+// Test deployment switches (docs/DEPLOYMENT.md): fixture accounts, customer self-registration on (unverified mobile
+// number, no SMS), password reset off (no delivery channel).
+const testDeployment={HARAMYAR_DEV_FIXTURES:'true',HARAMYAR_FIXTURE_CUSTOMERS:'+989990000001,+989990000002',HARAMYAR_SELF_REGISTRATION:'true',HARAMYAR_PASSWORD_RESET:'false'};
 const origin='https://haramyar.com', host=n=>'srv-captain--haramyar-'+n;
 const java='-Xms48m -Xmx160m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=32m -XX:+UseSerialGC -Xss512k';
 const db=(name,key)=>({SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:'5',SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE:'1',[key+'_DB_URL']:`jdbc:postgresql://${host('postgres')}:5432/${name}`,[key+'_DB_USER']:name,[key+'_DB_PASSWORD']:s[key+'_DB_PASSWORD']});

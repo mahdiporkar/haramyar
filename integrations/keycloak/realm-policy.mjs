@@ -1,6 +1,7 @@
 // Applies deployment-specific switches to the haramyar realm on every bootstrap (the realm export is imported only once,
-// so existing realms are updated through the admin API). Self-registration and password reset stay disabled unless
-// explicitly enabled: mobile numbers are not verified yet and reset has no delivery channel (docs/BUSINESS_DECISIONS.md).
+// so existing realms are updated through the admin API). Each switch is off unless explicitly enabled. Self-registration
+// (mobile number + password; the number is never verified, no SMS) is enabled on haramyar.com and in local Compose;
+// password reset stays off everywhere because it has no delivery channel (docs/BUSINESS_DECISIONS.md).
 //
 // Environment: KEYCLOAK_URL (internal), KEYCLOAK_ADMIN_USER, KEYCLOAK_ADMIN_PASSWORD,
 //              HARAMYAR_SELF_REGISTRATION=true|false (default false), HARAMYAR_PASSWORD_RESET=true|false (default false).
