@@ -8,12 +8,15 @@ import {BASE, ENV, FIXTURE_CUSTOMERS, RESETS_MFA, csrfFetch, keycloakLogin, laun
 
 const STAFF_PASSWORD = ENV.HARAMYAR_FIXTURE_STAFF_PASSWORD;
 const run = Date.now().toString().slice(-7);
-// With self-registration disabled (test deployments), restricted fixture customers sign in instead of registering.
-const SELF_REGISTRATION = FIXTURE_CUSTOMERS.length === 0;
+// Registration follows the realm policy the deployment applies (HARAMYAR_SELF_REGISTRATION; on in local Compose and on
+// haramyar.com). Fixture customers may exist at the same time; they are used only when registration is off.
+const SELF_REGISTRATION = (process.env.HARAMYAR_SELF_REGISTRATION ?? ENV.HARAMYAR_SELF_REGISTRATION ?? 'true') === 'true';
 const fromE164 = (e164, password) => ({national: '0' + e164.slice(3), e164, spaced: `${e164.slice(0, 3)} ${e164.slice(3, 6)} ${e164.slice(6, 9)} ${e164.slice(9)}`, password});
-const customer = SELF_REGISTRATION ? {national: `0912${run}`, e164: `+98912${run}`, spaced: `+98 912 ${run.slice(0, 3)} ${run.slice(3)}`, password: `Customer-${run}9x`}
-  : fromE164(FIXTURE_CUSTOMERS[0], STAFF_PASSWORD);
-const other = SELF_REGISTRATION ? {national: `0935${run}`, password: `Second-${run}7y`} : fromE164(FIXTURE_CUSTOMERS[1], STAFF_PASSWORD);
+// Accounts created by a run live in the recognisable test range +98 999 N xxxxxx (N = 1 booking host, 2 second host, 3 sign-up).
+const testNumber = (lead, password) => fromE164(`+98999${lead}${run.slice(-6)}`, password);
+const customer = SELF_REGISTRATION ? testNumber(1, `Customer-${run}9x`) : fromE164(FIXTURE_CUSTOMERS[0], STAFF_PASSWORD);
+const other = SELF_REGISTRATION ? testNumber(2, `Second-${run}7y`) : fromE164(FIXTURE_CUSTOMERS[1], STAFF_PASSWORD);
+const newcomer = testNumber(3, `Newcomer-${run}3k`);
 const secrets = loadTotpSecrets();
 const slug = `e2e-fixture-${run}`;
 let browser;
@@ -103,6 +106,11 @@ test('a visitor fills the wizard, registers with a mobile number through Keycloa
   if (SELF_REGISTRATION) await register(page, customer.national, customer.password);
   else await keycloakLogin(page, customer.national, customer.password);
   await page.waitForURL(`${BASE}/rozeh/request`, {timeout: 30000});
+  // The draft is restored at the review step and nothing is sent until the user confirms explicitly.
+  await page.getByText('میزبان آزمایشی (E2E)').waitFor();
+  await page.getByText('خیابان آزمایشی، پلاک ۷ (E2E)').waitFor();
+  const before = await page.evaluate(async () => (await fetch('/api/routes/rozeh/my/bookings')).json());
+  if (SELF_REGISTRATION) assert.equal(before.total, 0, 'a new account has no booking before the explicit confirmation');
   await page.getByTestId('submit-request').click();
   await page.waitForURL(/\/rozeh\/requests\/[0-9a-f-]{36}$/, {timeout: 30000});
   // Shown with Persian digits in the fa locale; compare in ASCII.
@@ -121,14 +129,60 @@ test('a visitor fills the wizard, registers with a mobile number through Keycloa
   await page.locator(`[data-booking-id="${state.bookingId}"]`).waitFor();
 });
 
-test('self-registration and password reset are disabled while mobile numbers are unverified', {skip: SELF_REGISTRATION}, async () => {
+test('the sign-in page offers registration as configured and never password reset', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/account`);
   await page.getByTestId('sign-in').click();
   await page.waitForURL(/\/realms\/haramyar\//);
   await page.locator('#username').waitFor();
-  assert.equal(await page.locator('#kc-registration a').count(), 0, 'no registration link');
+  assert.equal(await page.locator('#kc-registration a').count(), SELF_REGISTRATION ? 1 : 0, 'registration link follows the realm policy');
   assert.equal(await page.locator('a[href*="reset-credentials"]').count(), 0, 'no password reset link without a delivery channel');
+  await page.context().close();
+});
+
+test('a visitor signs up from the Account page with mobile number and password only, and is signed in', {skip: !SELF_REGISTRATION}, async () => {
+  const page = await newPage();
+  await page.goto(`${BASE}/account`);
+  await page.getByTestId('sign-up').click();
+  await register(page, newcomer.national, newcomer.password);
+  // No OTP or verification step: the next page is the app itself.
+  await page.waitForURL(`${BASE}/account`, {timeout: 30000});
+  await page.getByTestId('account-name').waitFor();
+  assert.equal(await page.getByTestId('onboarding-failed').count(), 0);
+  assert.equal(await page.evaluate(async () => (await fetch('/api/routes/rozeh/my/bookings')).status), 200, 'customer grant after onboarding');
+  await page.context().close();
+});
+
+/** Puts a review-step draft into this tab, exactly as the wizard stores it, and opens the review. */
+async function reviewDraft(page, overrides) {
+  await page.goto(`${BASE}/rozeh/request`);
+  await page.getByTestId('wizard-next').waitFor();
+  await page.evaluate(values => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit'}).formatToParts(new Date()).map(x => [x.type, x.value]));
+    sessionStorage.setItem('haramyar.rozeh.draft', JSON.stringify({hostName: 'میزبان آزمایشی', hostPhone: '09121234567', city: 'قم', area: '', address: 'خیابان آزمایشی، پلاک ۷',
+      category: 'rozeh', audience: null, capacity: '', notes: '', date: {year: +p.year, month: +p.month, day: +p.day}, time: '23:59', duration: 60, zone: 'Asia/Tehran',
+      clientRequestId: crypto.randomUUID(), step: 4, savedAt: Date.now(), ...values}));
+  }, overrides);
+  await page.reload();
+  await page.getByTestId('submit-request').waitFor();
+}
+
+test('an invalid submit returns to the first invalid step and keeps the errors and the other answers', async () => {
+  const page = await newPage();
+  await reviewDraft(page, {hostName: ' ', address: 'x'});
+  await page.getByTestId('submit-request').click();
+  await page.locator('input[name=hostName]').waitFor();
+  await page.getByText('این فیلد الزامی است').waitFor();
+  assert.equal(await page.locator('input[name=hostPhone]').inputValue(), '09121234567', 'other answers are kept');
+  await page.context().close();
+});
+
+test('a start time that has already passed today is refused on the time field', async () => {
+  const page = await newPage();
+  await reviewDraft(page, {time: '00:00'});
+  await page.getByTestId('submit-request').click();
+  await page.locator('input[name=time]').waitFor();
+  await page.getByText('این زمان گذشته است').waitFor();
   await page.context().close();
 });
 
@@ -144,9 +198,30 @@ test('the same mobile number in another spelling cannot create a second account'
   await page.context().close();
 });
 
+test('submitting twice with the same client request id returns the same booking; the backend refuses past times', async () => {
+  const page = state.customer;
+  const catalog = await page.evaluate(async () => (await fetch('/api/routes/rozeh/public/catalog')).json());
+  const body = {clientRequestId: await page.evaluate(() => crypto.randomUUID()), hostName: 'میزبان تکرار (E2E)', hostPhone: customer.e164, city: 'قم',
+    address: 'خیابان آزمایشی، پلاک ۹ (E2E)', category: catalog.categories[0], deliveryMode: catalog.deliveryModes[0],
+    startsAt: new Date(Date.now() + 20 * 86400000).toISOString(), durationMinutes: 60, timeZone: 'Asia/Tehran'};
+  const count = async () => (await page.evaluate(async () => (await fetch('/api/routes/rozeh/my/bookings')).json())).total;
+  const before = await count();
+  // A double click (concurrent) and a network retry (sequential) of one submission.
+  const [first, second] = await Promise.all([csrfFetch(page, 'POST', '/api/routes/rozeh/my/bookings', body), csrfFetch(page, 'POST', '/api/routes/rozeh/my/bookings', body)]);
+  const third = await csrfFetch(page, 'POST', '/api/routes/rozeh/my/bookings', body);
+  for (const r of [first, second, third]) assert.ok([200, 201].includes(r.status), `${r.status} ${r.body}`);
+  assert.equal(new Set([first, second, third].map(r => JSON.parse(r.body).id)).size, 1, 'one booking for one client request id');
+  assert.equal(await count(), before + 1);
+  const past = await csrfFetch(page, 'POST', '/api/routes/rozeh/my/bookings', {...body, clientRequestId: await page.evaluate(() => crypto.randomUUID()), startsAt: new Date(Date.now() - 60000).toISOString()});
+  assert.ok(past.status >= 400 && past.status < 500, `${past.status} ${past.body}`);
+  assert.match(past.body, /CEREMONY_TIME_NOT_IN_FUTURE/);
+});
+
 test('a coordinator signs in with mandatory TOTP enrollment and accepts the request', async () => {
   const page = await signInStaff('staff.coordinator');
   assert.ok(secrets['staff.coordinator'], RESETS_MFA ? 'TOTP enrollment was required for the staff account' : 'staff signed in with TOTP');
+  // Staff roles do not include the customer grant; onboarding adds it next to the coordination workspace.
+  await until(async () => (await page.evaluate(async () => (await fetch('/api/routes/rozeh/my/bookings')).status)) === 200, {message: 'customer grant for a staff member'});
   await page.getByTestId('workspace-coordination').click();
   await page.waitForURL(`${BASE}/rozeh/coordination`);
   await page.locator(`[data-booking-id="${state.bookingId}"]`).click();
