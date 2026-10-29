@@ -43,13 +43,20 @@ export default function App() {
   const [context, setContext] = useState<AnyHiveContext | null>(null);
   const [settingUp, setSettingUp] = useState(false);
   const [failure, setFailure] = useState(false);
+  const [onboardingFailed, setOnboardingFailed] = useState<AnyHiveContext | null>(null);
   const [splash, setSplash] = useState(() => {
     try { return sessionStorage.getItem(SPLASH_KEY) !== '1'; } catch { return true; }
   });
   const t = translator(common, storedLocale());
-  useEffect(() => {
-    loadContext(() => setSettingUp(true)).then(setContext).catch(() => setFailure(true));
-  }, []);
+  // One attempt per page load or explicit Retry; a failed onboarding is shown, never retried in a loop.
+  const load = () => {
+    setFailure(false);
+    setOnboardingFailed(null);
+    loadContext(() => setSettingUp(true))
+      .then(({context: loaded, onboarding}) => (onboarding === 'failed' ? setOnboardingFailed(loaded) : setContext(loaded)))
+      .catch(() => setFailure(true));
+  };
+  useEffect(load, []);
   const finishSplash = () => {
     try { sessionStorage.setItem(SPLASH_KEY, '1'); } catch { /* storage unavailable */ }
     setSplash(false);
@@ -57,7 +64,11 @@ export default function App() {
   return (
     <>
       {context ? <ShellProvider initial={context}><Frame /></ShellProvider>
-        : <div className="hy hy-tokens" dir={storedLocale() === 'en' ? 'ltr' : 'rtl'}>{failure
+        : <div className="hy hy-tokens" dir={storedLocale() === 'en' ? 'ltr' : 'rtl'}>{onboardingFailed
+          ? <div className="loading" role="alert" data-testid="onboarding-failed"><p>{t('onboardingFailed')}</p>
+              <button className="btn btn-primary" onClick={load} data-testid="onboarding-retry">{t('retry')}</button>
+              <button className="btn btn-ghost" onClick={() => setContext(onboardingFailed)}>{t('continueWithoutSetup')}</button></div>
+          : failure
           ? <div className="loading"><p>{t('error')}</p><button className="btn btn-primary" onClick={() => location.reload()}>{t('retry')}</button></div>
           : <Loading label={settingUp ? t('settingUp') : t('loading')} />}</div>}
       {splash && <div className="hy hy-tokens"><SplashScreen onComplete={finishSplash} label={t('splashLabel')} title={t('brandName')} tagline={t('brandTagline')} /></div>}

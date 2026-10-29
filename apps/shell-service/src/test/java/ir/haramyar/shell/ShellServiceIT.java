@@ -112,7 +112,7 @@ class ShellServiceIT {
   }
 
   @Test
-  void onboardingAssignsOnlyTheDefaultRoleToTheCallerOnce() throws Exception {
+  void onboardingAssignsOnlyTheDefaultRoleToTheCallerAndRechecksHiveEachTime() throws Exception {
     assertThat(call(post("/onboarding"), null).getStatus()).isEqualTo(401);
     UUID user = UUID.randomUUID();
     assertThat(ok(call(as(post("/onboarding"), user, "haramyar-customer"), Map.of("role", "haramyar-admin", "userId", UUID.randomUUID())), 200)
@@ -121,8 +121,20 @@ class ShellServiceIT {
       assertThat(r).startsWith("POST Basic ");
       assertThat(r).contains("\"subject\":\"user:" + user + "\"").doesNotContain("haramyar-admin");
     });
+    HIVE_STATUS.set(409);
     assertThat(ok(call(as(post("/onboarding"), user, "haramyar-customer"), null), 200).path("status").asText()).isEqualTo("ALREADY_ONBOARDED");
-    assertThat(HIVE_REQUESTS).hasSize(1);
+    assertThat(HIVE_REQUESTS).hasSize(2).allSatisfy(r -> assertThat(r).contains("\"subject\":\"user:" + user + "\""));
+    assertThat(db.queryForObject("select count(*) from onboarded_user where hive_user_id = ?", Integer.class, user)).isEqualTo(1);
+  }
+
+  @Test
+  void onboardingRestoresAGrantMissingInHiveEvenWhenTheUserIsAlreadyRecorded() throws Exception {
+    UUID user = UUID.randomUUID();
+    db.update("insert into onboarded_user(hive_user_id, role_key) values (?, ?)", user, "haramyar-user");
+    // Hive lost the assignment (revoked or restored from backup): the stale local row must not hide it.
+    assertThat(ok(call(as(post("/onboarding"), user, "haramyar-customer"), null), 200).path("status").asText()).isEqualTo("ONBOARDED");
+    assertThat(HIVE_REQUESTS).singleElement().satisfies(r -> assertThat(r).contains("\"subject\":\"user:" + user + "\"").doesNotContain("haramyar-admin"));
+    assertThat(db.queryForObject("select count(*) from onboarded_user where hive_user_id = ?", Integer.class, user)).isEqualTo(1);
   }
 
   @Test

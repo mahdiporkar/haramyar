@@ -16,10 +16,17 @@ export function can(context: AnyHiveContext, resource: string, action: string): 
   return permissionsOf(context).can(APPLICATION, resource, action);
 }
 
-/** A signed-in user is a member of HaramYar once Hive reports at least one HaramYar permission. */
-export function isMember(context: AnyHiveContext): context is HiveContext {
-  return context.authenticated && Object.keys(context.permissions).some(key => key.startsWith(`${APPLICATION}:`));
+/**
+ * A signed-in user is onboarded once Hive reports the customer grant itself. Staff and editorial roles do not include
+ * it, so a coordinator or editor is still onboarded as a customer (their other permissions are untouched).
+ */
+export function isOnboarded(context: AnyHiveContext): context is HiveContext {
+  return context.authenticated && can(context, 'rozeh-booking.requests', 'create');
 }
+
+/** `failed`: the onboarding call failed or the grant did not appear in time; the caller must say so and offer a retry. */
+export type Onboarding = 'not-needed' | 'ready' | 'failed';
+export interface LoadedContext {context: AnyHiveContext; onboarding: Onboarding}
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -28,21 +35,21 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
  * the HaramYar onboarding operation (Hive HYBRID route); the context is then re-read until the authorization graph
  * reflects the new grants (projection is asynchronous, normally sub-second).
  */
-export async function loadContext(onSettingUp?: () => void): Promise<AnyHiveContext> {
+export async function loadContext(onSettingUp?: () => void): Promise<LoadedContext> {
   let context = await auth.currentContext();
-  if (!context.authenticated || isMember(context)) return context;
+  if (!context.authenticated || isOnboarded(context)) return {context, onboarding: 'not-needed'};
   onSettingUp?.();
   try {
     await http.post(`/api/routes/${APPLICATION}/onboarding`);
   } catch (error) {
-    if (!(error instanceof HiveHttpError) || error.status >= 500 || error.status === 0) console.warn('[haramyar] onboarding unavailable', error);
-    return context;
+    console.warn('[haramyar] onboarding failed', error instanceof HiveHttpError ? `${error.status} ${error.code}` : error);
+    return {context, onboarding: 'failed'};
   }
-  for (let attempt = 0; attempt < 12 && !isMember(context); attempt++) {
+  for (let attempt = 0; attempt < 12 && !isOnboarded(context); attempt++) {
     await sleep(attempt < 4 ? 250 : 750);
     context = await auth.currentContext();
   }
-  return context;
+  return {context, onboarding: isOnboarded(context) ? 'ready' : 'failed'};
 }
 
 /** Ends the Hive session (and the identity provider session) and removes every HaramYar tab-local draft. */

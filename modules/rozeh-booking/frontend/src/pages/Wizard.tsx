@@ -1,16 +1,11 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Alert, Button, ChoiceRow, Field, Icon, InfoCard, ModuleBar, SelectField, Summary, TextAreaField} from '@haramyar/design-system';
-import {compareDates, cursorFor, monthGrid, normalizeMobile, sameDate, shiftMonth, todayIn, toLatinDigits, zonedIso, type CivilDate} from '@haramyar/i18n';
-import {api, isUnauthenticated, login, uuid, type Catalog} from '../api.ts';
+import {compareDates, cursorFor, monthGrid, normalizeMobile, sameDate, shiftMonth, todayIn, toLatinDigits, zonedIso} from '@haramyar/i18n';
+import {api, errorCode, isUnauthenticated, login, uuid, type Catalog} from '../api.ts';
 import {useEnv, useLoad} from '../env.tsx';
 import {codeLabel} from '../labels.ts';
 import type {MessageKey} from '../messages.ts';
-
-interface Draft {
-  hostName: string; hostPhone: string; city: string; area: string; address: string; category: string; audience: string | null;
-  capacity: string; notes: string; date: CivilDate | null; time: string; duration: number; zone: string;
-  clientRequestId: string; step: number; savedAt: number;
-}
+import {alignWithCatalog, catalogChoices, fieldErrorFor, firstInvalidStep, validate, type Draft, type Errors} from '../wizard-rules.ts';
 
 const DRAFT_KEY = 'haramyar.rozeh.draft';
 const DRAFT_TTL_MS = 30 * 60 * 1000;
@@ -38,27 +33,6 @@ export function clearDraft() {
   try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* storage unavailable */ }
 }
 
-type Errors = Partial<Record<keyof Draft, MessageKey>>;
-
-function validate(draft: Draft, step: number): Errors {
-  const errors: Errors = {};
-  if (step >= 1) {
-    if (draft.hostName.trim().length < 2) errors.hostName = 'err_REQUIRED';
-    if (!normalizeMobile(draft.hostPhone)) errors.hostPhone = 'err_PHONE';
-  }
-  if (step >= 2) {
-    if (draft.city.trim().length < 2) errors.city = 'err_REQUIRED';
-    if (draft.address.trim().length < 5) errors.address = 'err_ADDRESS';
-    const capacity = toLatinDigits(draft.capacity).trim();
-    if (capacity && (!/^\d+$/.test(capacity) || Number(capacity) < 1 || Number(capacity) > 5000)) errors.capacity = 'err_CAPACITY';
-  }
-  if (step >= 3) {
-    if (!draft.date || compareDates(draft.date, todayIn(draft.zone)) < 0) errors.date = 'err_DATE';
-    if (!/^\d{2}:\d{2}$/.test(draft.time)) errors.time = 'err_TIME';
-  }
-  return errors;
-}
-
 export function Wizard() {
   const {t, navigate, locale, authenticated, errorText, zone} = useEnv();
   const [draft, setDraft] = useState<Draft>(() => loadDraft(zone));
@@ -71,10 +45,13 @@ export function Wizard() {
   const grid = useMemo(() => monthGrid(cursor, locale), [cursor, locale]);
 
   useEffect(() => { saveDraft(draft); }, [draft]);
+  useEffect(() => { if (catalog.data) setDraft(d => alignWithCatalog(d, catalog.data!)); }, [catalog.data]);
 
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft(d => ({...d, [key]: value}));
   const err = (key: keyof Draft) => (errors[key] ? t(errors[key]!) : null);
-  const go = (step: number) => { setErrors({}); setFailure(null); update('step', step); globalThis.scrollTo?.({top: 0}); };
+  // Moves to a step; errors are cleared only on ordinary navigation, never when showing why a submission was refused.
+  const show = (step: number, found: Errors = {}) => { setErrors(found); setFailure(null); update('step', step); globalThis.scrollTo?.({top: 0}); };
+  const go = (step: number) => show(step);
   const next = () => {
     const found = validate(draft, draft.step);
     setErrors(found);
@@ -84,7 +61,10 @@ export function Wizard() {
 
   const submit = async () => {
     const found = validate(draft, 3);
-    if (Object.keys(found).length) { setErrors(found); go(found.hostName || found.hostPhone ? 1 : found.city || found.address || found.capacity ? 2 : 3); return; }
+    const invalid = firstInvalidStep(found);
+    if (invalid) { show(invalid, found); return; }
+    const choices = catalogChoices(draft, catalog.data);
+    if (!choices) { setFailure(t('catalogFailed')); return; }
     if (!authenticated) { saveDraft({...draft, step: 4}); login('/rozeh/request'); return; }
     setSubmitting(true);
     setFailure(null);
@@ -93,8 +73,8 @@ export function Wizard() {
     try {
       const booking = await api.submit({
         clientRequestId: draft.clientRequestId, hostName: draft.hostName.trim(), hostPhone: normalizeMobile(draft.hostPhone) ?? draft.hostPhone,
-        city: draft.city.trim(), area: draft.area.trim() || undefined, address: draft.address.trim(), category: draft.category,
-        audience: draft.audience ?? undefined, deliveryMode: catalog.data?.deliveryModes[0] ?? 'in-person',
+        city: draft.city.trim(), area: draft.area.trim() || undefined, address: draft.address.trim(), category: choices.category,
+        audience: choices.audience, deliveryMode: choices.deliveryMode,
         approximateCapacity: capacity ? Number(capacity) : undefined, notes: draft.notes.trim() || undefined,
         startsAt: zonedIso(draft.date!, hour!, minute!, draft.zone), durationMinutes: draft.duration, timeZone: draft.zone,
       });
@@ -103,14 +83,19 @@ export function Wizard() {
       navigate(`/rozeh/requests/${booking.id}`);
     } catch (error) {
       if (isUnauthenticated(error)) { saveDraft({...draft, step: 4}); login('/rozeh/request'); return; }
+      const field = fieldErrorFor(errorCode(error));
+      if (field) { show(field.step, {[field.field]: field.key}); return; }
       setFailure(errorText(error));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const audiences = (catalog.data?.audiences ?? ['family', 'women', 'men']).map(code => ({value: code, label: codeLabel(t, 'audience', code)}));
-  const categories = (catalog.data?.categories ?? ['rozeh']).map(code => ({value: code, label: codeLabel(t, 'category', code)}));
+  // Choices come only from the loaded catalog; without it the wizard shows the failure and cannot submit.
+  const audiences = (catalog.data?.audiences ?? []).map(code => ({value: code, label: codeLabel(t, 'audience', code)}));
+  const categories = (catalog.data?.categories ?? []).map(code => ({value: code, label: codeLabel(t, 'category', code)}));
+  const catalogFailure = catalog.error ? <Alert kind="error"><span data-testid="catalog-failed">{t('catalogFailed')}</span> <Button variant="secondary" onClick={catalog.reload} testId="catalog-retry">{t('retry')}</Button></Alert> : null;
+  const ready = !!catalogChoices(draft, catalog.data);
   const dateLabel = draft.date ? new Intl.DateTimeFormat(locale === 'fa' ? 'fa-IR-u-ca-persian' : locale === 'ar' ? 'ar-IQ' : 'en-GB', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'})
     .format(Date.UTC(draft.date.year, draft.date.month - 1, draft.date.day)) : '—';
   const endTime = (() => {
@@ -134,8 +119,9 @@ export function Wizard() {
             [t('date'), dateLabel], [t('time'), <span className="ltr">{draft.time} – {endTime}</span>], [t('timeZone'), t(`zone_${draft.zone.replace('/', '_')}` as MessageKey)]]} />
           <InfoCard icon="bell" title={t('notBookingTitle')} warning>{t('notBookingHint')}</InfoCard>
           {!authenticated && <Alert kind="info">{t('signInToSubmit')}</Alert>}
+          {catalogFailure}
           {failure && <Alert kind="error">{failure}</Alert>}
-          <Button onClick={submit} disabled={submitting} testId="submit-request">{submitting ? t('submitting') : authenticated ? t('submit') : t('signInAndSubmit')}</Button>
+          <Button onClick={submit} disabled={submitting || !ready} testId="submit-request">{submitting ? t('submitting') : authenticated ? t('submit') : t('signInAndSubmit')}</Button>
         </div>
       </div>
     );
@@ -154,6 +140,7 @@ export function Wizard() {
         </>}
         {draft.step === 2 && <>
           <div className="form-title"><span><Icon name="map" /></span><div><h1>{t('locationTitle')}</h1><p>{t('locationHint')}</p></div></div>
+          {catalogFailure}
           <div className="field-row">
             <Field label={t('city')} value={draft.city} onChange={e => update('city', e.target.value)} error={err('city')} autoComplete="address-level2" name="city" />
             <Field label={t('area')} optionalLabel={t('optional')} value={draft.area} onChange={e => update('area', e.target.value)} name="area" />
@@ -162,7 +149,7 @@ export function Wizard() {
           {categories.length > 1
             ? <ChoiceRow label={t('category')} options={categories} value={draft.category} onChange={v => update('category', v ?? categories[0]!.value)} />
             : null}
-          <ChoiceRow label={t('audience')} optionalLabel={t('optional')} options={audiences} value={draft.audience} onChange={v => update('audience', v)} />
+          {audiences.length > 0 && <ChoiceRow label={t('audience')} optionalLabel={t('optional')} options={audiences} value={draft.audience} onChange={v => update('audience', v)} />}
           <Field label={t('capacity')} optionalLabel={t('optional')} placeholder={t('capacityPlaceholder')} value={draft.capacity} onChange={e => update('capacity', e.target.value)} error={err('capacity')} inputMode="numeric" name="capacity" />
           <TextAreaField label={t('notes')} optionalLabel={t('optional')} value={draft.notes} onChange={e => update('notes', e.target.value)} maxLength={1000} name="notes" />
         </>}

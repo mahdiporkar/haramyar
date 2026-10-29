@@ -16,7 +16,8 @@ export function Account() {
         <div className="account-head"><span><Icon name="user" size={26} /></span><div><h1>{t('guest')}</h1><p>{t('guestHint')}</p></div>
           <Button variant="secondary" onClick={() => auth.login('/account')} testId="sign-in">{t('signIn')}</Button></div>
         <div className="menu-list">
-          <button onClick={() => auth.login('/account')} data-testid="sign-up"><Icon name="plus" /><span><b>{t('signUp')}</b><small>{t('mobileNumber')}</small></span><Icon name="chevron" /></button>
+          {/* The pinned Hive BFF cannot forward prompt=create, so sign-up opens the Keycloak sign-in page (its "Create account" link). */}
+          <button onClick={() => auth.login('/account')} data-testid="sign-up"><Icon name="plus" /><span><b>{t('signUp')}</b><small>{t('signUpHint')}</small></span><Icon name="chevron" /></button>
         </div>
         <div className="support-row"><button>{t('support')}</button><button>{t('privacy')}</button><button>{t('about')}</button></div>
       </div>

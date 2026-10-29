@@ -106,7 +106,7 @@ node tools/reset-local-staff-login.mjs --verify
 
 ### سیاست‌های محیط آزمایشی
 
-- ثبت‌نام آزاد و بازیابی رمز **غیرفعال** است (`HARAMYAR_SELF_REGISTRATION=false`، `HARAMYAR_PASSWORD_RESET=false`)؛ bootstrap در هر اجرا این را روی realm اعمال می‌کند.
+- ثبت‌نام آزاد مشتری با شمارهٔ موبایل و رمز **فعال** است (`HARAMYAR_SELF_REGISTRATION=true`)؛ شماره تأیید نمی‌شود و هیچ پیامک یا OTP ارسال نمی‌شود. بازیابی رمز **غیرفعال** می‌ماند (`HARAMYAR_PASSWORD_RESET=false`)، چون کانال ارسالی وجود ندارد. bootstrap در هر اجرا این دو را روی realm اعمال می‌کند و در لاگ می‌نویسد `realm policy: self-registration enabled, password reset disabled`.
 - حساب‌های آزمایشی محدود (`HARAMYAR_DEV_FIXTURES=true`): کارمندان `staff.coordinator`، `staff.editor`، `staff.reviewer`، `staff.admin` (MFA اجباری) و مشتریان `+989990000001` و `+989990000002` با نام خانوادگی `Fixture`. شماره‌ها تأییدنشده‌اند و هیچ پیامکی ارسال نمی‌شود. رمز مشترک آن‌ها `HARAMYAR_FIXTURE_STAFF_PASSWORD` در `.local/caprover/secrets.json` است.
 
 ### متغیرهای محیطی (فقط نام؛ مقادیر در `.local/caprover/secrets.json` یا secret store)
@@ -183,7 +183,7 @@ node deployment/caprover/deploy.mjs rollback booking-api 1  # image یک نسخ�
 - کنسول اپراتور Hive (`haramyar-console`، 32 MiB) با `HARAMYAR_OPERATOR_CONSOLE=true` در فایل اسرار فعال است؛ اولین مدیر پلتفرم با `HIVE_BOOTSTRAP_ADMIN_SUBJECT` (شناسهٔ Keycloak حساب `staff.admin`) یک‌بار و با ثبت در audit log تعیین شد. با مقدار `false` و `deploy.mjs configure web` مسیر دوباره 404 می‌شود.
 - تغییرات فقط‌تنظیماتی (env) بدون build با `node deployment/caprover/deploy.mjs configure <component>` اعمال می‌شوند.
 - رمز Redis در آرگومان فرمان سرویس است و برای کسی که به Docker سرور دسترسی دارد قابل مشاهده است.
-- تأیید پیامکی شماره، بازیابی رمز و ثبت‌نام آزاد همچنان غیرفعال یا پیاده‌نشده‌اند ([BUSINESS_DECISIONS](BUSINESS_DECISIONS.md)).
+- تأیید پیامکی شماره و بازیابی رمز همچنان پیاده‌نشده یا غیرفعال‌اند؛ ثبت‌نام آزاد بدون تأیید شماره فعال است ([BUSINESS_DECISIONS](BUSINESS_DECISIONS.md)).
 
 ## ۵. عیب‌یابی
 
