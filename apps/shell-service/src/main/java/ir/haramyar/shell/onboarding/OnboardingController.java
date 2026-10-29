@@ -24,11 +24,13 @@ class OnboardingController {
     this.db = db;
   }
 
+  /**
+   * Always asks Hive (idempotent: an active assignment is reported as already assigned), so a grant that is missing in
+   * Hive is restored even when this service has already recorded the user. {@code onboarded_user} is an audit record only.
+   */
   @PostMapping("/onboarding")
   Map<String, Object> onboard() {
     Actor actor = CurrentActor.require();
-    boolean known = Boolean.TRUE.equals(db.queryForObject("select exists(select 1 from onboarded_user where hive_user_id = ?)", Boolean.class, actor.userId()));
-    if (known) return Map.of("status", "ALREADY_ONBOARDED", "role", hive.defaultRole());
     HiveAccessClient.Outcome outcome;
     try {
       outcome = hive.assignDefaultRole(actor.userId());
